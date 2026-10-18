@@ -1,0 +1,101 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="using:Catomania.Controls"
+        xmlns:models="using:Catomania.Models"
+        mc:Ignorable="d"
+        x:Class="Catomania.Views.CatWindow"
+        Title="Catomania"
+        Icon="/Assets/Icon.ico"
+        Width="104"
+        Height="104"
+        Background="Transparent"
+        CanResize="False"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        WindowDecorations="None"
+        Topmost="True"
+        TransparencyLevelHint="Transparent">
+
+    <controls:CatView x:Name="Cat" />
+
+    <Window.ContextMenu>
+        <ContextMenu x:Name="CatContextMenu">
+            <MenuItem x:Name="PauseMenuItem"
+                      Header="Pause"
+                      ToggleType="CheckBox"
+                      Click="OnPauseClick" />
+            <Separator />
+            <MenuItem Header="Speed">
+                <MenuItem Header="Slow"
+                          GroupName="Speed"
+                          Tag="{x:Static models:CatSpeed.Slow}"
+                          ToggleType="Radio"
+                          Click="OnSpeedClick" />
+                <MenuItem Header="Normal"
+                          GroupName="Speed"
+                          Tag="{x:Static models:CatSpeed.Normal}"
+                          ToggleType="Radio"
+                          Click="OnSpeedClick" />
+                <MenuItem Header="Fast"
+                          GroupName="Speed"
+                          Tag="{x:Static models:CatSpeed.Fast}"
+                          ToggleType="Radio"
+                          Click="OnSpeedClick" />
+            </MenuItem>
+            <MenuItem Header="Fur">
+                <MenuItem Header="Ginger"
+                          GroupName="Fur"
+                          Tag="{x:Static models:CatColorScheme.Ginger}"
+                          ToggleType="Radio"
+                          Click="OnColorSchemeClick" />
+                <MenuItem Header="Gray"
+                          GroupName="Fur"
+                          Tag="{x:Static models:CatColorScheme.Gray}"
+                          ToggleType="Radio"
+                          Click="OnColorSchemeClick" />
+                <MenuItem Header="Black"
+                          GroupName="Fur"
+                          Tag="{x:Static models:CatColorScheme.Black}"
+                          ToggleType="Radio"
+                          Click="OnColorSchemeClick" />
+                <MenuItem Header="Cream"
+                          GroupName="Fur"
+                          Tag="{x:Static models:CatColorScheme.Cream}"
+                          ToggleType="Radio"
+                          Click="OnColorSchemeClick" />
+            </MenuItem>
+            <MenuItem Header="Size">
+                <MenuItem Header="Small"
+                          GroupName="Size"
+                          Tag="{x:Static models:CatSize.Small}"
+                          ToggleType="Radio"
+                          Click="OnSizeClick" />
+                <MenuItem Header="Medium"
+                          GroupName="Size"
+                          Tag="{x:Static models:CatSize.Medium}"
+                          ToggleType="Radio"
+                          Click="OnSizeClick" />
+                <MenuItem Header="Large"
+                          GroupName="Size"
+                          Tag="{x:Static models:CatSize.Large}"
+                          ToggleType="Radio"
+                          Click="OnSizeClick" />
+            </MenuItem>
+            <Separator />
+            <MenuItem x:Name="TopmostMenuItem"
+                      Header="Always on Top"
+                      ToggleType="CheckBox"
+                      Click="OnTopmostClick" />
+            <MenuItem Header="Recenter"
+                      Click="OnRecenterClick" />
+            <MenuItem Header="Check for Updates"
+                      Click="OnCheckUpdatesClick" />
+            <Separator />
+            <MenuItem Header="Quit Catomania"
+                      Click="OnQuitClick" />
+        </ContextMenu>
+    </Window.ContextMenu>
+
+</Window>

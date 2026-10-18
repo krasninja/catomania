@@ -1,0 +1,36 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.Themes.Fluent;
+
+namespace Catomania.Tests;
+
+/// <summary>
+/// Builds the headless Avalonia application used by the rendering tests.
+/// </summary>
+public sealed class TestAppBuilder
+{
+    /// <summary>
+    /// Build the Avalonia application.
+    /// </summary>
+    /// <returns>Application builder.</returns>
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<TestApp>()
+            .UseSkia()
+            .UseHeadless(new AvaloniaHeadlessPlatformOptions
+            {
+                UseHeadlessDrawing = false,
+            });
+}
+
+/// <summary>
+/// Minimal application used by the headless tests.
+/// </summary>
+public sealed class TestApp : Application
+{
+    /// <inheritdoc />
+    public override void Initialize()
+    {
+        Styles.Add(new FluentTheme());
+    }
+}
