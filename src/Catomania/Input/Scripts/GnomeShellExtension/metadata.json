@@ -1,0 +1,7 @@
+{
+  "uuid": "catomania-cursor@catomania",
+  "name": "Catomania Cursor Tracker",
+  "description": "Shares the cursor position with Catomania over D-Bus, Wayland does not let applications read it.",
+  "shell-version": ["45", "46", "47", "48", "49", "50", "51"],
+  "version": 1
+}

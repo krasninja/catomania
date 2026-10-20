@@ -5,7 +5,7 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
 
 ## Features
 
-1. Runs locally on Windows, macOS and Linux (X11 and XWayland).
+1. Runs locally on Windows, macOS and Linux (X11, KDE Plasma and GNOME on Wayland, see [Linux and Wayland](#linux-and-wayland)).
 2. The kitty walks and runs towards the cursor, stops nearby, looks around and falls asleep when the cursor does not move for a while.
 3. The cat is drawn with vector shapes, so there are no image assets and it stays sharp at any size.
 4. Four fur colors: ginger, gray, black and cream.
@@ -31,6 +31,15 @@ dotnet build ./src/Catomania.sln
 dotnet run --project ./src/Catomania
 dotnet test ./src/Catomania.Tests
 ```
+
+## Linux and Wayland
+
+Wayland does not let applications read the global cursor position, and XWayland knows it only while the cursor is over an X11 window, that is, over the cat. So on Wayland Catomania asks the compositor:
+
+- **KDE Plasma**: a small KWin script is loaded over D-Bus when the cat starts and unloaded when it quits. Nothing has to be installed.
+- **GNOME**: the `catomania-cursor@catomania` GNOME Shell extension is installed into `~/.local/share/gnome-shell/extensions` and enabled on the first run. GNOME Shell on Wayland picks up new extensions only on login, so **log out and back in once** after the first run. If the cat still follows the cursor only nearby, check that the extension is enabled in the Extensions application. To remove it, run `gnome-extensions uninstall catomania-cursor@catomania`.
+
+The extension and the script share only the cursor position. On other Wayland compositors the cat sees the cursor only when it is close by.
 
 ## Build & publish installers
 

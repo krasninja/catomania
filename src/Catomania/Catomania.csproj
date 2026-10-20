@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <EmbeddedResource Include="Input\Scripts\kwin-cursor.js" LogicalName="Catomania.Input.Scripts.kwin-cursor.js" />
+    <EmbeddedResource Include="Input\Scripts\GnomeShellExtension\*" LogicalName="Catomania.Input.Scripts.GnomeShellExtension.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +23,8 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
     <PackageReference Include="Velopack" Version="1.2.161" />
+    <!-- Wayland cursor tracking through KWin and GNOME Shell, the same version Avalonia brings. -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.94.1" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>

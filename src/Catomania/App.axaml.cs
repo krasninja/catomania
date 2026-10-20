@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -17,6 +18,7 @@ public sealed partial class App : Application
     private readonly SettingsStorage _settingsStorage = new();
 
     private AppSettings? _settings;
+    private PosixSignalRegistration? _terminationRegistration;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="App" /> class.
@@ -49,6 +51,14 @@ public sealed partial class App : Application
             catWindow.SettingsChanged += (_, _) => _settingsStorage.Save(_settings);
             desktop.MainWindow = catWindow;
             catWindow.Show();
+
+            // Logout and kill send SIGTERM: shut down normally, so the settings are saved
+            // and the cursor tracking script is unloaded from the compositor.
+            _terminationRegistration = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
+            {
+                context.Cancel = true;
+                Dispatcher.UIThread.Post(() => desktop.Shutdown());
+            });
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -56,6 +66,7 @@ public sealed partial class App : Application
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
+        _terminationRegistration?.Dispose();
         if (_settings != null)
         {
             _settingsStorage.Save(_settings);

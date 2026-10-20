@@ -60,7 +60,8 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
 
         _cursorPositionProvider = CursorPositionProviderFactory.CreateDefault(
             _fallbackCursorPositionProvider,
-            () => Scaling);
+            () => Scaling,
+            GetScreenBounds);
         _chaseService = new CatChaseService(this, _cursorPositionProvider, _simulator, _settings);
 
         ApplySettings();
@@ -387,6 +388,21 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
                 yield return child;
             }
         }
+    }
+
+    private SimulationRect GetScreenBounds()
+    {
+        // Called by the cursor providers from the UI thread, as part of the chase loop tick.
+        var bounds = SimulationRect.Empty;
+        foreach (var screen in Screens?.All ?? [])
+        {
+            var screenBounds = screen.Bounds;
+            bounds = SimulationRect.Union(
+                bounds,
+                new SimulationRect(screenBounds.X, screenBounds.Y, screenBounds.Width, screenBounds.Height));
+        }
+
+        return bounds;
     }
 
     private Size GetSpriteLogicalSize()
