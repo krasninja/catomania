@@ -16,6 +16,17 @@ public sealed class AnimalSimulatorOptions
     public double RunSpeed { get; set; } = 430;
 
     /// <summary>
+    /// Gets or sets the distance covered during one walking gait cycle, as a fraction of the sprite size.
+    /// The animation phase is advanced by the distance travelled, so the feet do not slide on the ground.
+    /// </summary>
+    public double WalkStrideLength { get; set; } = 0.36;
+
+    /// <summary>
+    /// Gets or sets the distance covered during one running gait cycle, as a fraction of the sprite size.
+    /// </summary>
+    public double RunStrideLength { get; set; } = 0.8;
+
+    /// <summary>
     /// Gets or sets the distance to the cursor at which the animal starts to run instead of walk.
     /// </summary>
     public double RunDistance { get; set; } = 260;

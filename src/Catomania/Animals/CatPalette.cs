@@ -35,7 +35,6 @@ public sealed class CatPalette
         Whisker = new SolidColorBrush(Color.FromUInt32(whisker));
         OutlinePen = new Pen(FurDark, 1.4);
         TailPen = new Pen(Fur, 8, null, PenLineCap.Round);
-        TailTipPen = new Pen(FurDark, 8, null, PenLineCap.Round);
         StripePen = new Pen(FurDark, 3, null, PenLineCap.Round);
         WhiskerPen = new Pen(Whisker, 0.9, null, PenLineCap.Round);
         FacePen = new Pen(Pupil, 1.1, null, PenLineCap.Round);
@@ -112,11 +111,6 @@ public sealed class CatPalette
     /// Gets the tail pen.
     /// </summary>
     public IPen TailPen { get; }
-
-    /// <summary>
-    /// Gets the dark tail tip pen.
-    /// </summary>
-    public IPen TailTipPen { get; }
 
     /// <summary>
     /// Gets the stripes pen.

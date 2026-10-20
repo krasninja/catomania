@@ -10,7 +10,10 @@ namespace Catomania.Simulation;
 public sealed class AnimalSimulator
 {
     private const double TwoPi = Math.PI * 2;
-    private const double IdlePhaseRate = 2.2;
+
+    // The phase wraps every two cycles, so motions at half of the phase rate stay continuous.
+    private const double PhasePeriod = TwoPi * 2;
+    private const double IdlePhaseRate = 2.6;
     private const double WalkPhaseRate = 9;
     private const double RunPhaseRate = 15;
     private const double SleepPhaseRate = 1.3;
@@ -62,7 +65,8 @@ public sealed class AnimalSimulator
     public bool FacingRight { get; private set; } = true;
 
     /// <summary>
-    /// Gets the animation phase in radians.
+    /// Gets the animation phase in radians, wraps at 4π. While walking and running a full 2π cycle
+    /// is one stride.
     /// </summary>
     public double Phase { get; private set; }
 
@@ -130,6 +134,7 @@ public sealed class AnimalSimulator
             Velocity = ScreenPoint.Zero;
         }
 
+        var previousPosition = Position;
         Position += Velocity * deltaSeconds;
         Position = input.Bounds.Clamp(Position);
         if (Math.Abs(Velocity.X) > _options.FacingThreshold)
@@ -137,14 +142,8 @@ public sealed class AnimalSimulator
             FacingRight = Velocity.X > 0;
         }
 
-        var phaseRate = GetPhaseRate(state);
-        if (state is AnimalAnimationState.Walk or AnimalAnimationState.Run)
-        {
-            phaseRate *= Math.Max(0.2, input.SpeedMultiplier);
-        }
-
         State = state;
-        Phase = WrapPhase(Phase + (deltaSeconds * phaseRate));
+        Phase = WrapPhase(Phase + GetPhaseDelta(state, (Position - previousPosition).Length, deltaSeconds, input));
         UpdateBlink(deltaSeconds, state);
     }
 
@@ -217,6 +216,28 @@ public sealed class AnimalSimulator
         return _options.BlinkMinIntervalSeconds + (_random.NextDouble() * Math.Max(0, range));
     }
 
+    private double GetPhaseDelta(
+        AnimalAnimationState state,
+        double distance,
+        double deltaSeconds,
+        in AnimalInput input)
+    {
+        if (state is not (AnimalAnimationState.Walk or AnimalAnimationState.Run))
+        {
+            return deltaSeconds * GetPhaseRate(state);
+        }
+
+        var strideLength = state == AnimalAnimationState.Run ? _options.RunStrideLength : _options.WalkStrideLength;
+        var stride = strideLength * input.SpriteSize;
+        if (stride > 0)
+        {
+            // One cycle per stride, a planted foot then moves back exactly as fast as the animal moves forward.
+            return distance / stride * TwoPi;
+        }
+
+        return deltaSeconds * GetPhaseRate(state) * Math.Max(0.2, input.SpeedMultiplier);
+    }
+
     private static double GetPhaseRate(AnimalAnimationState state) => state switch
     {
         AnimalAnimationState.Walk => WalkPhaseRate,
@@ -228,7 +249,7 @@ public sealed class AnimalSimulator
 
     private static double WrapPhase(double phase)
     {
-        phase %= TwoPi;
-        return phase < 0 ? phase + TwoPi : phase;
+        phase %= PhasePeriod;
+        return phase < 0 ? phase + PhasePeriod : phase;
     }
 }

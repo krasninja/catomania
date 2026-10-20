@@ -131,7 +131,8 @@ public sealed class AnimalChaseService : IDisposable
             _bounds,
             _settings.Speed.ToMultiplier(),
             _host.IsDragging,
-            _settings.Paused));
+            _settings.Paused,
+            Math.Min(_host.SpriteSize.X, _host.SpriteSize.Y)));
 
         if (!_host.IsDragging)
         {
