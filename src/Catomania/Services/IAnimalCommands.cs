@@ -3,13 +3,13 @@ using Catomania.Models;
 namespace Catomania.Services;
 
 /// <summary>
-/// The commands the user can run on the cat, shared by the cat's context menu
+/// The commands the user can run on the animal, shared by the animal's context menu
 /// and the system tray icon menu.
 /// </summary>
-public interface ICatCommands
+public interface IAnimalCommands
 {
     /// <summary>
-    /// Toggle the cat pause.
+    /// Toggle the animal pause.
     /// </summary>
     void TogglePause();
 
@@ -17,7 +17,7 @@ public interface ICatCommands
     /// Set the chase speed.
     /// </summary>
     /// <param name="speed">Chase speed.</param>
-    void SetSpeed(CatSpeed speed);
+    void SetSpeed(AnimalSpeed speed);
 
     /// <summary>
     /// Set the fur color scheme.
@@ -26,18 +26,18 @@ public interface ICatCommands
     void SetFur(CatColorScheme colorScheme);
 
     /// <summary>
-    /// Set the cat size.
+    /// Set the animal size.
     /// </summary>
-    /// <param name="size">Cat size.</param>
-    void SetSize(CatSize size);
+    /// <param name="size">Animal size.</param>
+    void SetSize(AnimalSize size);
 
     /// <summary>
-    /// Toggle keeping the cat above other windows.
+    /// Toggle keeping the animal above other windows.
     /// </summary>
     void ToggleAlwaysOnTop();
 
     /// <summary>
-    /// Move the cat back to the cursor.
+    /// Move the animal back to the cursor.
     /// </summary>
     void Recenter();
 

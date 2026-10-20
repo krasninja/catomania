@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 namespace Catomania.Models;
 
 /// <summary>
-/// Cat sprite size.
+/// Animal sprite size.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<CatSize>))]
-public enum CatSize
+[JsonConverter(typeof(JsonStringEnumConverter<AnimalSize>))]
+public enum AnimalSize
 {
     /// <summary>
-    /// A kitten.
+    /// The smallest size.
     /// </summary>
     Small,
 
@@ -19,7 +19,7 @@ public enum CatSize
     Medium,
 
     /// <summary>
-    /// A chonky cat.
+    /// The largest size.
     /// </summary>
     Large,
 }

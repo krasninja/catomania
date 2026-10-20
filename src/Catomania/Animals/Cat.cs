@@ -1,123 +1,75 @@
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Media;
 using Catomania.Models;
 
-namespace Catomania.Controls;
+namespace Catomania.Animals;
 
 /// <summary>
-/// Draws the cat with vector shapes in a 100x100 design space scaled to the control bounds,
-/// so the kitty stays sharp at any size and no image assets are needed.
+/// A cat: walks and runs on four legs, wags its tail and curls up to sleep.
 /// </summary>
-public sealed class CatView : Control
+public sealed class Cat : Animal
 {
     /// <summary>
-    /// Size of the design space the cat is drawn in.
+    /// Initializes a new instance of the <see cref="Cat" /> class.
     /// </summary>
-    internal const double DesignSize = 100;
-
-    private const double GroundY = 92;
-    private const double TwoPi = Math.PI * 2;
-
-    /// <summary>
-    /// Defines the <see cref="ColorScheme" /> property.
-    /// </summary>
-    public static readonly StyledProperty<CatColorScheme> ColorSchemeProperty =
-        AvaloniaProperty.Register<CatView, CatColorScheme>(nameof(ColorScheme), CatColorScheme.Ginger);
-
-    private CatRenderState _state = CatRenderState.Default;
-    private CatPalette _palette = CatPalette.FromScheme(CatColorScheme.Ginger);
-
-    /// <summary>
-    /// Gets or sets the fur color scheme.
-    /// </summary>
-    public CatColorScheme ColorScheme
+    /// <param name="colorScheme">Fur color scheme.</param>
+    public Cat(CatColorScheme colorScheme = CatColorScheme.Ginger)
     {
-        get => GetValue(ColorSchemeProperty);
-        set => SetValue(ColorSchemeProperty, value);
+        ColorScheme = colorScheme;
+        Palette = CatPalette.FromScheme(colorScheme);
     }
 
     /// <summary>
-    /// Get the palette used to draw the cat.
+    /// Gets the fur color scheme.
     /// </summary>
-    /// <returns>Cat palette.</returns>
-    public CatPalette GetPalette() => _palette;
+    public CatColorScheme ColorScheme { get; }
 
     /// <summary>
-    /// Set the frame to draw and schedule a redraw.
+    /// Gets the palette used to draw the cat.
     /// </summary>
-    /// <param name="state">Render state produced by the simulation.</param>
-    public void Update(CatRenderState state)
-    {
-        if (_state == state)
-        {
-            return;
-        }
-
-        _state = state;
-        InvalidateVisual();
-    }
+    public CatPalette Palette { get; }
 
     /// <inheritdoc />
-    public override void Render(DrawingContext context)
-    {
-        var size = Bounds.Size;
-        if (size.Width <= 1 || size.Height <= 1)
-        {
-            return;
-        }
-
-        var scale = Math.Min(size.Width, size.Height) / DesignSize;
-        var offsetX = (size.Width - (DesignSize * scale)) / 2;
-        var offsetY = (size.Height - (DesignSize * scale)) / 2;
-        var mirror = _state.FacingRight
-            ? Matrix.Identity
-            : Matrix.CreateScale(-1, 1) * Matrix.CreateTranslation(DesignSize, 0);
-        var transform = mirror * Matrix.CreateScale(scale, scale) * Matrix.CreateTranslation(offsetX, offsetY);
-
-        using (context.PushTransform(transform))
-        {
-            if (_state.State == CatAnimationState.Sleep)
-            {
-                DrawSleeping(context, _palette, _state.Phase);
-            }
-            else
-            {
-                DrawUpright(context, _palette, _state);
-            }
-        }
-    }
+    public override AnimalKind Kind => AnimalKind.Cat;
 
     /// <inheritdoc />
-    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    public override Color BodyColor => Palette.FurColor;
+
+    /// <inheritdoc />
+    public override Color EyeColor => Palette.EyeColor;
+
+    /// <inheritdoc />
+    public override void Render(DrawingContext context, AnimalRenderState state)
     {
-        base.OnPropertyChanged(change);
-        if (change.Property == ColorSchemeProperty)
+        if (state.State == AnimalAnimationState.Sleep)
         {
-            _palette = CatPalette.FromScheme(ColorScheme);
-            InvalidateVisual();
+            DrawSleeping(context, Palette, state.Phase);
+        }
+        else
+        {
+            DrawUpright(context, Palette, state);
         }
     }
 
-    private static void DrawUpright(DrawingContext context, CatPalette palette, CatRenderState state)
+    private static void DrawUpright(DrawingContext context, CatPalette palette, AnimalRenderState state)
     {
         var phase = state.Phase;
-        var isDragged = state.State == CatAnimationState.Dragged;
-        var isRunning = state.State == CatAnimationState.Run;
-        var isWalking = state.State == CatAnimationState.Walk;
+        var isDragged = state.State == AnimalAnimationState.Dragged;
+        var isRunning = state.State == AnimalAnimationState.Run;
+        var isWalking = state.State == AnimalAnimationState.Walk;
 
         var bob = state.State switch
         {
-            CatAnimationState.Run => -Math.Abs(Math.Sin(phase)) * 3,
-            CatAnimationState.Walk => Math.Sin(phase) * 1.2,
-            CatAnimationState.Dragged => (Math.Sin(phase * 0.6) * 1.5) - 2,
+            AnimalAnimationState.Run => -Math.Abs(Math.Sin(phase)) * 3,
+            AnimalAnimationState.Walk => Math.Sin(phase) * 1.2,
+            AnimalAnimationState.Dragged => (Math.Sin(phase * 0.6) * 1.5) - 2,
             _ => Math.Sin(phase * 0.5) * 0.6,
         };
         var legSwing = state.State switch
         {
-            CatAnimationState.Run => 7,
-            CatAnimationState.Walk => 4,
-            CatAnimationState.Dragged => 2.5,
+            AnimalAnimationState.Run => 7,
+            AnimalAnimationState.Walk => 4,
+            AnimalAnimationState.Dragged => 2.5,
             _ => 0,
         };
         var legLift = isRunning ? 5 : isWalking ? 2.5 : 0;
@@ -204,9 +156,9 @@ public sealed class CatView : Control
         }
     }
 
-    private static void DrawHead(DrawingContext context, CatPalette palette, double bob, CatRenderState state)
+    private static void DrawHead(DrawingContext context, CatPalette palette, double bob, AnimalRenderState state)
     {
-        var isDragged = state.State == CatAnimationState.Dragged;
+        var isDragged = state.State == AnimalAnimationState.Dragged;
 
         using (context.PushTransform(Matrix.CreateTranslation(0, bob * 0.6)))
         {
@@ -258,9 +210,9 @@ public sealed class CatView : Control
         }
     }
 
-    private static void DrawEyes(DrawingContext context, CatPalette palette, CatRenderState state)
+    private static void DrawEyes(DrawingContext context, CatPalette palette, AnimalRenderState state)
     {
-        var isDragged = state.State == CatAnimationState.Dragged;
+        var isDragged = state.State == AnimalAnimationState.Dragged;
         foreach (var x in new[] { 69.0, 79.0 })
         {
             var center = new Point(x, 43);
@@ -330,58 +282,6 @@ public sealed class CatView : Control
 
         context.DrawEllipse(palette.Belly, palette.OutlinePen, new Point(41, 88), 5.5, 3.5);
 
-        DrawZzz(context, palette, phase);
-    }
-
-    private static void DrawZzz(DrawingContext context, CatPalette palette, double phase)
-    {
-        for (var i = 0; i < 3; i++)
-        {
-            var progress = ((phase / TwoPi) + (i / 3.0)) % 1.0;
-            var x = 58 + (progress * 16) + i;
-            var y = 56 - (progress * 20) - (i * 3);
-            var size = 3 + (i * 1.1);
-            var geometry = new StreamGeometry();
-            using (var geometryContext = geometry.Open())
-            {
-                geometryContext.BeginFigure(new Point(x, y), false);
-                geometryContext.LineTo(new Point(x + size, y));
-                geometryContext.LineTo(new Point(x, y + size));
-                geometryContext.LineTo(new Point(x + size, y + size));
-                geometryContext.EndFigure(false);
-            }
-
-            using (context.PushOpacity(Math.Sin(progress * Math.PI)))
-            {
-                context.DrawGeometry(null, palette.ZzzPen, geometry);
-            }
-        }
-    }
-
-    private static Geometry CreateTriangle(Point a, Point b, Point c)
-    {
-        var geometry = new StreamGeometry();
-        using (var context = geometry.Open())
-        {
-            context.BeginFigure(a, true);
-            context.LineTo(b);
-            context.LineTo(c);
-            context.EndFigure(true);
-        }
-
-        return geometry;
-    }
-
-    private static Geometry CreateCurve(Point start, Point controlPoint1, Point controlPoint2, Point end)
-    {
-        var geometry = new StreamGeometry();
-        using (var context = geometry.Open())
-        {
-            context.BeginFigure(start, false);
-            context.CubicBezierTo(controlPoint1, controlPoint2, end);
-            context.EndFigure(false);
-        }
-
-        return geometry;
+        DrawZzz(context, palette.ZzzPen, new Point(58, 56), phase);
     }
 }

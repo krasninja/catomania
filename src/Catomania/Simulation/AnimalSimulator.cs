@@ -3,11 +3,11 @@ using Catomania.Models;
 namespace Catomania.Simulation;
 
 /// <summary>
-/// Simulates the cat: it walks and runs towards the cursor, stops nearby, idles and falls asleep
+/// Simulates the animal: it walks and runs towards the cursor, stops nearby, idles and falls asleep
 /// when the cursor does not move for a while. The class is pure logic and knows nothing about
 /// windows and timers, so it can be unit tested.
 /// </summary>
-public sealed class CatSimulator
+public sealed class AnimalSimulator
 {
     private const double TwoPi = Math.PI * 2;
     private const double IdlePhaseRate = 2.2;
@@ -16,7 +16,7 @@ public sealed class CatSimulator
     private const double SleepPhaseRate = 1.3;
     private const double DraggedPhaseRate = 3.5;
 
-    private readonly CatSimulatorOptions _options;
+    private readonly AnimalSimulatorOptions _options;
     private readonly Random _random;
 
     private ScreenPoint _cursorPosition;
@@ -25,13 +25,13 @@ public sealed class CatSimulator
     private double _blinkTimeLeft;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatSimulator" /> class.
+    /// Initializes a new instance of the <see cref="AnimalSimulator" /> class.
     /// </summary>
     /// <param name="options">Simulation options, default options are used when not set.</param>
     /// <param name="random">Random generator used for blinks, pass a seeded one for deterministic tests.</param>
-    public CatSimulator(CatSimulatorOptions? options = null, Random? random = null)
+    public AnimalSimulator(AnimalSimulatorOptions? options = null, Random? random = null)
     {
-        _options = options ?? new CatSimulatorOptions();
+        _options = options ?? new AnimalSimulatorOptions();
         _random = random ?? new Random();
         _blinkCooldown = GetNextBlinkInterval();
     }
@@ -39,10 +39,10 @@ public sealed class CatSimulator
     /// <summary>
     /// Gets the simulation options.
     /// </summary>
-    public CatSimulatorOptions Options => _options;
+    public AnimalSimulatorOptions Options => _options;
 
     /// <summary>
-    /// Gets the cat center position in physical screen pixels.
+    /// Gets the animal center position in physical screen pixels.
     /// </summary>
     public ScreenPoint Position { get; private set; }
 
@@ -54,10 +54,10 @@ public sealed class CatSimulator
     /// <summary>
     /// Gets the current animation state.
     /// </summary>
-    public CatAnimationState State { get; private set; } = CatAnimationState.Idle;
+    public AnimalAnimationState State { get; private set; } = AnimalAnimationState.Idle;
 
     /// <summary>
-    /// Gets a value indicating whether the cat looks to the right.
+    /// Gets a value indicating whether the animal looks to the right.
     /// </summary>
     public bool FacingRight { get; private set; } = true;
 
@@ -67,7 +67,7 @@ public sealed class CatSimulator
     public double Phase { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether the cat has closed its eyes for a blink.
+    /// Gets a value indicating whether the animal has closed its eyes for a blink.
     /// </summary>
     public bool IsBlinking { get; private set; }
 
@@ -77,7 +77,7 @@ public sealed class CatSimulator
     public double CursorIdleTime => _cursorIdleTime;
 
     /// <summary>
-    /// Move the cat to the position without any transition, keeps the velocity zero.
+    /// Move the animal to the position without any transition, keeps the velocity zero.
     /// </summary>
     /// <param name="position">New position.</param>
     public void Teleport(ScreenPoint position)
@@ -91,7 +91,7 @@ public sealed class CatSimulator
     /// </summary>
     /// <param name="deltaSeconds">Elapsed time in seconds.</param>
     /// <param name="input">Simulation input.</param>
-    public void Update(double deltaSeconds, in CatInput input)
+    public void Update(double deltaSeconds, in AnimalInput input)
     {
         if (deltaSeconds <= 0)
         {
@@ -102,7 +102,7 @@ public sealed class CatSimulator
 
         if (input.IsDragging)
         {
-            State = CatAnimationState.Dragged;
+            State = AnimalAnimationState.Dragged;
             Velocity = ScreenPoint.Zero;
             IsBlinking = false;
             _cursorPosition = input.CursorPosition;
@@ -114,7 +114,7 @@ public sealed class CatSimulator
         TrackCursorActivity(input.CursorPosition, deltaSeconds);
 
         // The cursor may be outside of the bounds (the taskbar, the screen edge), chase the closest
-        // reachable point, otherwise the cat would keep walking in place at the edge.
+        // reachable point, otherwise the animal would keep walking in place at the edge.
         var target = input.Bounds.Clamp(input.CursorPosition);
         var toCursor = target - Position;
         var distance = toCursor.Length;
@@ -138,7 +138,7 @@ public sealed class CatSimulator
         }
 
         var phaseRate = GetPhaseRate(state);
-        if (state is CatAnimationState.Walk or CatAnimationState.Run)
+        if (state is AnimalAnimationState.Walk or AnimalAnimationState.Run)
         {
             phaseRate *= Math.Max(0.2, input.SpeedMultiplier);
         }
@@ -152,22 +152,22 @@ public sealed class CatSimulator
     /// Create a render state snapshot for the current frame.
     /// </summary>
     /// <returns>Render state.</returns>
-    public CatRenderState CreateRenderState() => new(State, FacingRight, Phase, IsBlinking);
+    public AnimalRenderState CreateRenderState() => new(State, FacingRight, Phase, IsBlinking);
 
-    private (CatAnimationState State, double Speed) GetTargetMotion(double distance, in CatInput input)
+    private (AnimalAnimationState State, double Speed) GetTargetMotion(double distance, in AnimalInput input)
     {
         if (input.IsPaused || distance <= _options.CatchRadius)
         {
             return _cursorIdleTime >= _options.SleepAfterSeconds
-                ? (CatAnimationState.Sleep, 0)
-                : (CatAnimationState.Idle, 0);
+                ? (AnimalAnimationState.Sleep, 0)
+                : (AnimalAnimationState.Idle, 0);
         }
 
         var isRunning = distance >= _options.RunDistance;
         var baseSpeed = isRunning ? _options.RunSpeed : _options.WalkSpeed;
         return isRunning
-            ? (CatAnimationState.Run, baseSpeed * Math.Max(0, input.SpeedMultiplier))
-            : (CatAnimationState.Walk, baseSpeed * Math.Max(0, input.SpeedMultiplier));
+            ? (AnimalAnimationState.Run, baseSpeed * Math.Max(0, input.SpeedMultiplier))
+            : (AnimalAnimationState.Walk, baseSpeed * Math.Max(0, input.SpeedMultiplier));
     }
 
     private void TrackCursorActivity(ScreenPoint cursorPosition, double deltaSeconds)
@@ -183,9 +183,9 @@ public sealed class CatSimulator
         }
     }
 
-    private void UpdateBlink(double deltaSeconds, CatAnimationState state)
+    private void UpdateBlink(double deltaSeconds, AnimalAnimationState state)
     {
-        if (state is CatAnimationState.Sleep or CatAnimationState.Dragged)
+        if (state is AnimalAnimationState.Sleep or AnimalAnimationState.Dragged)
         {
             IsBlinking = false;
             return;
@@ -217,12 +217,12 @@ public sealed class CatSimulator
         return _options.BlinkMinIntervalSeconds + (_random.NextDouble() * Math.Max(0, range));
     }
 
-    private static double GetPhaseRate(CatAnimationState state) => state switch
+    private static double GetPhaseRate(AnimalAnimationState state) => state switch
     {
-        CatAnimationState.Walk => WalkPhaseRate,
-        CatAnimationState.Run => RunPhaseRate,
-        CatAnimationState.Sleep => SleepPhaseRate,
-        CatAnimationState.Dragged => DraggedPhaseRate,
+        AnimalAnimationState.Walk => WalkPhaseRate,
+        AnimalAnimationState.Run => RunPhaseRate,
+        AnimalAnimationState.Sleep => SleepPhaseRate,
+        AnimalAnimationState.Dragged => DraggedPhaseRate,
         _ => IdlePhaseRate,
     };
 

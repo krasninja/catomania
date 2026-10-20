@@ -1,0 +1,15 @@
+using System.Text.Json.Serialization;
+
+namespace Catomania.Models;
+
+/// <summary>
+/// The animal that chases the cursor.
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<AnimalKind>))]
+public enum AnimalKind
+{
+    /// <summary>
+    /// A cat.
+    /// </summary>
+    Cat,
+}

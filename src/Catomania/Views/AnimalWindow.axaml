@@ -5,7 +5,7 @@
         xmlns:controls="using:Catomania.Controls"
         xmlns:models="using:Catomania.Models"
         mc:Ignorable="d"
-        x:Class="Catomania.Views.CatWindow"
+        x:Class="Catomania.Views.AnimalWindow"
         Title="Catomania"
         Icon="/Assets/Icon.ico"
         Width="104"
@@ -18,10 +18,10 @@
         Topmost="True"
         TransparencyLevelHint="Transparent">
 
-    <controls:CatView x:Name="Cat" />
+    <controls:AnimalView x:Name="AnimalView" />
 
     <Window.ContextMenu>
-        <ContextMenu x:Name="CatContextMenu">
+        <ContextMenu x:Name="AnimalContextMenu">
             <MenuItem x:Name="PauseMenuItem"
                       Header="Pause"
                       ToggleType="CheckBox"
@@ -30,17 +30,17 @@
             <MenuItem Header="Speed">
                 <MenuItem Header="Slow"
                           GroupName="Speed"
-                          Tag="{x:Static models:CatSpeed.Slow}"
+                          Tag="{x:Static models:AnimalSpeed.Slow}"
                           ToggleType="Radio"
                           Click="OnSpeedClick" />
                 <MenuItem Header="Normal"
                           GroupName="Speed"
-                          Tag="{x:Static models:CatSpeed.Normal}"
+                          Tag="{x:Static models:AnimalSpeed.Normal}"
                           ToggleType="Radio"
                           Click="OnSpeedClick" />
                 <MenuItem Header="Fast"
                           GroupName="Speed"
-                          Tag="{x:Static models:CatSpeed.Fast}"
+                          Tag="{x:Static models:AnimalSpeed.Fast}"
                           ToggleType="Radio"
                           Click="OnSpeedClick" />
             </MenuItem>
@@ -69,17 +69,17 @@
             <MenuItem Header="Size">
                 <MenuItem Header="Small"
                           GroupName="Size"
-                          Tag="{x:Static models:CatSize.Small}"
+                          Tag="{x:Static models:AnimalSize.Small}"
                           ToggleType="Radio"
                           Click="OnSizeClick" />
                 <MenuItem Header="Medium"
                           GroupName="Size"
-                          Tag="{x:Static models:CatSize.Medium}"
+                          Tag="{x:Static models:AnimalSize.Medium}"
                           ToggleType="Radio"
                           Click="OnSizeClick" />
                 <MenuItem Header="Large"
                           GroupName="Size"
-                          Tag="{x:Static models:CatSize.Large}"
+                          Tag="{x:Static models:AnimalSize.Large}"
                           ToggleType="Radio"
                           Click="OnSizeClick" />
             </MenuItem>

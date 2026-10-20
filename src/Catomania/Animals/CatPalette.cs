@@ -1,7 +1,7 @@
 using Avalonia.Media;
 using Catomania.Models;
 
-namespace Catomania.Controls;
+namespace Catomania.Animals;
 
 /// <summary>
 /// Colors used to draw the cat. Instances are shared and created once.

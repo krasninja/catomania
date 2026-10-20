@@ -26,9 +26,9 @@ public sealed class SettingsStorageTests : IDisposable
         var settings = storage.Load();
 
         // Assert.
-        Assert.Equal(CatSpeed.Normal, settings.Speed);
+        Assert.Equal(AnimalSpeed.Normal, settings.Speed);
         Assert.Equal(CatColorScheme.Ginger, settings.ColorScheme);
-        Assert.Equal(CatSize.Medium, settings.Size);
+        Assert.Equal(AnimalSize.Medium, settings.Size);
         Assert.True(settings.AlwaysOnTop);
         Assert.False(settings.Paused);
     }
@@ -45,7 +45,7 @@ public sealed class SettingsStorageTests : IDisposable
         var settings = storage.Load();
 
         // Assert.
-        Assert.Equal(CatSpeed.Normal, settings.Speed);
+        Assert.Equal(AnimalSpeed.Normal, settings.Speed);
     }
 
     [Fact]
@@ -55,9 +55,9 @@ public sealed class SettingsStorageTests : IDisposable
         var storage = new SettingsStorage(_directoryPath);
         var settings = new AppSettings
         {
-            Speed = CatSpeed.Fast,
+            Speed = AnimalSpeed.Fast,
             ColorScheme = CatColorScheme.Black,
-            Size = CatSize.Large,
+            Size = AnimalSize.Large,
             AlwaysOnTop = false,
             Paused = true,
             SleepAfterSeconds = 7,
@@ -68,9 +68,9 @@ public sealed class SettingsStorageTests : IDisposable
         var loaded = storage.Load();
 
         // Assert.
-        Assert.Equal(CatSpeed.Fast, loaded.Speed);
+        Assert.Equal(AnimalSpeed.Fast, loaded.Speed);
         Assert.Equal(CatColorScheme.Black, loaded.ColorScheme);
-        Assert.Equal(CatSize.Large, loaded.Size);
+        Assert.Equal(AnimalSize.Large, loaded.Size);
         Assert.False(loaded.AlwaysOnTop);
         Assert.True(loaded.Paused);
         Assert.Equal(7, loaded.SleepAfterSeconds);
@@ -83,11 +83,11 @@ public sealed class SettingsStorageTests : IDisposable
         var storage = new SettingsStorage(_directoryPath);
 
         // Act.
-        storage.Save(new AppSettings { Size = CatSize.Large });
-        storage.Save(new AppSettings { Size = CatSize.Small });
+        storage.Save(new AppSettings { Size = AnimalSize.Large });
+        storage.Save(new AppSettings { Size = AnimalSize.Small });
 
         // Assert.
-        Assert.Equal(CatSize.Small, storage.Load().Size);
+        Assert.Equal(AnimalSize.Small, storage.Load().Size);
         Assert.Equal([storage.FilePath], Directory.GetFiles(_directoryPath));
     }
 
@@ -98,7 +98,7 @@ public sealed class SettingsStorageTests : IDisposable
         var storage = new SettingsStorage(_directoryPath);
 
         // Act.
-        storage.Save(new AppSettings { Speed = CatSpeed.Slow });
+        storage.Save(new AppSettings { Speed = AnimalSpeed.Slow });
         var contents = File.ReadAllText(storage.FilePath);
 
         // Assert.

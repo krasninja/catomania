@@ -6,9 +6,9 @@ using Catomania.Simulation;
 namespace Catomania.Services;
 
 /// <summary>
-/// Runs the chase loop: reads the cursor position, advances <see cref="CatSimulator" /> and moves the window.
+/// Runs the chase loop: reads the cursor position, advances <see cref="AnimalSimulator" /> and moves the window.
 /// </summary>
-public sealed class CatChaseService : IDisposable
+public sealed class AnimalChaseService : IDisposable
 {
     /// <summary>
     /// Interval between simulation ticks, roughly 60 frames per second.
@@ -18,9 +18,9 @@ public sealed class CatChaseService : IDisposable
     private const double WorkAreasRefreshSeconds = 1;
     private const double SpawnOffsetY = 90;
 
-    private readonly ICatHost _host;
+    private readonly IAnimalHost _host;
     private readonly ICursorPositionProvider _cursorPositionProvider;
-    private readonly CatSimulator _simulator;
+    private readonly AnimalSimulator _simulator;
     private readonly AppSettings _settings;
 
     private DispatcherTimer? _timer;
@@ -33,16 +33,16 @@ public sealed class CatChaseService : IDisposable
     private double _workAreasRefreshTime = WorkAreasRefreshSeconds;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatChaseService" /> class.
+    /// Initializes a new instance of the <see cref="AnimalChaseService" /> class.
     /// </summary>
-    /// <param name="host">Window the cat lives in.</param>
+    /// <param name="host">Window the animal lives in.</param>
     /// <param name="cursorPositionProvider">Cursor position provider.</param>
-    /// <param name="simulator">Cat simulator.</param>
+    /// <param name="simulator">Animal simulator.</param>
     /// <param name="settings">Application settings.</param>
-    public CatChaseService(
-        ICatHost host,
+    public AnimalChaseService(
+        IAnimalHost host,
         ICursorPositionProvider cursorPositionProvider,
-        CatSimulator simulator,
+        AnimalSimulator simulator,
         AppSettings settings)
     {
         _host = host ?? throw new ArgumentNullException(nameof(host));
@@ -53,12 +53,12 @@ public sealed class CatChaseService : IDisposable
     }
 
     /// <summary>
-    /// Gets the cat simulator.
+    /// Gets the animal simulator.
     /// </summary>
-    public CatSimulator Simulator => _simulator;
+    public AnimalSimulator Simulator => _simulator;
 
     /// <summary>
-    /// Gets the area the cat is allowed to walk in.
+    /// Gets the area the animal is allowed to walk in.
     /// </summary>
     public SimulationRect Bounds => _bounds;
 
@@ -93,7 +93,7 @@ public sealed class CatChaseService : IDisposable
     public void ApplySettings() => _simulator.Options.SleepAfterSeconds = Math.Max(1, _settings.SleepAfterSeconds);
 
     /// <summary>
-    /// Put the cat next to the cursor. When the cursor position is not available the cat stays
+    /// Put the animal next to the cursor. When the cursor position is not available the animal stays
     /// where the window is.
     /// </summary>
     public void Recenter()
@@ -126,7 +126,7 @@ public sealed class CatChaseService : IDisposable
         // Computed every tick, so the bounds follow the cursor between screens and the sprite size changes at once.
         _bounds = ComputeBounds(cursorPosition, _simulator.Position);
 
-        _simulator.Update(deltaSeconds, new CatInput(
+        _simulator.Update(deltaSeconds, new AnimalInput(
             cursorPosition,
             _bounds,
             _settings.Speed.ToMultiplier(),
@@ -172,7 +172,7 @@ public sealed class CatChaseService : IDisposable
             return true;
         }
 
-        // Keep the last known position, or stay where the cat is when it has never been read.
+        // Keep the last known position, or stay where the animal is when it has never been read.
         cursorPosition = _hasCursorPosition ? _lastCursorPosition : _host.GetCenter();
         return false;
     }
@@ -196,7 +196,7 @@ public sealed class CatChaseService : IDisposable
             return SimulationRect.Empty;
         }
 
-        // Prefer the screen the cursor is on. When the cat is on another screen, it is allowed to walk
+        // Prefer the screen the cursor is on. When the animal is on another screen, it is allowed to walk
         // over both, otherwise it would jump to the cursor screen. Fall back to all screens combined.
         var cursorArea = FindWorkArea(cursorPosition);
         var catArea = FindWorkArea(catPosition);
@@ -213,7 +213,7 @@ public sealed class CatChaseService : IDisposable
             }
         }
 
-        // Keep the whole cat inside the area.
+        // Keep the whole animal inside the area.
         var margin = Math.Max(_host.SpriteSize.X, _host.SpriteSize.Y) / 2;
         return area.Deflate(margin);
     }

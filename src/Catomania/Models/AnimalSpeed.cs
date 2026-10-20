@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 namespace Catomania.Models;
 
 /// <summary>
-/// How fast the cat chases the cursor.
+/// How fast the animal chases the cursor.
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter<CatSpeed>))]
-public enum CatSpeed
+[JsonConverter(typeof(JsonStringEnumConverter<AnimalSpeed>))]
+public enum AnimalSpeed
 {
     /// <summary>
-    /// A lazy kitty.
+    /// A lazy walk.
     /// </summary>
     Slow,
 
@@ -19,7 +19,7 @@ public enum CatSpeed
     Normal,
 
     /// <summary>
-    /// A kitty in a hurry.
+    /// In a hurry.
     /// </summary>
     Fast,
 }

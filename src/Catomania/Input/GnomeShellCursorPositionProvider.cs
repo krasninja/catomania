@@ -121,7 +121,7 @@ public sealed class GnomeShellCursorPositionProvider : CompositorCursorPositionP
         if (isInstalled || !isEnabled)
         {
             Console.Error.WriteLine(
-                $"Catomania: the GNOME Shell extension {ExtensionUuid} is installed. If the cat does not follow the cursor, "
+                $"Catomania: the GNOME Shell extension {ExtensionUuid} is installed. If the animal does not follow the cursor, "
                 + "log out and back in, then make sure the extension is enabled in the Extensions application.");
         }
     }

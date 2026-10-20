@@ -7,15 +7,15 @@ using Xunit;
 namespace Catomania.Tests.Services;
 
 /// <summary>
-/// Tests for <see cref="CatChaseService" />.
+/// Tests for <see cref="AnimalChaseService" />.
 /// </summary>
-public class CatChaseServiceTests
+public class AnimalChaseServiceTests
 {
     [Fact]
     public void Tick_CursorIsFarAway_ShouldMoveTheWindowTowardsTheCursor()
     {
         // Arrange.
-        var host = new FakeCatHost();
+        var host = new FakeAnimalHost();
         var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(1500, 500)));
 
         // Act.
@@ -33,7 +33,7 @@ public class CatChaseServiceTests
     public void Tick_WhenDragging_ShouldFollowTheWindow()
     {
         // Arrange.
-        var host = new FakeCatHost { IsDragging = true };
+        var host = new FakeAnimalHost { IsDragging = true };
         var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(1500, 500)));
 
         // Act.
@@ -43,21 +43,21 @@ public class CatChaseServiceTests
         // Assert.
         Assert.Equal(0, host.SetCenterCalls);
         Assert.Equal(new ScreenPoint(900, 700), service.Simulator.Position);
-        Assert.Equal(CatAnimationState.Dragged, host.LastRenderState.State);
+        Assert.Equal(AnimalAnimationState.Dragged, host.LastRenderState.State);
     }
 
     [Fact]
     public void Tick_ShouldApplyTheRenderState()
     {
         // Arrange.
-        var host = new FakeCatHost();
+        var host = new FakeAnimalHost();
         var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(1500, 500)));
 
         // Act.
         service.Tick(0.5);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Run, host.LastRenderState.State);
+        Assert.Equal(AnimalAnimationState.Run, host.LastRenderState.State);
         Assert.True(host.LastRenderState.FacingRight);
     }
 
@@ -65,7 +65,7 @@ public class CatChaseServiceTests
     public void Tick_CursorPositionIsNotAvailable_ShouldKeepTheWindowInPlace()
     {
         // Arrange.
-        var host = new FakeCatHost();
+        var host = new FakeAnimalHost();
         var provider = new StubCursorPositionProvider(new ScreenPoint(1500, 500)) { Available = false };
         var service = CreateService(host, provider);
 
@@ -77,7 +77,7 @@ public class CatChaseServiceTests
 
         // Assert.
         Assert.Equal(new ScreenPoint(500, 500), host.Center);
-        Assert.Equal(CatAnimationState.Idle, host.LastRenderState.State);
+        Assert.Equal(AnimalAnimationState.Idle, host.LastRenderState.State);
     }
 
     [Fact]
@@ -85,7 +85,7 @@ public class CatChaseServiceTests
     {
         // Arrange.
         var settings = new AppSettings { Paused = true };
-        var host = new FakeCatHost();
+        var host = new FakeAnimalHost();
         var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(1500, 500)), settings);
 
         // Act.
@@ -102,7 +102,7 @@ public class CatChaseServiceTests
     public void Recenter_ShouldPutTheCatNextToTheCursor()
     {
         // Arrange.
-        var host = new FakeCatHost();
+        var host = new FakeAnimalHost();
         var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(800, 400)));
 
         // Act.
@@ -110,7 +110,7 @@ public class CatChaseServiceTests
         service.Tick(1.0 / 60);
 
         // Assert.
-        Assert.True(host.Center.Y > 400, "the cat should spawn below the cursor");
+        Assert.True(host.Center.Y > 400, "the animal should spawn below the cursor");
         Assert.InRange(host.Center.X, 799, 801);
     }
 
@@ -118,7 +118,7 @@ public class CatChaseServiceTests
     public void Tick_CursorOnTheSecondScreen_ShouldUseItsWorkAreaAsBounds()
     {
         // Arrange.
-        var host = new FakeCatHost
+        var host = new FakeAnimalHost
         {
             WorkAreas =
             [
@@ -141,7 +141,7 @@ public class CatChaseServiceTests
     public void Tick_CursorMovesToAnotherScreen_ShouldWalkThereInsteadOfJumping()
     {
         // Arrange.
-        var host = new FakeCatHost
+        var host = new FakeAnimalHost
         {
             WorkAreas =
             [
@@ -163,8 +163,8 @@ public class CatChaseServiceTests
     [Fact]
     public void Recenter_BeforeStart_ShouldKeepTheCatInsideTheWorkArea()
     {
-        // Arrange. The cursor is at the bottom of the screen, the cat spawns below it.
-        var host = new FakeCatHost();
+        // Arrange. The cursor is at the bottom of the screen, the animal spawns below it.
+        var host = new FakeAnimalHost();
         var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(800, 990)));
 
         // Act.
@@ -175,23 +175,23 @@ public class CatChaseServiceTests
     }
 
     /// <summary>
-    /// Create the service the same way the application does: the cat starts where the window is.
+    /// Create the service the same way the application does: the animal starts where the window is.
     /// </summary>
-    private static CatChaseService CreateService(
-        FakeCatHost host,
+    private static AnimalChaseService CreateService(
+        FakeAnimalHost host,
         ICursorPositionProvider cursorPositionProvider,
         AppSettings? settings = null)
     {
-        var service = new CatChaseService(
+        var service = new AnimalChaseService(
             host,
             cursorPositionProvider,
-            new CatSimulator(random: new Random(42)),
+            new AnimalSimulator(random: new Random(42)),
             settings ?? new AppSettings());
         service.Simulator.Teleport(host.GetCenter());
         return service;
     }
 
-    private sealed class FakeCatHost : ICatHost
+    private sealed class FakeAnimalHost : IAnimalHost
     {
         public double Scaling { get; set; } = 1;
 
@@ -203,7 +203,7 @@ public class CatChaseServiceTests
 
         public IReadOnlyList<SimulationRect> WorkAreas { get; set; } = [new SimulationRect(0, 0, 2000, 1000)];
 
-        public CatRenderState LastRenderState { get; private set; }
+        public AnimalRenderState LastRenderState { get; private set; }
 
         public int SetCenterCalls { get; private set; }
 
@@ -217,7 +217,7 @@ public class CatChaseServiceTests
 
         public IReadOnlyList<SimulationRect> GetWorkAreas() => WorkAreas;
 
-        public void ApplyRenderState(CatRenderState state) => LastRenderState = state;
+        public void ApplyRenderState(AnimalRenderState state) => LastRenderState = state;
     }
 
     private sealed class StubCursorPositionProvider : ICursorPositionProvider

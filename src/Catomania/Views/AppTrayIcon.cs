@@ -9,11 +9,11 @@ using Catomania.Services;
 namespace Catomania.Views;
 
 /// <summary>
-/// The system tray icon of Catomania. It shows the same options as the cat's context menu,
-/// so the cat can be controlled even when it is out of reach or paused. The icon is the same
-/// vector drawing the cat window shows, rendered once with a transparent background.
+/// The system tray icon of Catomania. It shows the same options as the animal's context menu,
+/// so the animal can be controlled even when it is out of reach or paused. The icon is the same
+/// vector drawing the animal window shows, rendered once with a transparent background.
 /// </summary>
-public sealed class CatTrayIcon : TrayIcon
+public sealed class AppTrayIcon : TrayIcon
 {
     private const int IconSize = 128;
 
@@ -33,11 +33,11 @@ public sealed class CatTrayIcon : TrayIcon
     private readonly List<(NativeMenuItem Item, object Value)> _choiceMenuItems = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatTrayIcon" /> class.
+    /// Initializes a new instance of the <see cref="AppTrayIcon" /> class.
     /// </summary>
     /// <param name="settings">Application settings.</param>
     /// <param name="commands">The commands to run when the menu items are clicked.</param>
-    public CatTrayIcon(AppSettings settings, ICatCommands commands)
+    public AppTrayIcon(AppSettings settings, IAnimalCommands commands)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         ArgumentNullException.ThrowIfNull(commands);
@@ -56,9 +56,9 @@ public sealed class CatTrayIcon : TrayIcon
         var menu = new NativeMenu();
         menu.Add(_pauseMenuItem);
         menu.Add(new NativeMenuItemSeparator());
-        menu.Add(CreateChoiceMenu<CatSpeed>("Speed", commands.SetSpeed));
+        menu.Add(CreateChoiceMenu<AnimalSpeed>("Speed", commands.SetSpeed));
         menu.Add(CreateChoiceMenu<CatColorScheme>("Fur", commands.SetFur));
-        menu.Add(CreateChoiceMenu<CatSize>("Size", commands.SetSize));
+        menu.Add(CreateChoiceMenu<AnimalSize>("Size", commands.SetSize));
         menu.Add(new NativeMenuItemSeparator());
         menu.Add(_topmostMenuItem);
 
@@ -75,7 +75,7 @@ public sealed class CatTrayIcon : TrayIcon
         quitMenuItem.Click += (_, _) => commands.Quit();
         menu.Add(quitMenuItem);
 
-        // Refresh the check marks every time the menu is about to open, like the cat's menu does.
+        // Refresh the check marks every time the menu is about to open, like the animal's menu does.
         menu.Opening += (_, _) => SyncMenu();
         Menu = menu;
         SyncMenu();
@@ -83,7 +83,7 @@ public sealed class CatTrayIcon : TrayIcon
 
     /// <summary>
     /// Update the menu check marks from the current settings. Called when the settings change
-    /// from anywhere: the tray menu itself, the cat's context menu, the mouse wheel or a double click.
+    /// from anywhere: the tray menu itself, the animal's context menu, the mouse wheel or a double click.
     /// </summary>
     public void SyncMenu()
     {
@@ -93,9 +93,9 @@ public sealed class CatTrayIcon : TrayIcon
         {
             item.IsChecked = value switch
             {
-                CatSpeed speed => speed == _settings.Speed,
+                AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
-                CatSize size => size == _settings.Size,
+                AnimalSize size => size == _settings.Size,
                 _ => item.IsChecked,
             };
         }

@@ -2,16 +2,18 @@ using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Media;
 using Avalonia.Platform;
+using Catomania.Animals;
 using Catomania.Controls;
 using Catomania.Models;
 using Xunit;
 
-namespace Catomania.Tests.Controls;
+namespace Catomania.Tests.Animals;
 
 /// <summary>
-/// Tests for <see cref="CatView" />. The cat is rendered by the headless platform and the pixels are checked.
+/// Tests for <see cref="Cat" /> drawn by <see cref="AnimalView" />. The cat is rendered by the headless platform
+/// and the pixels are checked.
 /// </summary>
-public sealed class CatViewTests
+public sealed class CatTests
 {
     private const double WindowSize = 100;
 
@@ -24,11 +26,11 @@ public sealed class CatViewTests
             var (catView, window) = CreateCatWindow();
             try
             {
-                foreach (var state in Enum.GetValues<CatAnimationState>())
+                foreach (var state in Enum.GetValues<AnimalAnimationState>())
                 {
-                    catView.Update(new CatRenderState(state, true, 1.1, false));
+                    catView.Update(new AnimalRenderState(state, true, 1.1, false));
                     var pixels = CapturePixels(window);
-                    var furPixels = CountColor(pixels, catView.GetPalette().FurColor, 12);
+                    var furPixels = CountColor(pixels, catView.Animal.BodyColor, 12);
                     Assert.True(furPixels > 40, $"{state} draws too few fur pixels: {furPixels}");
                 }
             }
@@ -45,12 +47,12 @@ public sealed class CatViewTests
             var (catView, window) = CreateCatWindow();
             try
             {
-                var eyeColor = catView.GetPalette().EyeColor;
+                var eyeColor = catView.Animal.EyeColor;
 
-                catView.Update(new CatRenderState(CatAnimationState.Idle, true, 1.1, false));
+                catView.Update(new AnimalRenderState(AnimalAnimationState.Idle, true, 1.1, false));
                 var facingRight = GetColorCentroidX(CapturePixels(window), eyeColor, 40);
 
-                catView.Update(new CatRenderState(CatAnimationState.Idle, false, 1.1, false));
+                catView.Update(new AnimalRenderState(AnimalAnimationState.Idle, false, 1.1, false));
                 var facingLeft = GetColorCentroidX(CapturePixels(window), eyeColor, 40);
 
                 Assert.True(facingRight > WindowSize / 2, $"eyes should be in the right half, got {facingRight}");
@@ -69,8 +71,8 @@ public sealed class CatViewTests
             var (catView, window) = CreateCatWindow();
             try
             {
-                catView.ColorScheme = CatColorScheme.Black;
-                catView.Update(new CatRenderState(CatAnimationState.Walk, true, 2.2, false));
+                catView.Animal = new Cat(CatColorScheme.Black);
+                catView.Update(new AnimalRenderState(AnimalAnimationState.Walk, true, 2.2, false));
                 var pixels = CapturePixels(window);
 
                 Assert.True(CountColor(pixels, CatPalette.FromScheme(CatColorScheme.Black).FurColor, 12) > 40);
@@ -89,12 +91,12 @@ public sealed class CatViewTests
             var (catView, window) = CreateCatWindow();
             try
             {
-                var eyeColor = catView.GetPalette().EyeColor;
+                var eyeColor = catView.Animal.EyeColor;
 
-                catView.Update(new CatRenderState(CatAnimationState.Idle, true, 1.1, false));
+                catView.Update(new AnimalRenderState(AnimalAnimationState.Idle, true, 1.1, false));
                 var eyesOpen = CountColor(CapturePixels(window), eyeColor, 40);
 
-                catView.Update(new CatRenderState(CatAnimationState.Idle, true, 1.1, true));
+                catView.Update(new AnimalRenderState(AnimalAnimationState.Idle, true, 1.1, true));
                 var eyesClosed = CountColor(CapturePixels(window), eyeColor, 40);
 
                 Assert.True(eyesOpen > 0, "the eyes should be visible");
@@ -107,19 +109,40 @@ public sealed class CatViewTests
         }, CancellationToken.None);
 
     [Fact]
-    public void FromScheme_EveryScheme_ReturnsAPalette()
-    {
-        foreach (var scheme in Enum.GetValues<CatColorScheme>())
+    public Task Create_DefaultSettings_CreatesGingerCat()
+        => _session.Dispatch(() =>
         {
-            var palette = CatPalette.FromScheme(scheme);
-            Assert.NotEqual(default, palette.FurColor);
-            Assert.Same(palette, CatPalette.FromScheme(scheme));
-        }
-    }
+            var animal = Animal.Create(new AppSettings());
 
-    private static (CatView CatView, Window Window) CreateCatWindow()
+            var cat = Assert.IsType<Cat>(animal);
+            Assert.Equal(AnimalKind.Cat, cat.Kind);
+            Assert.Equal(CatColorScheme.Ginger, cat.ColorScheme);
+        }, CancellationToken.None);
+
+    [Fact]
+    public Task Create_ColorSchemeInSettings_UsesTheScheme()
+        => _session.Dispatch(() =>
+        {
+            var animal = Animal.Create(new AppSettings { ColorScheme = CatColorScheme.Cream });
+
+            Assert.Equal(CatPalette.FromScheme(CatColorScheme.Cream).FurColor, animal.BodyColor);
+        }, CancellationToken.None);
+
+    [Fact]
+    public Task FromScheme_EveryScheme_ReturnsAPalette()
+        => _session.Dispatch(() =>
+        {
+            foreach (var scheme in Enum.GetValues<CatColorScheme>())
+            {
+                var palette = CatPalette.FromScheme(scheme);
+                Assert.NotEqual(default, palette.FurColor);
+                Assert.Same(palette, CatPalette.FromScheme(scheme));
+            }
+        }, CancellationToken.None);
+
+    private static (AnimalView CatView, Window Window) CreateCatWindow()
     {
-        var catView = new CatView();
+        var catView = new AnimalView { Animal = new Cat() };
         var window = new Window
         {
             Width = WindowSize,

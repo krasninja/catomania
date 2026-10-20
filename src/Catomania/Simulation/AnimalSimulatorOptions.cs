@@ -1,9 +1,9 @@
 namespace Catomania.Simulation;
 
 /// <summary>
-/// Tunable parameters of <see cref="CatSimulator" />. All speeds are in physical pixels per second.
+/// Tunable parameters of <see cref="AnimalSimulator" />. All speeds are in physical pixels per second.
 /// </summary>
-public sealed class CatSimulatorOptions
+public sealed class AnimalSimulatorOptions
 {
     /// <summary>
     /// Gets or sets the walking speed.
@@ -16,27 +16,27 @@ public sealed class CatSimulatorOptions
     public double RunSpeed { get; set; } = 430;
 
     /// <summary>
-    /// Gets or sets the distance to the cursor at which the cat starts to run instead of walk.
+    /// Gets or sets the distance to the cursor at which the animal starts to run instead of walk.
     /// </summary>
     public double RunDistance { get; set; } = 260;
 
     /// <summary>
-    /// Gets or sets the distance to the cursor at which the cat stops chasing it.
+    /// Gets or sets the distance to the cursor at which the animal stops chasing it.
     /// </summary>
     public double CatchRadius { get; set; } = 48;
 
     /// <summary>
-    /// Gets or sets how quickly the cat reaches the target speed, the higher the sharper the turns.
+    /// Gets or sets how quickly the animal reaches the target speed, the higher the sharper the turns.
     /// </summary>
     public double Responsiveness { get; set; } = 6;
 
     /// <summary>
-    /// Gets or sets the speed below which a decelerating cat is considered to be standing still.
+    /// Gets or sets the speed below which a decelerating animal is considered to be standing still.
     /// </summary>
     public double StopSpeed { get; set; } = 8;
 
     /// <summary>
-    /// Gets or sets the horizontal speed required to change the direction the cat faces.
+    /// Gets or sets the horizontal speed required to change the direction the animal faces.
     /// </summary>
     public double FacingThreshold { get; set; } = 10;
 
@@ -46,7 +46,7 @@ public sealed class CatSimulatorOptions
     public double CursorMoveThreshold { get; set; } = 3;
 
     /// <summary>
-    /// Gets or sets the number of seconds of cursor inactivity before the cat falls asleep.
+    /// Gets or sets the number of seconds of cursor inactivity before the animal falls asleep.
     /// </summary>
     public double SleepAfterSeconds { get; set; } = 30;
 

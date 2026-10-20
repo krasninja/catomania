@@ -235,7 +235,7 @@ public abstract class CompositorCursorPositionProvider : ICursorPositionProvider
         }
         catch (Exception e)
         {
-            // The other providers keep working, the cat just does not see the cursor far away.
+            // The other providers keep working, the animal just does not see the cursor far away.
             _failed = true;
             Console.Error.WriteLine($"Catomania: {Name} cursor tracking is not available: {e.Message}");
         }

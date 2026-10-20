@@ -6,9 +6,14 @@ namespace Catomania.Models;
 public sealed class AppSettings
 {
     /// <summary>
+    /// Gets or sets the animal that chases the cursor.
+    /// </summary>
+    public AnimalKind Animal { get; set; } = AnimalKind.Cat;
+
+    /// <summary>
     /// Gets or sets the chase speed.
     /// </summary>
-    public CatSpeed Speed { get; set; } = CatSpeed.Normal;
+    public AnimalSpeed Speed { get; set; } = AnimalSpeed.Normal;
 
     /// <summary>
     /// Gets or sets the fur color scheme.
@@ -16,9 +21,9 @@ public sealed class AppSettings
     public CatColorScheme ColorScheme { get; set; } = CatColorScheme.Ginger;
 
     /// <summary>
-    /// Gets or sets the cat size.
+    /// Gets or sets the animal size.
     /// </summary>
-    public CatSize Size { get; set; } = CatSize.Medium;
+    public AnimalSize Size { get; set; } = AnimalSize.Medium;
 
     /// <summary>
     /// Gets or sets a value indicating whether the window is kept on top of other windows.
@@ -26,12 +31,12 @@ public sealed class AppSettings
     public bool AlwaysOnTop { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets a value indicating whether the cat is paused and does not chase the cursor.
+    /// Gets or sets a value indicating whether the animal is paused and does not chase the cursor.
     /// </summary>
     public bool Paused { get; set; }
 
     /// <summary>
-    /// Gets or sets the number of seconds of cursor inactivity before the cat falls asleep.
+    /// Gets or sets the number of seconds of cursor inactivity before the animal falls asleep.
     /// </summary>
     public int SleepAfterSeconds { get; set; } = 30;
 }

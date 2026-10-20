@@ -9,7 +9,7 @@ public static class CursorPositionProviderFactory
 {
     /// <summary>
     /// Create the provider that uses the platform API when it is possible and falls back
-    /// to the position reported by the cat window pointer events.
+    /// to the position reported by the animal window pointer events.
     /// </summary>
     /// <param name="fallbackProvider">Provider that receives positions reported by the window.</param>
     /// <param name="scalingProvider">Provides the screen scaling, used on macOS.</param>
@@ -31,7 +31,7 @@ public static class CursorPositionProviderFactory
         }
         else if (OperatingSystem.IsLinux() || OperatingSystem.IsFreeBSD())
         {
-            // On Wayland XWayland knows the cursor position only while it is over the cat window,
+            // On Wayland XWayland knows the cursor position only while it is over the animal window,
             // ask the compositor first.
             if (LinuxDesktop.IsWaylandSession && LinuxDesktop.IsCurrentDesktop(LinuxDesktop.Kde))
             {

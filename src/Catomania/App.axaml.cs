@@ -39,25 +39,25 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // The cat window is the only window, closing it quits the application.
+            // The animal window is the only window, closing it quits the application.
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             desktop.Exit += OnExit;
 
             _settings = _settingsStorage.Load();
-            var catWindow = new CatWindow(_settings);
-            catWindow.Closed += (_, _) => desktop.Shutdown();
+            var animalWindow = new AnimalWindow(_settings);
+            animalWindow.Closed += (_, _) => desktop.Shutdown();
 
             // Save right away: a self-update exits the process without raising the Exit event.
-            catWindow.SettingsChanged += (_, _) => _settingsStorage.Save(_settings);
+            animalWindow.SettingsChanged += (_, _) => _settingsStorage.Save(_settings);
 
-            // The tray icon shows the same options as the cat's context menu. It needs no
+            // The tray icon shows the same options as the animal's context menu. It needs no
             // separate quit handling: the icons are disposed on dispatcher shutdown.
-            var trayIcon = new CatTrayIcon(_settings, catWindow);
-            catWindow.SettingsChanged += (_, _) => trayIcon.SyncMenu();
+            var trayIcon = new AppTrayIcon(_settings, animalWindow);
+            animalWindow.SettingsChanged += (_, _) => trayIcon.SyncMenu();
             TrayIcon.SetIcons(this, new TrayIcons { trayIcon });
 
-            desktop.MainWindow = catWindow;
-            catWindow.Show();
+            desktop.MainWindow = animalWindow;
+            animalWindow.Show();
 
             // Logout and kill send SIGTERM: shut down normally, so the settings are saved
             // and the cursor tracking script is unloaded from the compositor.

@@ -3,9 +3,9 @@ using Catomania.Simulation;
 namespace Catomania.Input;
 
 /// <summary>
-/// Remembers the cursor position reported by the pointer events of the cat window itself.
+/// Remembers the cursor position reported by the pointer events of the animal window itself.
 /// It is used when the global cursor position is not available on the platform, so at least
-/// the cat follows the pointer while it is over the cat.
+/// the animal follows the pointer while it is over the animal.
 /// </summary>
 public sealed class FallbackCursorPositionProvider : ICursorPositionProvider
 {

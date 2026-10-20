@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Catomania.Animals;
 using Catomania.Controls;
 using Catomania.Input;
 using Catomania.Models;
@@ -13,20 +14,20 @@ using Catomania.Simulation;
 namespace Catomania.Views;
 
 /// <summary>
-/// A small transparent window the cat lives in. It is moved by <see cref="CatChaseService" />
+/// A small transparent window the animal lives in. It is moved by <see cref="AnimalChaseService" />
 /// and can be dragged around with the mouse.
 /// </summary>
-public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposable
+public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands, IDisposable
 {
     private readonly AppSettings _settings;
-    private readonly CatView _catView;
+    private readonly AnimalView _animalView;
     private readonly ContextMenu _contextMenu;
     private readonly MenuItem _pauseMenuItem;
     private readonly MenuItem _topmostMenuItem;
     private readonly FallbackCursorPositionProvider _fallbackCursorPositionProvider = new();
     private readonly CompositeCursorPositionProvider _cursorPositionProvider;
-    private readonly CatSimulator _simulator = new();
-    private readonly CatChaseService _chaseService;
+    private readonly AnimalSimulator _simulator;
+    private readonly AnimalChaseService _chaseService;
 
     private bool _isDragging;
     private bool _isCheckingUpdates;
@@ -35,26 +36,26 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
     private PixelPoint _dragPointerPosition;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatWindow" /> class with the default settings.
+    /// Initializes a new instance of the <see cref="AnimalWindow" /> class with the default settings.
     /// Used by the XAML designer.
     /// </summary>
-    public CatWindow()
+    public AnimalWindow()
         : this(new AppSettings())
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatWindow" /> class.
+    /// Initializes a new instance of the <see cref="AnimalWindow" /> class.
     /// </summary>
     /// <param name="settings">Application settings.</param>
-    public CatWindow(AppSettings settings)
+    public AnimalWindow(AppSettings settings)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
         InitializeComponent();
 
-        _catView = this.GetControl<CatView>("Cat");
-        _contextMenu = this.GetControl<ContextMenu>("CatContextMenu");
+        _animalView = this.GetControl<AnimalView>("AnimalView");
+        _contextMenu = this.GetControl<ContextMenu>("AnimalContextMenu");
         _pauseMenuItem = this.GetControl<MenuItem>("PauseMenuItem");
         _topmostMenuItem = this.GetControl<MenuItem>("TopmostMenuItem");
 
@@ -62,7 +63,9 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
             _fallbackCursorPositionProvider,
             () => Scaling,
             GetScreenBounds);
-        _chaseService = new CatChaseService(this, _cursorPositionProvider, _simulator, _settings);
+        _animalView.Animal = Animal.Create(_settings);
+        _simulator = new AnimalSimulator(_animalView.Animal.CreateSimulatorOptions());
+        _chaseService = new AnimalChaseService(this, _cursorPositionProvider, _simulator, _settings);
 
         ApplySettings();
         SyncMenu();
@@ -85,7 +88,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
     }
 
     /// <inheritdoc />
-    public void SetSpeed(CatSpeed speed)
+    public void SetSpeed(AnimalSpeed speed)
     {
         _settings.Speed = speed;
         CommitSettings();
@@ -99,7 +102,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
     }
 
     /// <inheritdoc />
-    public void SetSize(CatSize size)
+    public void SetSize(AnimalSize size)
     {
         _settings.Size = size;
         CommitSettings();
@@ -162,13 +165,13 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
     public double Scaling => RenderScaling > 0 ? RenderScaling : 1;
 
     /// <inheritdoc />
-    double ICatHost.Scaling => Scaling;
+    double IAnimalHost.Scaling => Scaling;
 
     /// <inheritdoc />
-    bool ICatHost.IsDragging => _isDragging;
+    bool IAnimalHost.IsDragging => _isDragging;
 
     /// <inheritdoc />
-    ScreenPoint ICatHost.SpriteSize
+    ScreenPoint IAnimalHost.SpriteSize
     {
         get
         {
@@ -178,13 +181,13 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
     }
 
     /// <inheritdoc />
-    ScreenPoint ICatHost.GetCenter() => GetCenter();
+    ScreenPoint IAnimalHost.GetCenter() => GetCenter();
 
     /// <inheritdoc />
-    void ICatHost.SetCenter(ScreenPoint center) => SetCenter(center);
+    void IAnimalHost.SetCenter(ScreenPoint center) => SetCenter(center);
 
     /// <inheritdoc />
-    IReadOnlyList<SimulationRect> ICatHost.GetWorkAreas()
+    IReadOnlyList<SimulationRect> IAnimalHost.GetWorkAreas()
     {
         var workAreas = new List<SimulationRect>();
         var screens = Screens?.All;
@@ -203,7 +206,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
     }
 
     /// <inheritdoc />
-    void ICatHost.ApplyRenderState(CatRenderState state) => _catView.Update(state);
+    void IAnimalHost.ApplyRenderState(AnimalRenderState state) => _animalView.Update(state);
 
     /// <inheritdoc />
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -264,7 +267,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
         base.OnPointerCaptureLost(e);
 
         // The capture can be taken away without a release, for example by a window switch,
-        // the cat would stay dragged forever otherwise.
+        // the animal would stay dragged forever otherwise.
         EndDrag();
     }
 
@@ -277,7 +280,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
             return;
         }
 
-        var sizes = Enum.GetValues<CatSize>();
+        var sizes = Enum.GetValues<AnimalSize>();
         var index = Array.IndexOf(sizes, _settings.Size);
         var size = sizes[Math.Clamp(index + (e.Delta.Y > 0 ? 1 : -1), 0, sizes.Length - 1)];
         if (size == _settings.Size)
@@ -325,7 +328,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
 
     private void OnSpeedClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { Tag: CatSpeed speed })
+        if (sender is MenuItem { Tag: AnimalSpeed speed })
         {
             SetSpeed(speed);
         }
@@ -341,7 +344,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
 
     private void OnSizeClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { Tag: CatSize size })
+        if (sender is MenuItem { Tag: AnimalSize size })
         {
             SetSize(size);
         }
@@ -381,7 +384,7 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
         Width = size;
         Height = size;
         Topmost = _settings.AlwaysOnTop;
-        _catView.ColorScheme = _settings.ColorScheme;
+        _animalView.Animal = Animal.Create(_settings);
         _chaseService.ApplySettings();
     }
 
@@ -400,9 +403,9 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
         {
             item.IsChecked = item.Tag switch
             {
-                CatSpeed speed => speed == _settings.Speed,
+                AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
-                CatSize size => size == _settings.Size,
+                AnimalSize size => size == _settings.Size,
                 _ => item.IsChecked,
             };
         }
@@ -450,13 +453,13 @@ public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposa
 
     private ScreenPoint GetCenter()
     {
-        var size = ((ICatHost)this).SpriteSize;
+        var size = ((IAnimalHost)this).SpriteSize;
         return new ScreenPoint(Position.X + (size.X / 2), Position.Y + (size.Y / 2));
     }
 
     private void SetCenter(ScreenPoint center)
     {
-        var size = ((ICatHost)this).SpriteSize;
+        var size = ((IAnimalHost)this).SpriteSize;
         Position = new PixelPoint(
             (int)Math.Round(center.X - (size.X / 2)),
             (int)Math.Round(center.Y - (size.Y / 2)));

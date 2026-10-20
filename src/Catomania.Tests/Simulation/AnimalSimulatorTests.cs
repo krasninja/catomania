@@ -5,22 +5,22 @@ using Xunit;
 namespace Catomania.Tests.Simulation;
 
 /// <summary>
-/// Tests for <see cref="CatSimulator" />.
+/// Tests for <see cref="AnimalSimulator" />.
 /// </summary>
-public class CatSimulatorTests
+public class AnimalSimulatorTests
 {
     private const double Step = 1.0 / 60;
 
     private static readonly SimulationRect Bounds = new(0, 0, 2000, 1000);
 
-    private static CatSimulator CreateSimulator(ScreenPoint position, CatSimulatorOptions? options = null)
+    private static AnimalSimulator CreateSimulator(ScreenPoint position, AnimalSimulatorOptions? options = null)
     {
-        var simulator = new CatSimulator(options, new Random(42));
+        var simulator = new AnimalSimulator(options, new Random(42));
         simulator.Teleport(position);
         return simulator;
     }
 
-    private static CatInput CreateInput(
+    private static AnimalInput CreateInput(
         ScreenPoint cursorPosition,
         SimulationRect? bounds = null,
         double speedMultiplier = 1,
@@ -28,7 +28,7 @@ public class CatSimulatorTests
         bool isPaused = false)
         => new(cursorPosition, bounds ?? Bounds, speedMultiplier, isDragging, isPaused);
 
-    private static void Run(CatSimulator simulator, CatInput input, double seconds)
+    private static void Run(AnimalSimulator simulator, AnimalInput input, double seconds)
     {
         for (var elapsed = 0.0; elapsed < seconds; elapsed += Step)
         {
@@ -46,8 +46,8 @@ public class CatSimulatorTests
         Run(simulator, CreateInput(new ScreenPoint(1500, 500)), 0.2);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Run, simulator.State);
-        Assert.True(simulator.Position.X > 520, $"the cat should run to the right, got {simulator.Position.X}");
+        Assert.Equal(AnimalAnimationState.Run, simulator.State);
+        Assert.True(simulator.Position.X > 520, $"the animal should run to the right, got {simulator.Position.X}");
         Assert.True(simulator.Velocity.X > 0);
     }
 
@@ -61,7 +61,7 @@ public class CatSimulatorTests
         Run(simulator, CreateInput(new ScreenPoint(600, 500)), 0.2);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Walk, simulator.State);
+        Assert.Equal(AnimalAnimationState.Walk, simulator.State);
         Assert.InRange(simulator.Position.X, 501, 599);
     }
 
@@ -75,7 +75,7 @@ public class CatSimulatorTests
         Run(simulator, CreateInput(new ScreenPoint(520, 500)), 2);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Idle, simulator.State);
+        Assert.Equal(AnimalAnimationState.Idle, simulator.State);
         Assert.Equal(ScreenPoint.Zero, simulator.Velocity);
         Assert.InRange(simulator.Position.X, 499, 521);
     }
@@ -98,13 +98,13 @@ public class CatSimulatorTests
     public void Update_CursorDoesNotMove_ShouldFallAsleep()
     {
         // Arrange.
-        var simulator = CreateSimulator(new ScreenPoint(500, 500), new CatSimulatorOptions { SleepAfterSeconds = 2 });
+        var simulator = CreateSimulator(new ScreenPoint(500, 500), new AnimalSimulatorOptions { SleepAfterSeconds = 2 });
 
         // Act.
         Run(simulator, CreateInput(new ScreenPoint(510, 500)), 5);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Sleep, simulator.State);
+        Assert.Equal(AnimalAnimationState.Sleep, simulator.State);
         Assert.True(simulator.CursorIdleTime >= 2);
     }
 
@@ -112,15 +112,15 @@ public class CatSimulatorTests
     public void Update_CursorMovesAgain_ShouldWakeUp()
     {
         // Arrange.
-        var simulator = CreateSimulator(new ScreenPoint(500, 500), new CatSimulatorOptions { SleepAfterSeconds = 2 });
+        var simulator = CreateSimulator(new ScreenPoint(500, 500), new AnimalSimulatorOptions { SleepAfterSeconds = 2 });
         Run(simulator, CreateInput(new ScreenPoint(510, 500)), 5);
-        Assert.Equal(CatAnimationState.Sleep, simulator.State);
+        Assert.Equal(AnimalAnimationState.Sleep, simulator.State);
 
         // Act.
         Run(simulator, CreateInput(new ScreenPoint(1500, 500)), 0.5);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Run, simulator.State);
+        Assert.Equal(AnimalAnimationState.Run, simulator.State);
         Assert.True(simulator.Position.X > 500);
     }
 
@@ -134,7 +134,7 @@ public class CatSimulatorTests
         Run(simulator, CreateInput(new ScreenPoint(1500, 500), isDragging: true), 0.5);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Dragged, simulator.State);
+        Assert.Equal(AnimalAnimationState.Dragged, simulator.State);
         Assert.Equal(new ScreenPoint(500, 500), simulator.Position);
         Assert.Equal(ScreenPoint.Zero, simulator.Velocity);
     }
@@ -149,7 +149,7 @@ public class CatSimulatorTests
         Run(simulator, CreateInput(new ScreenPoint(1500, 500), isPaused: true), 1);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Idle, simulator.State);
+        Assert.Equal(AnimalAnimationState.Idle, simulator.State);
         Assert.Equal(new ScreenPoint(500, 500), simulator.Position);
     }
 
@@ -163,7 +163,7 @@ public class CatSimulatorTests
         // Act.
         Run(simulator, CreateInput(new ScreenPoint(5000, 300), bounds), 5);
 
-        // Assert. The cat comes to the edge and stops within the catch radius.
+        // Assert. The animal comes to the edge and stops within the catch radius.
         Assert.InRange(simulator.Position.X, 600 - simulator.Options.CatchRadius, 600);
         Assert.Equal(300, simulator.Position.Y, 6);
     }
@@ -173,13 +173,13 @@ public class CatSimulatorTests
     {
         // Arrange. The cursor rests on the taskbar below the work area.
         var bounds = new SimulationRect(0, 0, 600, 600);
-        var simulator = CreateSimulator(new ScreenPoint(300, 300), new CatSimulatorOptions { SleepAfterSeconds = 3 });
+        var simulator = CreateSimulator(new ScreenPoint(300, 300), new AnimalSimulatorOptions { SleepAfterSeconds = 3 });
 
         // Act.
         Run(simulator, CreateInput(new ScreenPoint(300, 700), bounds), 5);
 
         // Assert.
-        Assert.Equal(CatAnimationState.Sleep, simulator.State);
+        Assert.Equal(AnimalAnimationState.Sleep, simulator.State);
         Assert.Equal(ScreenPoint.Zero, simulator.Velocity);
     }
 
@@ -210,7 +210,7 @@ public class CatSimulatorTests
 
         // Assert.
         Assert.Equal(new ScreenPoint(500, 500), simulator.Position);
-        Assert.Equal(CatAnimationState.Idle, simulator.State);
+        Assert.Equal(AnimalAnimationState.Idle, simulator.State);
         Assert.Equal(0, simulator.Phase);
     }
 

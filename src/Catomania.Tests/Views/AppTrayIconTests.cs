@@ -8,10 +8,10 @@ using Xunit;
 namespace Catomania.Tests.Views;
 
 /// <summary>
-/// Tests for <see cref="CatTrayIcon" />: the tray menu shows the same options as the cat's
+/// Tests for <see cref="AppTrayIcon" />: the tray menu shows the same options as the animal's
 /// context menu, the items run the shared commands and the check marks follow the settings.
 /// </summary>
-public sealed class CatTrayIconTests
+public sealed class AppTrayIconTests
 {
     private static readonly HeadlessUnitTestSession _session = TestHeadlessSession.Instance;
 
@@ -84,9 +84,9 @@ public sealed class CatTrayIconTests
             {
                 Paused = true,
                 AlwaysOnTop = false,
-                Speed = CatSpeed.Fast,
+                Speed = AnimalSpeed.Fast,
                 ColorScheme = CatColorScheme.Black,
-                Size = CatSize.Large,
+                Size = AnimalSize.Large,
             };
             using var trayIcon = CreateTrayIcon(settings, new RecordingCommands());
             var items = GetTopLevelItems(trayIcon);
@@ -96,9 +96,9 @@ public sealed class CatTrayIconTests
 
             settings.Paused = false;
             settings.AlwaysOnTop = true;
-            settings.Speed = CatSpeed.Slow;
+            settings.Speed = AnimalSpeed.Slow;
             settings.ColorScheme = CatColorScheme.Cream;
-            settings.Size = CatSize.Small;
+            settings.Size = AnimalSize.Small;
             trayIcon.SyncMenu();
 
             Assert.False(GetItem(items, "Pause").IsChecked);
@@ -116,7 +116,7 @@ public sealed class CatTrayIconTests
             }
         }, CancellationToken.None);
 
-    private static CatTrayIcon CreateTrayIcon(AppSettings settings, ICatCommands commands)
+    private static AppTrayIcon CreateTrayIcon(AppSettings settings, IAnimalCommands commands)
         => new(settings, commands);
 
     private static List<NativeMenuItem> GetTopLevelItems(TrayIcon trayIcon)
@@ -140,17 +140,17 @@ public sealed class CatTrayIconTests
         bridge.GetMethod("RaiseClicked")?.Invoke(item, null);
     }
 
-    private sealed class RecordingCommands : ICatCommands
+    private sealed class RecordingCommands : IAnimalCommands
     {
         public List<string> Calls { get; } = new();
 
         public void TogglePause() => Calls.Add("pause");
 
-        public void SetSpeed(CatSpeed speed) => Calls.Add($"speed:{speed}");
+        public void SetSpeed(AnimalSpeed speed) => Calls.Add($"speed:{speed}");
 
         public void SetFur(CatColorScheme colorScheme) => Calls.Add($"fur:{colorScheme}");
 
-        public void SetSize(CatSize size) => Calls.Add($"size:{size}");
+        public void SetSize(AnimalSize size) => Calls.Add($"size:{size}");
 
         public void ToggleAlwaysOnTop() => Calls.Add("alwaysOnTop");
 
