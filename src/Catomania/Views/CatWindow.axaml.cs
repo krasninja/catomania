@@ -16,7 +16,7 @@ namespace Catomania.Views;
 /// A small transparent window the cat lives in. It is moved by <see cref="CatChaseService" />
 /// and can be dragged around with the mouse.
 /// </summary>
-public sealed partial class CatWindow : Window, ICatHost, IDisposable
+public sealed partial class CatWindow : Window, ICatHost, ICatCommands, IDisposable
 {
     private readonly AppSettings _settings;
     private readonly CatView _catView;
@@ -76,6 +76,85 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
     /// Occurs when the user changes the settings.
     /// </summary>
     public event EventHandler? SettingsChanged;
+
+    /// <inheritdoc />
+    public void TogglePause()
+    {
+        _settings.Paused = !_settings.Paused;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void SetSpeed(CatSpeed speed)
+    {
+        _settings.Speed = speed;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void SetFur(CatColorScheme colorScheme)
+    {
+        _settings.ColorScheme = colorScheme;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void SetSize(CatSize size)
+    {
+        _settings.Size = size;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void ToggleAlwaysOnTop()
+    {
+        _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void Recenter() => _chaseService.Recenter();
+
+    /// <inheritdoc />
+    public async Task CheckForUpdatesAsync()
+    {
+        // A second call should not start a parallel update.
+        if (_isCheckingUpdates)
+        {
+            return;
+        }
+
+        _isCheckingUpdates = true;
+        try
+        {
+            var report = await new AppUpdateService().CheckAndUpdateAsync(restartAfterUpdate: true);
+            if (report.Kind != UpdateReportKind.Updating)
+            {
+                ShowUpdateReport(report.Message);
+            }
+        }
+        catch (Exception exception)
+        {
+            ShowUpdateReport($"Failed to check updates: {exception.Message}");
+        }
+        finally
+        {
+            _isCheckingUpdates = false;
+        }
+    }
+
+    /// <inheritdoc />
+    public void Quit()
+    {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.Shutdown();
+        }
+        else
+        {
+            Close();
+        }
+    }
 
     /// <summary>
     /// Gets the screen scaling of the window.
@@ -242,76 +321,37 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         _cursorPositionProvider.Dispose();
     }
 
-    private void OnPauseClick(object? sender, RoutedEventArgs e)
-    {
-        _settings.Paused = !_settings.Paused;
-        CommitSettings();
-    }
+    private void OnPauseClick(object? sender, RoutedEventArgs e) => TogglePause();
 
     private void OnSpeedClick(object? sender, RoutedEventArgs e)
     {
         if (sender is MenuItem { Tag: CatSpeed speed })
         {
-            _settings.Speed = speed;
+            SetSpeed(speed);
         }
-
-        CommitSettings();
     }
 
     private void OnColorSchemeClick(object? sender, RoutedEventArgs e)
     {
         if (sender is MenuItem { Tag: CatColorScheme colorScheme })
         {
-            _settings.ColorScheme = colorScheme;
+            SetFur(colorScheme);
         }
-
-        CommitSettings();
     }
 
     private void OnSizeClick(object? sender, RoutedEventArgs e)
     {
         if (sender is MenuItem { Tag: CatSize size })
         {
-            _settings.Size = size;
-        }
-
-        CommitSettings();
-    }
-
-    private void OnTopmostClick(object? sender, RoutedEventArgs e)
-    {
-        _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
-        CommitSettings();
-    }
-
-    private void OnRecenterClick(object? sender, RoutedEventArgs e) => _chaseService.Recenter();
-
-    private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e)
-    {
-        // An async void handler must not throw, and a second click should not start a parallel update.
-        if (_isCheckingUpdates)
-        {
-            return;
-        }
-
-        _isCheckingUpdates = true;
-        try
-        {
-            var report = await new AppUpdateService().CheckAndUpdateAsync(restartAfterUpdate: true);
-            if (report.Kind != UpdateReportKind.Updating)
-            {
-                ShowUpdateReport(report.Message);
-            }
-        }
-        catch (Exception exception)
-        {
-            ShowUpdateReport($"Failed to check updates: {exception.Message}");
-        }
-        finally
-        {
-            _isCheckingUpdates = false;
+            SetSize(size);
         }
     }
+
+    private void OnTopmostClick(object? sender, RoutedEventArgs e) => ToggleAlwaysOnTop();
+
+    private void OnRecenterClick(object? sender, RoutedEventArgs e) => Recenter();
+
+    private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e) => await CheckForUpdatesAsync();
 
     private void ShowUpdateReport(string message)
     {
@@ -333,17 +373,7 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         _ = dialog.ShowDialog(this);
     }
 
-    private void OnQuitClick(object? sender, RoutedEventArgs e)
-    {
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.Shutdown();
-        }
-        else
-        {
-            Close();
-        }
-    }
+    private void OnQuitClick(object? sender, RoutedEventArgs e) => Quit();
 
     private void ApplySettings()
     {

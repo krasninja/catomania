@@ -24,6 +24,19 @@ public sealed class TestAppBuilder
 }
 
 /// <summary>
+/// The single headless session shared by all tests that need the UI thread. Two sessions
+/// running in parallel interfere with each other and make the rendering tests flaky.
+/// </summary>
+public static class TestHeadlessSession
+{
+    /// <summary>
+    /// Gets the shared headless unit test session.
+    /// </summary>
+    public static readonly HeadlessUnitTestSession Instance =
+        HeadlessUnitTestSession.StartNew(typeof(TestAppBuilder));
+}
+
+/// <summary>
 /// Minimal application used by the headless tests.
 /// </summary>
 public sealed class TestApp : Application

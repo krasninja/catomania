@@ -15,7 +15,7 @@ public sealed class CatViewTests
 {
     private const double WindowSize = 100;
 
-    private static readonly HeadlessUnitTestSession _session = HeadlessUnitTestSession.StartNew(typeof(TestAppBuilder));
+    private static readonly HeadlessUnitTestSession _session = TestHeadlessSession.Instance;
 
     [Fact]
     public Task Render_EveryAnimationState_DrawsFur()
