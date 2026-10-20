@@ -15,7 +15,7 @@ public sealed class CatChaseService : IDisposable
     /// </summary>
     public static readonly TimeSpan TickInterval = TimeSpan.FromMilliseconds(16);
 
-    private const double BoundsRefreshSeconds = 1;
+    private const double WorkAreasRefreshSeconds = 1;
     private const double SpawnOffsetY = 90;
 
     private readonly ICatHost _host;
@@ -30,7 +30,7 @@ public sealed class CatChaseService : IDisposable
     private ScreenPoint _lastCursorPosition;
     private bool _hasCursorPosition;
     private long _lastTickTimestamp;
-    private double _boundsRefreshTime = BoundsRefreshSeconds;
+    private double _workAreasRefreshTime = WorkAreasRefreshSeconds;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CatChaseService" /> class.
@@ -68,7 +68,8 @@ public sealed class CatChaseService : IDisposable
     public void Start()
     {
         _workAreas = _host.GetWorkAreas();
-        _bounds = ComputeBounds(_host.GetCenter());
+        var center = _host.GetCenter();
+        _bounds = ComputeBounds(center, center);
         _lastTickTimestamp = Environment.TickCount64;
 
         // The timer is created lazily, so the service can be used without a running dispatcher.
@@ -102,7 +103,9 @@ public sealed class CatChaseService : IDisposable
             ? new ScreenPoint(cursorPosition.X, cursorPosition.Y + SpawnOffsetY)
             : _host.GetCenter();
 
-        _bounds = ComputeBounds(cursorPosition);
+        // Recenter is called before the loop starts, when the work areas are not read yet.
+        _workAreas = _host.GetWorkAreas();
+        _bounds = ComputeBounds(cursorPosition, cursorPosition);
         _simulator.Teleport(_bounds.Clamp(position));
     }
 
@@ -112,13 +115,16 @@ public sealed class CatChaseService : IDisposable
     /// <param name="deltaSeconds">Time elapsed since the previous tick in seconds.</param>
     public void Tick(double deltaSeconds)
     {
-        RefreshBounds(deltaSeconds);
+        RefreshWorkAreas(deltaSeconds);
         TryGetCursorPosition(out var cursorPosition);
 
         if (_host.IsDragging)
         {
             _simulator.Teleport(_host.GetCenter());
         }
+
+        // Computed every tick, so the bounds follow the cursor between screens and the sprite size changes at once.
+        _bounds = ComputeBounds(cursorPosition, _simulator.Position);
 
         _simulator.Update(deltaSeconds, new CatInput(
             cursorPosition,
@@ -171,38 +177,35 @@ public sealed class CatChaseService : IDisposable
         return false;
     }
 
-    private void RefreshBounds(double deltaSeconds)
+    private void RefreshWorkAreas(double deltaSeconds)
     {
-        _boundsRefreshTime += deltaSeconds;
-        if (_boundsRefreshTime < BoundsRefreshSeconds && !_bounds.IsEmpty)
+        _workAreasRefreshTime += deltaSeconds;
+        if (_workAreasRefreshTime < WorkAreasRefreshSeconds && _workAreas.Count > 0)
         {
             return;
         }
 
-        _boundsRefreshTime = 0;
+        _workAreasRefreshTime = 0;
         _workAreas = _host.GetWorkAreas();
-        _bounds = ComputeBounds(_hasCursorPosition ? _lastCursorPosition : _host.GetCenter());
     }
 
-    private SimulationRect ComputeBounds(ScreenPoint cursorPosition)
+    private SimulationRect ComputeBounds(ScreenPoint cursorPosition, ScreenPoint catPosition)
     {
         if (_workAreas.Count == 0)
         {
             return SimulationRect.Empty;
         }
 
-        // Prefer the screen the cursor is on, fall back to all screens combined.
+        // Prefer the screen the cursor is on. When the cat is on another screen, it is allowed to walk
+        // over both, otherwise it would jump to the cursor screen. Fall back to all screens combined.
+        var cursorArea = FindWorkArea(cursorPosition);
+        var catArea = FindWorkArea(catPosition);
         var area = SimulationRect.Empty;
-        foreach (var workArea in _workAreas)
+        if (!cursorArea.IsEmpty && !catArea.IsEmpty)
         {
-            if (workArea.Contains(cursorPosition))
-            {
-                area = workArea;
-                break;
-            }
+            area = SimulationRect.Union(cursorArea, catArea);
         }
-
-        if (area.IsEmpty)
+        else
         {
             foreach (var workArea in _workAreas)
             {
@@ -213,5 +216,18 @@ public sealed class CatChaseService : IDisposable
         // Keep the whole cat inside the area.
         var margin = Math.Max(_host.SpriteSize.X, _host.SpriteSize.Y) / 2;
         return area.Deflate(margin);
+    }
+
+    private SimulationRect FindWorkArea(ScreenPoint point)
+    {
+        foreach (var workArea in _workAreas)
+        {
+            if (workArea.Contains(point))
+            {
+                return workArea;
+            }
+        }
+
+        return SimulationRect.Empty;
     }
 }

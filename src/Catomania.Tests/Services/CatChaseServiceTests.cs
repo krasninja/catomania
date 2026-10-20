@@ -137,6 +137,43 @@ public class CatChaseServiceTests
         Assert.True(host.Center.X >= 1500);
     }
 
+    [Fact]
+    public void Tick_CursorMovesToAnotherScreen_ShouldWalkThereInsteadOfJumping()
+    {
+        // Arrange.
+        var host = new FakeCatHost
+        {
+            WorkAreas =
+            [
+                new SimulationRect(0, 0, 1000, 1000),
+                new SimulationRect(1000, 0, 1000, 1000),
+            ],
+            Center = new ScreenPoint(200, 500),
+        };
+        var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(1800, 500)));
+
+        // Act.
+        service.Tick(1.0 / 60);
+
+        // Assert.
+        Assert.Equal(new SimulationRect(50, 50, 1900, 900), service.Bounds);
+        Assert.InRange(host.Center.X, 200, 220);
+    }
+
+    [Fact]
+    public void Recenter_BeforeStart_ShouldKeepTheCatInsideTheWorkArea()
+    {
+        // Arrange. The cursor is at the bottom of the screen, the cat spawns below it.
+        var host = new FakeCatHost();
+        var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(800, 990)));
+
+        // Act.
+        service.Recenter();
+
+        // Assert.
+        Assert.Equal(950, service.Simulator.Position.Y, 6);
+    }
+
     /// <summary>
     /// Create the service the same way the application does: the cat starts where the window is.
     /// </summary>

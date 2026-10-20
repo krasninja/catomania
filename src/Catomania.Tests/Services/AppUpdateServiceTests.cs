@@ -46,7 +46,7 @@ public sealed class AppUpdateServiceTests
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = CreateFeedJson("99.1.2"),
         });
 
-        var latest = await new AppUpdateService(feed.Url).GetLatestVersionAsync();
+        var latest = await CreateService(feed.Url).GetLatestVersionAsync();
 
         Assert.NotNull(latest);
         Assert.Equal("99.1.2", latest!.ToString());
@@ -57,7 +57,7 @@ public sealed class AppUpdateServiceTests
     {
         await using var feed = new FeedServer(new Dictionary<string, string>());
 
-        var report = await new AppUpdateService(feed.Url).CheckAndUpdateAsync();
+        var report = await CreateService(feed.Url).CheckAndUpdateAsync();
 
         Assert.Equal(UpdateReportKind.NoReleases, report.Kind);
     }
@@ -70,7 +70,7 @@ public sealed class AppUpdateServiceTests
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = CreateFeedJson(AppUpdateService.GetAssemblyVersion()),
         });
 
-        var report = await new AppUpdateService(feed.Url).CheckAndUpdateAsync();
+        var report = await CreateService(feed.Url).CheckAndUpdateAsync();
 
         Assert.Equal(UpdateReportKind.UpToDate, report.Kind);
     }
@@ -82,7 +82,7 @@ public sealed class AppUpdateServiceTests
         {
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = CreateFeedJson("99.0.0"),
         });
-        var service = new AppUpdateService(feed.Url);
+        var service = CreateService(feed.Url);
 
         Assert.False(service.IsInstalled);
         var report = await service.CheckAndUpdateAsync();
@@ -109,7 +109,7 @@ public sealed class AppUpdateServiceTests
         {
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = CreateFeedJson("1.2.3"),
         });
-        var service = new AppUpdateService(
+        var service = CreateService(
             feed.Url,
             new TestVelopackLocator("catomania", "1.2.3", Path.GetTempPath()));
 
@@ -117,6 +117,26 @@ public sealed class AppUpdateServiceTests
 
         Assert.Equal(UpdateReportKind.UpToDate, report.Kind);
     }
+
+    [Fact]
+    public async Task CheckAndUpdateAsync_InvalidFeed_ReportsError()
+    {
+        // A captive portal or a misconfigured server returns HTML instead of the feed.
+        await using var feed = new FeedServer(new Dictionary<string, string>
+        {
+            [$"releases.{AppUpdateService.GetPlatform()}.json"] = "<html>Sign in to the network</html>",
+        });
+
+        var report = await CreateService(feed.Url).CheckAndUpdateAsync();
+
+        Assert.Equal(UpdateReportKind.Error, report.Kind);
+    }
+
+    /// <summary>
+    /// Create the service that reads the local feed directly, ignoring the proxy settings of the environment.
+    /// </summary>
+    private static AppUpdateService CreateService(string url, IVelopackLocator? locator = null)
+        => new(url, locator, new HttpClientHandler { UseProxy = false });
 
     private static string CreateFeedJson(string version)
         => "{\"Assets\":[{\"PackageId\":\"catomania\",\"Version\":\"" + version + "\","

@@ -77,6 +77,21 @@ public sealed class SettingsStorageTests : IDisposable
     }
 
     [Fact]
+    public void Save_Twice_ShouldOverwriteAndLeaveNoTemporaryFiles()
+    {
+        // Arrange.
+        var storage = new SettingsStorage(_directoryPath);
+
+        // Act.
+        storage.Save(new AppSettings { Size = CatSize.Large });
+        storage.Save(new AppSettings { Size = CatSize.Small });
+
+        // Assert.
+        Assert.Equal(CatSize.Small, storage.Load().Size);
+        Assert.Equal([storage.FilePath], Directory.GetFiles(_directoryPath));
+    }
+
+    [Fact]
     public void Save_ShouldWriteEnumValuesAsStrings()
     {
         // Arrange.

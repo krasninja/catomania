@@ -158,14 +158,29 @@ public class CatSimulatorTests
     {
         // Arrange.
         var bounds = new SimulationRect(0, 0, 600, 600);
-        var simulator = CreateSimulator(new ScreenPoint(590, 300));
+        var simulator = CreateSimulator(new ScreenPoint(300, 300));
 
         // Act.
         Run(simulator, CreateInput(new ScreenPoint(5000, 300), bounds), 5);
 
-        // Assert.
-        Assert.Equal(600, simulator.Position.X, 6);
+        // Assert. The cat comes to the edge and stops within the catch radius.
+        Assert.InRange(simulator.Position.X, 600 - simulator.Options.CatchRadius, 600);
         Assert.Equal(300, simulator.Position.Y, 6);
+    }
+
+    [Fact]
+    public void Update_CursorOutsideBounds_ShouldStopAtTheEdgeAndFallAsleep()
+    {
+        // Arrange. The cursor rests on the taskbar below the work area.
+        var bounds = new SimulationRect(0, 0, 600, 600);
+        var simulator = CreateSimulator(new ScreenPoint(300, 300), new CatSimulatorOptions { SleepAfterSeconds = 3 });
+
+        // Act.
+        Run(simulator, CreateInput(new ScreenPoint(300, 700), bounds), 5);
+
+        // Assert.
+        Assert.Equal(CatAnimationState.Sleep, simulator.State);
+        Assert.Equal(ScreenPoint.Zero, simulator.Velocity);
     }
 
     [Fact]

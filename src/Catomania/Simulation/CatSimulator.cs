@@ -113,7 +113,10 @@ public sealed class CatSimulator
 
         TrackCursorActivity(input.CursorPosition, deltaSeconds);
 
-        var toCursor = input.CursorPosition - Position;
+        // The cursor may be outside of the bounds (the taskbar, the screen edge), chase the closest
+        // reachable point, otherwise the cat would keep walking in place at the edge.
+        var target = input.Bounds.Clamp(input.CursorPosition);
+        var toCursor = target - Position;
         var distance = toCursor.Length;
         var (state, targetSpeed) = GetTargetMotion(distance, input);
 

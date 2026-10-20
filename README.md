@@ -42,7 +42,7 @@ The repository contains a Cake Frosting build script (`./build.sh`) that publish
 ./build.sh --target=Publish-Mac
 ```
 
-Published binaries are placed to `./output`, Velopack releases (setup, portable package and the update feed) to `./output/releases/<platform>`. The version is calculated by GitVersion and can be overridden with the `CATOMANIA_VERSION` environment variable (for example, `CATOMANIA_VERSION=1.2.3 ./build.sh --target=Publish-Linux`).
+Published binaries are placed to `./output/publish`, Velopack releases (setup, portable package and the update feed) to `./output/releases/<platform>`. The version is calculated by GitVersion and can be overridden with the `CATOMANIA_VERSION` environment variable (for example, `CATOMANIA_VERSION=1.2.3 ./build.sh --target=Publish-Linux`).
 
 Prerequisites:
 

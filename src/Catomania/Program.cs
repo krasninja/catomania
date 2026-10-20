@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using System;
 using Catomania.Models;
 using Catomania.Services;
 using Velopack;
@@ -47,7 +46,7 @@ class Program
         }
 
         var report = new AppUpdateService(updateUrl)
-            .CheckAndUpdateAsync(CancellationToken.None)
+            .CheckAndUpdateAsync(restartAfterUpdate: false, CancellationToken.None)
             .GetAwaiter()
             .GetResult();
         Console.WriteLine(report.Message);

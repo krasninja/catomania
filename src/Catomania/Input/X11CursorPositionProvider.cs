@@ -44,6 +44,12 @@ public sealed class X11CursorPositionProvider : ICursorPositionProvider, IDispos
 
         lock (_syncRoot)
         {
+            // The display may have been closed after the check above, Xlib crashes on a null display.
+            if (_display == IntPtr.Zero)
+            {
+                return false;
+            }
+
             try
             {
                 var status = NativeMethods.XQueryPointer(

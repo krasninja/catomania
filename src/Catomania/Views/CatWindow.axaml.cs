@@ -29,6 +29,7 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
     private readonly CatChaseService _chaseService;
 
     private bool _isDragging;
+    private bool _isCheckingUpdates;
     private bool _disposed;
     private PixelPoint _dragWindowPosition;
     private PixelPoint _dragPointerPosition;
@@ -69,6 +70,11 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         Opened += OnOpened;
         Closed += OnClosed;
     }
+
+    /// <summary>
+    /// Occurs when the user changes the settings.
+    /// </summary>
+    public event EventHandler? SettingsChanged;
 
     /// <summary>
     /// Gets the screen scaling of the window.
@@ -133,7 +139,7 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         if (e.ClickCount == 2)
         {
             _settings.Paused = !_settings.Paused;
-            SyncMenu();
+            CommitSettings();
             return;
         }
 
@@ -168,9 +174,18 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
             return;
         }
 
-        _isDragging = false;
         e.Pointer.Capture(null);
-        _simulator.Teleport(GetCenter());
+        EndDrag();
+    }
+
+    /// <inheritdoc />
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        base.OnPointerCaptureLost(e);
+
+        // The capture can be taken away without a release, for example by a window switch,
+        // the cat would stay dragged forever otherwise.
+        EndDrag();
     }
 
     /// <inheritdoc />
@@ -184,10 +199,25 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
 
         var sizes = Enum.GetValues<CatSize>();
         var index = Array.IndexOf(sizes, _settings.Size);
-        index = Math.Clamp(index + (e.Delta.Y > 0 ? 1 : -1), 0, sizes.Length - 1);
-        _settings.Size = sizes[index];
-        ApplySettings();
-        SyncMenu();
+        var size = sizes[Math.Clamp(index + (e.Delta.Y > 0 ? 1 : -1), 0, sizes.Length - 1)];
+        if (size == _settings.Size)
+        {
+            return;
+        }
+
+        _settings.Size = size;
+        CommitSettings();
+    }
+
+    private void EndDrag()
+    {
+        if (!_isDragging)
+        {
+            return;
+        }
+
+        _isDragging = false;
+        _simulator.Teleport(GetCenter());
     }
 
     private void OnOpened(object? sender, EventArgs e)
@@ -214,7 +244,7 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
     private void OnPauseClick(object? sender, RoutedEventArgs e)
     {
         _settings.Paused = !_settings.Paused;
-        SyncMenu();
+        CommitSettings();
     }
 
     private void OnSpeedClick(object? sender, RoutedEventArgs e)
@@ -224,7 +254,7 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
             _settings.Speed = speed;
         }
 
-        SyncMenu();
+        CommitSettings();
     }
 
     private void OnColorSchemeClick(object? sender, RoutedEventArgs e)
@@ -232,10 +262,9 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         if (sender is MenuItem { Tag: CatColorScheme colorScheme })
         {
             _settings.ColorScheme = colorScheme;
-            ApplySettings();
         }
 
-        SyncMenu();
+        CommitSettings();
     }
 
     private void OnSizeClick(object? sender, RoutedEventArgs e)
@@ -243,27 +272,43 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         if (sender is MenuItem { Tag: CatSize size })
         {
             _settings.Size = size;
-            ApplySettings();
         }
 
-        SyncMenu();
+        CommitSettings();
     }
 
     private void OnTopmostClick(object? sender, RoutedEventArgs e)
     {
         _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
-        ApplySettings();
-        SyncMenu();
+        CommitSettings();
     }
 
     private void OnRecenterClick(object? sender, RoutedEventArgs e) => _chaseService.Recenter();
 
     private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e)
     {
-        var report = await new AppUpdateService().CheckAndUpdateAsync();
-        if (report.Kind != UpdateReportKind.Updating)
+        // An async void handler must not throw, and a second click should not start a parallel update.
+        if (_isCheckingUpdates)
         {
-            ShowUpdateReport(report.Message);
+            return;
+        }
+
+        _isCheckingUpdates = true;
+        try
+        {
+            var report = await new AppUpdateService().CheckAndUpdateAsync(restartAfterUpdate: true);
+            if (report.Kind != UpdateReportKind.Updating)
+            {
+                ShowUpdateReport(report.Message);
+            }
+        }
+        catch (Exception exception)
+        {
+            ShowUpdateReport($"Failed to check updates: {exception.Message}");
+        }
+        finally
+        {
+            _isCheckingUpdates = false;
         }
     }
 
@@ -307,6 +352,13 @@ public sealed partial class CatWindow : Window, ICatHost, IDisposable
         Topmost = _settings.AlwaysOnTop;
         _catView.ColorScheme = _settings.ColorScheme;
         _chaseService.ApplySettings();
+    }
+
+    private void CommitSettings()
+    {
+        ApplySettings();
+        SyncMenu();
+        SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void SyncMenu()

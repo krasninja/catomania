@@ -73,8 +73,15 @@ public sealed class SettingsStorage
         try
         {
             Directory.CreateDirectory(_directoryPath);
-            using var stream = File.Create(FilePath);
-            JsonSerializer.Serialize(stream, settings, CatomaniaJsonContext.Default.AppSettings);
+
+            // Write to a temporary file first, so an interrupted save does not leave a truncated settings file.
+            var temporaryFilePath = FilePath + ".tmp";
+            using (var stream = File.Create(temporaryFilePath))
+            {
+                JsonSerializer.Serialize(stream, settings, CatomaniaJsonContext.Default.AppSettings);
+            }
+
+            File.Move(temporaryFilePath, FilePath, overwrite: true);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {

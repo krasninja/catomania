@@ -1,5 +1,5 @@
-using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using Catomania.Models;
 using Velopack;
 using Velopack.Locators;
@@ -17,16 +17,22 @@ public sealed class AppUpdateService
     public const string BaseUpdateUrl = "https://misc.anti-soft.ru/catomania";
 
     private readonly UpdateManager _updateManager;
+    private readonly HttpMessageHandler? _httpMessageHandler;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppUpdateService" /> class.
     /// </summary>
     /// <param name="updateUrl">Release feed URI, the platform default one when omitted.</param>
     /// <param name="locator">Velopack locator, the application one when omitted. Used by tests.</param>
-    public AppUpdateService(string? updateUrl = null, IVelopackLocator? locator = null)
+    /// <param name="httpMessageHandler">HTTP handler used to read the release feed, the default one when omitted. Used by tests.</param>
+    public AppUpdateService(
+        string? updateUrl = null,
+        IVelopackLocator? locator = null,
+        HttpMessageHandler? httpMessageHandler = null)
     {
         UpdateUrl = updateUrl ?? GetDefaultUpdateUrl();
         _updateManager = new UpdateManager(UpdateUrl, null, locator);
+        _httpMessageHandler = httpMessageHandler;
     }
 
     /// <summary>
@@ -93,10 +99,12 @@ public sealed class AppUpdateService
     /// <returns>The latest published version or null when the feed has no releases yet.</returns>
     public async Task<SemanticVersion?> GetLatestVersionAsync(CancellationToken cancellationToken = default)
     {
-        using var httpClient = new HttpClient();
+        using var httpClient = _httpMessageHandler != null
+            ? new HttpClient(_httpMessageHandler, disposeHandler: false)
+            : new HttpClient();
         foreach (var indexName in new[] { $"releases.{GetPlatform()}.json", "releases.json" })
         {
-            var response = await httpClient
+            using var response = await httpClient
                 .GetAsync($"{UpdateUrl.TrimEnd('/')}/{indexName}", cancellationToken)
                 .ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
@@ -119,9 +127,12 @@ public sealed class AppUpdateService
     /// <summary>
     /// Check the release feed for a newer version and apply it when the application is installed by Velopack.
     /// </summary>
+    /// <param name="restartAfterUpdate">Whether to start the application again after the update is applied.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Update check result.</returns>
-    public async Task<UpdateReport> CheckAndUpdateAsync(CancellationToken cancellationToken = default)
+    public async Task<UpdateReport> CheckAndUpdateAsync(
+        bool restartAfterUpdate = false,
+        CancellationToken cancellationToken = default)
     {
         var current = GetCurrentVersion();
 
@@ -130,7 +141,7 @@ public sealed class AppUpdateService
         {
             latest = await GetLatestVersionAsync(cancellationToken).ConfigureAwait(false);
         }
-        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or OperationCanceledException)
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException or JsonException)
         {
             return new UpdateReport(UpdateReportKind.Error, $"Failed to check updates at {UpdateUrl}: {e.Message}");
         }
@@ -156,6 +167,7 @@ public sealed class AppUpdateService
 
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
             if (updateInfo is null)
             {
@@ -163,10 +175,19 @@ public sealed class AppUpdateService
             }
 
             await _updateManager.DownloadUpdatesAsync(updateInfo, cancelToken: cancellationToken).ConfigureAwait(false);
-            _updateManager.ApplyUpdatesAndExit(updateInfo);
+            // Both calls exit the process.
+            if (restartAfterUpdate)
+            {
+                _updateManager.ApplyUpdatesAndRestart(updateInfo);
+            }
+            else
+            {
+                _updateManager.ApplyUpdatesAndExit(updateInfo);
+            }
+
             return new UpdateReport(
                 UpdateReportKind.Updating,
-                $"Updating Catomania to {updateInfo.TargetFullRelease.Version}, the application will restart.");
+                $"Updating Catomania to {updateInfo.TargetFullRelease.Version}.");
         }
         catch (Exception e)
         {

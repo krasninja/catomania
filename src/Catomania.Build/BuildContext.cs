@@ -16,9 +16,10 @@ public class BuildContext : FrostingContext
     private const string FallbackVersion = "0.1.0";
 
     /// <summary>
-    /// Directory with published binaries.
+    /// Directory with published binaries. It is cleaned before every publish, so it must not contain
+    /// the releases: Velopack needs the previous ones to build delta packages and the full feed.
     /// </summary>
-    public ConvertableDirectoryPath OutputDirectory => this.Directory("./output");
+    public ConvertableDirectoryPath OutputDirectory => this.Directory("./output/publish");
 
     /// <summary>
     /// Directory with Velopack releases.

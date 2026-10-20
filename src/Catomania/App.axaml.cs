@@ -44,6 +44,9 @@ public sealed partial class App : Application
             _settings = _settingsStorage.Load();
             var catWindow = new CatWindow(_settings);
             catWindow.Closed += (_, _) => desktop.Shutdown();
+
+            // Save right away: a self-update exits the process without raising the Exit event.
+            catWindow.SettingsChanged += (_, _) => _settingsStorage.Save(_settings);
             desktop.MainWindow = catWindow;
             catWindow.Show();
         }
