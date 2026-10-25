@@ -1,4 +1,3 @@
-using Cake.Common;
 using Cake.Common.IO;
 using Cake.Common.Tools.DotNet;
 using Cake.Frosting;
