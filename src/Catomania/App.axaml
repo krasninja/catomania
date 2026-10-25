@@ -35,6 +35,10 @@
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Panda}"
                                                 Click="OnAnimalClick" />
+                                <NativeMenuItem Header="Dog"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalKind.Dog}"
+                                                Click="OnAnimalClick" />
                             </NativeMenu>
                         </NativeMenuItem>
                         <NativeMenuItem Header="Speed">

@@ -30,7 +30,7 @@ public sealed class AppTrayMenuTests
             Assert.Equal(MenuItemToggleType.CheckBox, GetItem(items, "Always on Top").ToggleType);
 
             Assert.Equal(
-                new[] { "Cat", "Panda" },
+                new[] { "Cat", "Panda", "Dog" },
                 GetChildren(items, "Animal").Select(item => item.Header));
             Assert.Equal(
                 new[] { "Slow", "Normal", "Fast" },

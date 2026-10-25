@@ -17,4 +17,9 @@ public enum AnimalKind
     /// A panda cub.
     /// </summary>
     Panda,
+
+    /// <summary>
+    /// A springer spaniel.
+    /// </summary>
+    Dog,
 }

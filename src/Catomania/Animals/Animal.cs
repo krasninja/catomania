@@ -55,6 +55,7 @@ public abstract class Animal
         return settings.Animal switch
         {
             AnimalKind.Panda => new Panda(),
+            AnimalKind.Dog => new Dog(),
             _ => new Cat(settings.ColorScheme),
         };
     }
