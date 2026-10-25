@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Catomania.Animals;
 using Catomania.Controls;
 using Catomania.Input;
@@ -19,6 +20,16 @@ namespace Catomania.Views;
 /// </summary>
 public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands, IDisposable
 {
+    /// <summary>
+    /// Delay before the first automatic update check, so it does not slow down the start.
+    /// </summary>
+    public static readonly TimeSpan FirstUpdateCheckDelay = TimeSpan.FromMinutes(1);
+
+    /// <summary>
+    /// Interval between the automatic update checks.
+    /// </summary>
+    public static readonly TimeSpan UpdateCheckInterval = TimeSpan.FromHours(6);
+
     private readonly AppSettings _settings;
     private readonly AnimalView _animalView;
     private readonly ContextMenu _contextMenu;
@@ -28,6 +39,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private readonly CompositeCursorPositionProvider _cursorPositionProvider;
     private readonly AnimalSimulator _simulator;
     private readonly AnimalChaseService _chaseService;
+    private readonly DispatcherTimer _updateCheckTimer;
 
     private bool _isDragging;
     private bool _isCheckingUpdates;
@@ -66,6 +78,9 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _animalView.Animal = Animal.Create(_settings);
         _simulator = new AnimalSimulator(_animalView.Animal.CreateSimulatorOptions());
         _chaseService = new AnimalChaseService(this, _cursorPositionProvider, _simulator, _settings);
+
+        _updateCheckTimer = new DispatcherTimer { Interval = FirstUpdateCheckDelay };
+        _updateCheckTimer.Tick += OnUpdateCheckTimerTick;
 
         ApplySettings();
         SyncMenu();
@@ -119,32 +134,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     public void Recenter() => _chaseService.Recenter();
 
     /// <inheritdoc />
-    public async Task CheckForUpdatesAsync()
-    {
-        // A second call should not start a parallel update.
-        if (_isCheckingUpdates)
-        {
-            return;
-        }
-
-        _isCheckingUpdates = true;
-        try
-        {
-            var report = await new AppUpdateService().CheckAndUpdateAsync(restartAfterUpdate: true);
-            if (report.Kind != UpdateReportKind.Updating)
-            {
-                ShowUpdateReport(report.Message);
-            }
-        }
-        catch (Exception exception)
-        {
-            ShowUpdateReport($"Failed to check updates: {exception.Message}");
-        }
-        finally
-        {
-            _isCheckingUpdates = false;
-        }
-    }
+    public Task CheckForUpdatesAsync() => CheckForUpdatesAsync(silent: false);
 
     /// <inheritdoc />
     public void Quit()
@@ -308,6 +298,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _chaseService.Recenter();
         SetCenter(_simulator.Position);
         _chaseService.Start();
+        _updateCheckTimer.Start();
     }
 
     private void OnClosed(object? sender, EventArgs e) => DisposeResources();
@@ -320,6 +311,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         }
 
         _disposed = true;
+        _updateCheckTimer.Stop();
         _chaseService.Dispose();
         _cursorPositionProvider.Dispose();
     }
@@ -355,6 +347,66 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private void OnRecenterClick(object? sender, RoutedEventArgs e) => Recenter();
 
     private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e) => await CheckForUpdatesAsync();
+
+    private async void OnUpdateCheckTimerTick(object? sender, EventArgs e)
+    {
+        _updateCheckTimer.Interval = UpdateCheckInterval;
+        await CheckForUpdatesAsync(silent: true);
+    }
+
+    /// <summary>
+    /// Check the release feed and apply a newer version, restarting the application.
+    /// </summary>
+    /// <param name="silent">
+    /// Whether the check runs in the background: it is skipped for the builds that cannot update
+    /// themselves, and no report is shown, failures are only logged.
+    /// </param>
+    private async Task CheckForUpdatesAsync(bool silent)
+    {
+        // A second call should not start a parallel update.
+        if (_isCheckingUpdates)
+        {
+            return;
+        }
+
+        _isCheckingUpdates = true;
+        try
+        {
+            var updateService = new AppUpdateService();
+            if (silent && !updateService.IsInstalled)
+            {
+                return;
+            }
+
+            var report = await updateService.CheckAndUpdateAsync(restartAfterUpdate: true);
+            if (silent)
+            {
+                if (report.Kind == UpdateReportKind.Error)
+                {
+                    Console.Error.WriteLine($"Catomania: {report.Message}");
+                }
+            }
+            else if (report.Kind != UpdateReportKind.Updating)
+            {
+                ShowUpdateReport(report.Message);
+            }
+        }
+        catch (Exception exception)
+        {
+            if (silent)
+            {
+                Console.Error.WriteLine($"Catomania: failed to check updates: {exception.Message}");
+            }
+            else
+            {
+                ShowUpdateReport($"Failed to check updates: {exception.Message}");
+            }
+        }
+        finally
+        {
+            _isCheckingUpdates = false;
+        }
+    }
 
     private void ShowUpdateReport(string message)
     {

@@ -1,5 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Catomania"
+             xmlns:models="using:Catomania.Models"
              x:Class="Catomania.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
@@ -7,4 +9,89 @@
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
+
+    <!-- The tray icon shows the same options as the animal's context menu, so the animal can be
+         controlled even when it is out of reach or paused. The items with a check mark keep the
+         setting they show in CommandParameter, like the animal's menu items keep it in Tag. -->
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/Icon.ico"
+                      ToolTipText="Catomania"
+                      IsVisible="False">
+                <TrayIcon.Menu>
+                    <NativeMenu Opening="OnTrayMenuOpening">
+                        <NativeMenuItem Header="Pause"
+                                        ToggleType="CheckBox"
+                                        CommandParameter="{x:Static local:App.PauseSetting}"
+                                        Click="OnPauseClick" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Speed">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Slow"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalSpeed.Slow}"
+                                                Click="OnSpeedClick" />
+                                <NativeMenuItem Header="Normal"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalSpeed.Normal}"
+                                                Click="OnSpeedClick" />
+                                <NativeMenuItem Header="Fast"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalSpeed.Fast}"
+                                                Click="OnSpeedClick" />
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItem Header="Fur">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Ginger"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:CatColorScheme.Ginger}"
+                                                Click="OnColorSchemeClick" />
+                                <NativeMenuItem Header="Gray"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:CatColorScheme.Gray}"
+                                                Click="OnColorSchemeClick" />
+                                <NativeMenuItem Header="Black"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:CatColorScheme.Black}"
+                                                Click="OnColorSchemeClick" />
+                                <NativeMenuItem Header="Cream"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:CatColorScheme.Cream}"
+                                                Click="OnColorSchemeClick" />
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItem Header="Size">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Small"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalSize.Small}"
+                                                Click="OnSizeClick" />
+                                <NativeMenuItem Header="Medium"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalSize.Medium}"
+                                                Click="OnSizeClick" />
+                                <NativeMenuItem Header="Large"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalSize.Large}"
+                                                Click="OnSizeClick" />
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Always on Top"
+                                        ToggleType="CheckBox"
+                                        CommandParameter="{x:Static local:App.AlwaysOnTopSetting}"
+                                        Click="OnTopmostClick" />
+                        <NativeMenuItem Header="Recenter"
+                                        Click="OnRecenterClick" />
+                        <NativeMenuItem Header="Check for Updates"
+                                        Click="OnCheckUpdatesClick" />
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Quit Catomania"
+                                        Click="OnQuitClick" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>

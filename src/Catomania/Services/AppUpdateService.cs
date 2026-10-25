@@ -14,7 +14,7 @@ public sealed class AppUpdateService
     /// <summary>
     /// Base URI with the Velopack releases per platform.
     /// </summary>
-    public const string BaseUpdateUrl = "https://misc.anti-soft.ru/catomania";
+    public const string BaseUpdateUrl = "https://catomania.anti-soft.ru";
 
     private readonly UpdateManager _updateManager;
     private readonly HttpMessageHandler? _httpMessageHandler;

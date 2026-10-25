@@ -2,16 +2,15 @@ using Avalonia.Controls;
 using Avalonia.Headless;
 using Catomania.Models;
 using Catomania.Services;
-using Catomania.Views;
 using Xunit;
 
-namespace Catomania.Tests.Views;
+namespace Catomania.Tests;
 
 /// <summary>
-/// Tests for <see cref="AppTrayIcon" />: the tray menu shows the same options as the animal's
+/// Tests for the tray menu declared in <see cref="App" />: the menu shows the same options as the animal's
 /// context menu, the items run the shared commands and the check marks follow the settings.
 /// </summary>
-public sealed class AppTrayIconTests
+public sealed class AppTrayMenuTests
 {
     private static readonly HeadlessUnitTestSession _session = TestHeadlessSession.Instance;
 
@@ -19,7 +18,7 @@ public sealed class AppTrayIconTests
     public Task Menu_MirrorsCatContextMenu()
         => _session.Dispatch(() =>
         {
-            using var trayIcon = CreateTrayIcon(new AppSettings(), new RecordingCommands());
+            var trayIcon = CreateTrayIcon(new AppSettings(), new RecordingCommands());
 
             var items = GetTopLevelItems(trayIcon);
             Assert.Equal(
@@ -49,7 +48,7 @@ public sealed class AppTrayIconTests
         => _session.Dispatch(() =>
         {
             var commands = new RecordingCommands();
-            using var trayIcon = CreateTrayIcon(new AppSettings(), commands);
+            var trayIcon = CreateTrayIcon(new AppSettings(), commands);
             var items = GetTopLevelItems(trayIcon);
 
             RaiseClick(GetItem(items, "Pause"));
@@ -88,7 +87,8 @@ public sealed class AppTrayIconTests
                 ColorScheme = CatColorScheme.Black,
                 Size = AnimalSize.Large,
             };
-            using var trayIcon = CreateTrayIcon(settings, new RecordingCommands());
+            var app = new App();
+            var trayIcon = CreateTrayIcon(app, settings, new RecordingCommands());
             var items = GetTopLevelItems(trayIcon);
 
             Assert.True(GetItem(items, "Pause").IsChecked);
@@ -99,7 +99,7 @@ public sealed class AppTrayIconTests
             settings.Speed = AnimalSpeed.Slow;
             settings.ColorScheme = CatColorScheme.Cream;
             settings.Size = AnimalSize.Small;
-            trayIcon.SyncMenu();
+            app.SyncTrayMenu();
 
             Assert.False(GetItem(items, "Pause").IsChecked);
             Assert.True(GetItem(items, "Always on Top").IsChecked);
@@ -116,8 +116,17 @@ public sealed class AppTrayIconTests
             }
         }, CancellationToken.None);
 
-    private static AppTrayIcon CreateTrayIcon(AppSettings settings, IAnimalCommands commands)
-        => new(settings, commands);
+    private static TrayIcon CreateTrayIcon(AppSettings settings, IAnimalCommands commands)
+        => CreateTrayIcon(new App(), settings, commands);
+
+    private static TrayIcon CreateTrayIcon(App app, AppSettings settings, IAnimalCommands commands)
+    {
+        app.Initialize();
+        app.AttachTrayIcon(settings, commands);
+        var trayIcon = Assert.Single(TrayIcon.GetIcons(app)!);
+        Assert.True(trayIcon.IsVisible);
+        return trayIcon;
+    }
 
     private static List<NativeMenuItem> GetTopLevelItems(TrayIcon trayIcon)
         => trayIcon.Menu!.Items.OfType<NativeMenuItem>().Where(item => item is not NativeMenuItemSeparator).ToList();

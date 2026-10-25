@@ -15,18 +15,21 @@ namespace Catomania;
 /// </summary>
 public sealed partial class App : Application
 {
+    /// <summary>
+    /// Tray menu item parameter of the pause check box.
+    /// </summary>
+    public const string PauseSetting = nameof(AppSettings.Paused);
+
+    /// <summary>
+    /// Tray menu item parameter of the always on top check box.
+    /// </summary>
+    public const string AlwaysOnTopSetting = nameof(AppSettings.AlwaysOnTop);
+
     private readonly SettingsStorage _settingsStorage = new();
 
     private AppSettings? _settings;
+    private IAnimalCommands? _commands;
     private PosixSignalRegistration? _terminationRegistration;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="App" /> class.
-    /// </summary>
-    public App()
-    {
-        Dispatcher.UIThread.UnhandledException += OnUnhandledException;
-    }
 
     /// <inheritdoc />
     public override void Initialize()
@@ -34,11 +37,54 @@ public sealed partial class App : Application
         AvaloniaXamlLoader.Load(this);
     }
 
+    /// <summary>
+    /// Connect the tray menu declared in the application XAML to the animal and show the tray icon.
+    /// </summary>
+    /// <param name="settings">Application settings.</param>
+    /// <param name="commands">The commands to run when the menu items are clicked.</param>
+    public void AttachTrayIcon(AppSettings settings, IAnimalCommands commands)
+    {
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _commands = commands ?? throw new ArgumentNullException(nameof(commands));
+        SyncTrayMenu();
+        foreach (var trayIcon in TrayIcon.GetIcons(this) ?? [])
+        {
+            trayIcon.IsVisible = true;
+        }
+    }
+
+    /// <summary>
+    /// Update the tray menu check marks from the current settings. Called when the settings change
+    /// from anywhere: the tray menu itself, the animal's context menu, the mouse wheel or a double click.
+    /// </summary>
+    public void SyncTrayMenu()
+    {
+        if (_settings == null)
+        {
+            return;
+        }
+
+        foreach (var item in GetTrayMenuItems())
+        {
+            item.IsChecked = item.CommandParameter switch
+            {
+                AnimalSpeed speed => speed == _settings.Speed,
+                CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
+                AnimalSize size => size == _settings.Size,
+                PauseSetting => _settings.Paused,
+                AlwaysOnTopSetting => _settings.AlwaysOnTop,
+                _ => item.IsChecked,
+            };
+        }
+    }
+
     /// <inheritdoc />
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            Dispatcher.UIThread.UnhandledException += OnUnhandledException;
+
             // The animal window is the only window, closing it quits the application.
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             desktop.Exit += OnExit;
@@ -50,11 +96,9 @@ public sealed partial class App : Application
             // Save right away: a self-update exits the process without raising the Exit event.
             animalWindow.SettingsChanged += (_, _) => _settingsStorage.Save(_settings);
 
-            // The tray icon shows the same options as the animal's context menu. It needs no
-            // separate quit handling: the icons are disposed on dispatcher shutdown.
-            var trayIcon = new AppTrayIcon(_settings, animalWindow);
-            animalWindow.SettingsChanged += (_, _) => trayIcon.SyncMenu();
-            TrayIcon.SetIcons(this, new TrayIcons { trayIcon });
+            // The tray icon needs no separate quit handling: the icons are disposed on dispatcher shutdown.
+            AttachTrayIcon(_settings, animalWindow);
+            animalWindow.SettingsChanged += (_, _) => SyncTrayMenu();
 
             desktop.MainWindow = animalWindow;
             animalWindow.Show();
@@ -70,6 +114,64 @@ public sealed partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    private IEnumerable<NativeMenuItem> GetTrayMenuItems()
+    {
+        foreach (var trayIcon in TrayIcon.GetIcons(this) ?? [])
+        {
+            foreach (var item in trayIcon.Menu?.Items.OfType<NativeMenuItem>() ?? [])
+            {
+                yield return item;
+                foreach (var child in item.Menu?.Items.OfType<NativeMenuItem>() ?? [])
+                {
+                    yield return child;
+                }
+            }
+        }
+    }
+
+    // Refresh the check marks every time the menu is about to open, like the animal's menu does.
+    private void OnTrayMenuOpening(object? sender, EventArgs e) => SyncTrayMenu();
+
+    private void OnPauseClick(object? sender, EventArgs e) => _commands?.TogglePause();
+
+    private void OnSpeedClick(object? sender, EventArgs e)
+    {
+        if (sender is NativeMenuItem { CommandParameter: AnimalSpeed speed })
+        {
+            _commands?.SetSpeed(speed);
+        }
+    }
+
+    private void OnColorSchemeClick(object? sender, EventArgs e)
+    {
+        if (sender is NativeMenuItem { CommandParameter: CatColorScheme colorScheme })
+        {
+            _commands?.SetFur(colorScheme);
+        }
+    }
+
+    private void OnSizeClick(object? sender, EventArgs e)
+    {
+        if (sender is NativeMenuItem { CommandParameter: AnimalSize size })
+        {
+            _commands?.SetSize(size);
+        }
+    }
+
+    private void OnTopmostClick(object? sender, EventArgs e) => _commands?.ToggleAlwaysOnTop();
+
+    private void OnRecenterClick(object? sender, EventArgs e) => _commands?.Recenter();
+
+    private async void OnCheckUpdatesClick(object? sender, EventArgs e)
+    {
+        if (_commands != null)
+        {
+            await _commands.CheckForUpdatesAsync();
+        }
+    }
+
+    private void OnQuitClick(object? sender, EventArgs e) => _commands?.Quit();
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
