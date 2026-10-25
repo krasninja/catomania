@@ -69,7 +69,7 @@ public sealed class AnimalChaseService : IDisposable
     {
         _workAreas = _host.GetWorkAreas();
         var center = _host.GetCenter();
-        _bounds = ComputeBounds(center, center);
+        _bounds = ComputeBounds(center);
         _lastTickTimestamp = Environment.TickCount64;
 
         // The timer is created lazily, so the service can be used without a running dispatcher.
@@ -105,7 +105,7 @@ public sealed class AnimalChaseService : IDisposable
 
         // Recenter is called before the loop starts, when the work areas are not read yet.
         _workAreas = _host.GetWorkAreas();
-        _bounds = ComputeBounds(cursorPosition, cursorPosition);
+        _bounds = ComputeBounds(cursorPosition);
         _simulator.Teleport(_bounds.Clamp(position));
     }
 
@@ -123,8 +123,8 @@ public sealed class AnimalChaseService : IDisposable
             _simulator.Teleport(_host.GetCenter());
         }
 
-        // Computed every tick, so the bounds follow the cursor between screens and the sprite size changes at once.
-        _bounds = ComputeBounds(cursorPosition, _simulator.Position);
+        // Computed every tick, so the bounds follow the animal dragged to another screen and the sprite size changes at once.
+        _bounds = ComputeBounds(_simulator.Position);
 
         _simulator.Update(deltaSeconds, new AnimalInput(
             cursorPosition,
@@ -190,23 +190,17 @@ public sealed class AnimalChaseService : IDisposable
         _workAreas = _host.GetWorkAreas();
     }
 
-    private SimulationRect ComputeBounds(ScreenPoint cursorPosition, ScreenPoint catPosition)
+    private SimulationRect ComputeBounds(ScreenPoint position)
     {
         if (_workAreas.Count == 0)
         {
             return SimulationRect.Empty;
         }
 
-        // Prefer the screen the cursor is on. When the animal is on another screen, it is allowed to walk
-        // over both, otherwise it would jump to the cursor screen. Fall back to all screens combined.
-        var cursorArea = FindWorkArea(cursorPosition);
-        var catArea = FindWorkArea(catPosition);
-        var area = SimulationRect.Empty;
-        if (!cursorArea.IsEmpty && !catArea.IsEmpty)
-        {
-            area = SimulationRect.Union(cursorArea, catArea);
-        }
-        else
+        // The animal stays on the screen it is on and does not follow the cursor to another screen,
+        // it can be moved there by dragging or recentering. Fall back to all screens combined.
+        var area = FindWorkArea(position);
+        if (area.IsEmpty)
         {
             foreach (var workArea in _workAreas)
             {

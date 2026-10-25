@@ -138,7 +138,7 @@ public class AnimalChaseServiceTests
     }
 
     [Fact]
-    public void Tick_CursorMovesToAnotherScreen_ShouldWalkThereInsteadOfJumping()
+    public void Tick_CursorMovesToAnotherScreen_ShouldStayOnItsScreen()
     {
         // Arrange.
         var host = new FakeAnimalHost
@@ -155,9 +155,18 @@ public class AnimalChaseServiceTests
         // Act.
         service.Tick(1.0 / 60);
 
-        // Assert.
-        Assert.Equal(new SimulationRect(50, 50, 1900, 900), service.Bounds);
+        // Assert. The first screen work area deflated by half of the sprite size.
+        Assert.Equal(new SimulationRect(50, 50, 900, 900), service.Bounds);
         Assert.InRange(host.Center.X, 200, 220);
+
+        // Act. The animal reaches the screen edge and stops there.
+        for (var i = 0; i < 600; i++)
+        {
+            service.Tick(1.0 / 60);
+        }
+
+        // Assert.
+        Assert.InRange(host.Center.X, 200, 950);
     }
 
     [Fact]
