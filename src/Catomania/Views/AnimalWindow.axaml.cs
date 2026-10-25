@@ -34,6 +34,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private readonly AnimalView _animalView;
     private readonly ContextMenu _contextMenu;
     private readonly MenuItem _pauseMenuItem;
+    private readonly MenuItem _furMenuItem;
     private readonly MenuItem _topmostMenuItem;
     private readonly FallbackCursorPositionProvider _fallbackCursorPositionProvider = new();
     private readonly CompositeCursorPositionProvider _cursorPositionProvider;
@@ -69,6 +70,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _animalView = this.GetControl<AnimalView>("AnimalView");
         _contextMenu = this.GetControl<ContextMenu>("AnimalContextMenu");
         _pauseMenuItem = this.GetControl<MenuItem>("PauseMenuItem");
+        _furMenuItem = this.GetControl<MenuItem>("FurMenuItem");
         _topmostMenuItem = this.GetControl<MenuItem>("TopmostMenuItem");
 
         _cursorPositionProvider = CursorPositionProviderFactory.CreateDefault(
@@ -99,6 +101,13 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     public void TogglePause()
     {
         _settings.Paused = !_settings.Paused;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void SetAnimal(AnimalKind kind)
+    {
+        _settings.Animal = kind;
         CommitSettings();
     }
 
@@ -318,6 +327,14 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     private void OnPauseClick(object? sender, RoutedEventArgs e) => TogglePause();
 
+    private void OnAnimalClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem { Tag: AnimalKind kind })
+        {
+            SetAnimal(kind);
+        }
+    }
+
     private void OnSpeedClick(object? sender, RoutedEventArgs e)
     {
         if (sender is MenuItem { Tag: AnimalSpeed speed })
@@ -437,6 +454,11 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         Height = size;
         Topmost = _settings.AlwaysOnTop;
         _animalView.Animal = Animal.Create(_settings);
+
+        // Animals take strides of different length, the gait would slide after a switch otherwise.
+        var options = _animalView.Animal.CreateSimulatorOptions();
+        _simulator.Options.WalkStrideLength = options.WalkStrideLength;
+        _simulator.Options.RunStrideLength = options.RunStrideLength;
         _chaseService.ApplySettings();
     }
 
@@ -451,10 +473,12 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     {
         _pauseMenuItem.IsChecked = _settings.Paused;
         _topmostMenuItem.IsChecked = _settings.AlwaysOnTop;
+        _furMenuItem.IsEnabled = _settings.Animal == AnimalKind.Cat;
         foreach (var item in GetMenuItems())
         {
             item.IsChecked = item.Tag switch
             {
+                AnimalKind kind => kind == _settings.Animal,
                 AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
                 AnimalSize size => size == _settings.Size,

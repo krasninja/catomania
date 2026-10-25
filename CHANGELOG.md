@@ -16,3 +16,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Velopack self-updates: the context menu and the `--update-check` command line option check the release feed and update the installed application.
 - `Animal` base class: the chase behavior, window and menus are shared by all animals, each animal draws itself and tunes its movement. The cat is the only animal so far.
 - Cat gait: legs swing from the hip and lift the feet, the animation follows the distance travelled so the feet do not slide at any speed or size, dragged legs dangle, the tail sways in a wave and the sleeping cat breathes without sinking into the ground.
+- Panda cub: a second animal with a big round head, stubby legs and a waddle, it dozes off sitting up. The "Animal" menu switches between the cat and the panda, the fur colors apply to the cat only.

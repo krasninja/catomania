@@ -20,6 +20,12 @@ public interface IAnimalCommands
     void SetSpeed(AnimalSpeed speed);
 
     /// <summary>
+    /// Set the animal that chases the cursor.
+    /// </summary>
+    /// <param name="kind">Animal kind.</param>
+    void SetAnimal(AnimalKind kind);
+
+    /// <summary>
     /// Set the fur color scheme.
     /// </summary>
     /// <param name="colorScheme">Fur color scheme.</param>

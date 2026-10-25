@@ -25,6 +25,18 @@
                                         CommandParameter="{x:Static local:App.PauseSetting}"
                                         Click="OnPauseClick" />
                         <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Animal">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Cat"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalKind.Cat}"
+                                                Click="OnAnimalClick" />
+                                <NativeMenuItem Header="Panda"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalKind.Panda}"
+                                                Click="OnAnimalClick" />
+                            </NativeMenu>
+                        </NativeMenuItem>
                         <NativeMenuItem Header="Speed">
                             <NativeMenu>
                                 <NativeMenuItem Header="Slow"
@@ -41,7 +53,8 @@
                                                 Click="OnSpeedClick" />
                             </NativeMenu>
                         </NativeMenuItem>
-                        <NativeMenuItem Header="Fur">
+                        <NativeMenuItem Header="Fur"
+                                        CommandParameter="{x:Static local:App.FurSetting}">
                             <NativeMenu>
                                 <NativeMenuItem Header="Ginger"
                                                 ToggleType="Radio"

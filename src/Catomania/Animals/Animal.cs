@@ -54,6 +54,7 @@ public abstract class Animal
         // Add new animals here. Unknown kinds fall back to the cat.
         return settings.Animal switch
         {
+            AnimalKind.Panda => new Panda(),
             _ => new Cat(settings.ColorScheme),
         };
     }
@@ -142,4 +143,32 @@ public abstract class Animal
             }
         }
     }
+
+    /// <summary>
+    /// Get the foot position relative to the point on the ground under the hip.
+    /// </summary>
+    /// <param name="phase">Gait cycle phase of the leg in radians.</param>
+    /// <param name="gait">Leg motion of the gait.</param>
+    /// <returns>Horizontal offset of the foot from under the hip and its height above the ground.</returns>
+    protected static (double OffsetX, double Lift) GetFootOffset(double phase, Gait gait)
+    {
+        var progress = (phase % TwoPi) / TwoPi;
+        if (progress < gait.StanceFraction)
+        {
+            // Planted: the foot moves back at a constant speed, matching the ground.
+            return (gait.Reach * (1 - (2 * progress / gait.StanceFraction)), 0);
+        }
+
+        // Swinging forward through the air.
+        var swing = (progress - gait.StanceFraction) / (1 - gait.StanceFraction);
+        return (-gait.Reach * Math.Cos(Math.PI * swing), Math.Sin(Math.PI * swing) * gait.Lift);
+    }
+
+    /// <summary>
+    /// Leg motion of a gait.
+    /// </summary>
+    /// <param name="Reach">Distance the foot moves along the body from under the hip.</param>
+    /// <param name="Lift">Height the foot is lifted to while swinging.</param>
+    /// <param name="StanceFraction">Fraction of the cycle the foot stays on the ground.</param>
+    protected readonly record struct Gait(double Reach, double Lift, double StanceFraction);
 }

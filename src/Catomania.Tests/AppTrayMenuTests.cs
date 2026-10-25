@@ -22,13 +22,16 @@ public sealed class AppTrayMenuTests
 
             var items = GetTopLevelItems(trayIcon);
             Assert.Equal(
-                new[] { "Pause", "Speed", "Fur", "Size", "Always on Top", "Recenter", "Check for Updates", "Quit Catomania" },
+                new[] { "Pause", "Animal", "Speed", "Fur", "Size", "Always on Top", "Recenter", "Check for Updates", "Quit Catomania" },
                 items.Select(item => item.Header));
             Assert.Equal(3, trayIcon.Menu!.Items.OfType<NativeMenuItemSeparator>().Count());
 
             Assert.Equal(MenuItemToggleType.CheckBox, GetItem(items, "Pause").ToggleType);
             Assert.Equal(MenuItemToggleType.CheckBox, GetItem(items, "Always on Top").ToggleType);
 
+            Assert.Equal(
+                new[] { "Cat", "Panda" },
+                GetChildren(items, "Animal").Select(item => item.Header));
             Assert.Equal(
                 new[] { "Slow", "Normal", "Fast" },
                 GetChildren(items, "Speed").Select(item => item.Header));
@@ -39,7 +42,7 @@ public sealed class AppTrayMenuTests
                 new[] { "Small", "Medium", "Large" },
                 GetChildren(items, "Size").Select(item => item.Header));
             Assert.All(
-                GetChildren(items, "Speed").Concat(GetChildren(items, "Fur")).Concat(GetChildren(items, "Size")),
+                GetChildren(items, "Animal").Concat(GetChildren(items, "Speed")).Concat(GetChildren(items, "Fur")).Concat(GetChildren(items, "Size")),
                 item => Assert.Equal(MenuItemToggleType.Radio, item.ToggleType));
         }, CancellationToken.None);
 
@@ -56,6 +59,7 @@ public sealed class AppTrayMenuTests
             RaiseClick(GetItem(items, "Recenter"));
             RaiseClick(GetItem(items, "Check for Updates"));
             RaiseClick(GetItem(items, "Quit Catomania"));
+            RaiseClick(GetChild(items, "Animal", "Panda"));
             RaiseClick(GetChild(items, "Speed", "Fast"));
             RaiseClick(GetChild(items, "Fur", "Black"));
             RaiseClick(GetChild(items, "Size", "Small"));
@@ -68,6 +72,7 @@ public sealed class AppTrayMenuTests
                     "recenter",
                     "checkForUpdates",
                     "quit",
+                    "animal:Panda",
                     "speed:Fast",
                     "fur:Black",
                     "size:Small",
@@ -93,20 +98,26 @@ public sealed class AppTrayMenuTests
 
             Assert.True(GetItem(items, "Pause").IsChecked);
             Assert.False(GetItem(items, "Always on Top").IsChecked);
+            Assert.True(GetItem(items, "Fur").IsEnabled);
 
             settings.Paused = false;
             settings.AlwaysOnTop = true;
             settings.Speed = AnimalSpeed.Slow;
             settings.ColorScheme = CatColorScheme.Cream;
             settings.Size = AnimalSize.Small;
+            settings.Animal = AnimalKind.Panda;
             app.SyncTrayMenu();
 
             Assert.False(GetItem(items, "Pause").IsChecked);
             Assert.True(GetItem(items, "Always on Top").IsChecked);
-            foreach (var item in GetChildren(items, "Speed").Concat(GetChildren(items, "Fur")).Concat(GetChildren(items, "Size")))
+
+            // The fur colors are of the cat only.
+            Assert.False(GetItem(items, "Fur").IsEnabled);
+            foreach (var item in GetChildren(items, "Animal").Concat(GetChildren(items, "Speed")).Concat(GetChildren(items, "Fur")).Concat(GetChildren(items, "Size")))
             {
                 var isChecked = item.Header switch
                 {
+                    "Panda" => true,
                     "Slow" => true,
                     "Cream" => true,
                     "Small" => true,
@@ -154,6 +165,8 @@ public sealed class AppTrayMenuTests
         public List<string> Calls { get; } = new();
 
         public void TogglePause() => Calls.Add("pause");
+
+        public void SetAnimal(AnimalKind kind) => Calls.Add($"animal:{kind}");
 
         public void SetSpeed(AnimalSpeed speed) => Calls.Add($"speed:{speed}");
 

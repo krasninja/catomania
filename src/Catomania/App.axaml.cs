@@ -21,6 +21,11 @@ public sealed partial class App : Application
     public const string PauseSetting = nameof(AppSettings.Paused);
 
     /// <summary>
+    /// Tray menu item parameter of the fur submenu, which is enabled only for the cat.
+    /// </summary>
+    public const string FurSetting = nameof(AppSettings.ColorScheme);
+
+    /// <summary>
     /// Tray menu item parameter of the always on top check box.
     /// </summary>
     public const string AlwaysOnTopSetting = nameof(AppSettings.AlwaysOnTop);
@@ -66,8 +71,15 @@ public sealed partial class App : Application
 
         foreach (var item in GetTrayMenuItems())
         {
+            if (FurSetting.Equals(item.CommandParameter))
+            {
+                item.IsEnabled = _settings.Animal == AnimalKind.Cat;
+                continue;
+            }
+
             item.IsChecked = item.CommandParameter switch
             {
+                AnimalKind kind => kind == _settings.Animal,
                 AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
                 AnimalSize size => size == _settings.Size,
@@ -134,6 +146,14 @@ public sealed partial class App : Application
     private void OnTrayMenuOpening(object? sender, EventArgs e) => SyncTrayMenu();
 
     private void OnPauseClick(object? sender, EventArgs e) => _commands?.TogglePause();
+
+    private void OnAnimalClick(object? sender, EventArgs e)
+    {
+        if (sender is NativeMenuItem { CommandParameter: AnimalKind kind })
+        {
+            _commands?.SetAnimal(kind);
+        }
+    }
 
     private void OnSpeedClick(object? sender, EventArgs e)
     {

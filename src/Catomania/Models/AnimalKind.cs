@@ -12,4 +12,9 @@ public enum AnimalKind
     /// A cat.
     /// </summary>
     Cat,
+
+    /// <summary>
+    /// A panda cub.
+    /// </summary>
+    Panda,
 }

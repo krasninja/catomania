@@ -27,6 +27,18 @@
                       ToggleType="CheckBox"
                       Click="OnPauseClick" />
             <Separator />
+            <MenuItem Header="Animal">
+                <MenuItem Header="Cat"
+                          GroupName="Animal"
+                          Tag="{x:Static models:AnimalKind.Cat}"
+                          ToggleType="Radio"
+                          Click="OnAnimalClick" />
+                <MenuItem Header="Panda"
+                          GroupName="Animal"
+                          Tag="{x:Static models:AnimalKind.Panda}"
+                          ToggleType="Radio"
+                          Click="OnAnimalClick" />
+            </MenuItem>
             <MenuItem Header="Speed">
                 <MenuItem Header="Slow"
                           GroupName="Speed"
@@ -44,7 +56,8 @@
                           ToggleType="Radio"
                           Click="OnSpeedClick" />
             </MenuItem>
-            <MenuItem Header="Fur">
+            <MenuItem x:Name="FurMenuItem"
+                      Header="Fur">
                 <MenuItem Header="Ginger"
                           GroupName="Fur"
                           Tag="{x:Static models:CatColorScheme.Ginger}"
