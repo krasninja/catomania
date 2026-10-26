@@ -94,11 +94,19 @@
                                                 Click="OnSizeClick" />
                             </NativeMenu>
                         </NativeMenuItem>
+                        <NativeMenuItem Header="Configuration">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Launch at system startup"
+                                                ToggleType="CheckBox"
+                                                CommandParameter="{x:Static local:App.LaunchAtStartupSetting}"
+                                                Click="OnLaunchAtStartupClick" />
+                            </NativeMenu>
+                            <NativeMenuItem Header="Always on Top"
+                                            ToggleType="CheckBox"
+                                            CommandParameter="{x:Static local:App.AlwaysOnTopSetting}"
+                                            Click="OnTopmostClick" />
+                        </NativeMenuItem>
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Always on Top"
-                                        ToggleType="CheckBox"
-                                        CommandParameter="{x:Static local:App.AlwaysOnTopSetting}"
-                                        Click="OnTopmostClick" />
                         <NativeMenuItem Header="Recenter"
                                         Click="OnRecenterClick" />
                         <NativeMenuItem Header="Check for Updates"

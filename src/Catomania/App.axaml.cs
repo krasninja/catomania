@@ -31,10 +31,16 @@ public sealed partial class App : Application
     /// </summary>
     public const string AlwaysOnTopSetting = nameof(AppSettings.AlwaysOnTop);
 
+    /// <summary>
+    /// Tray menu item parameter of the launch at system startup check box.
+    /// </summary>
+    public const string LaunchAtStartupSetting = nameof(LaunchAtStartupSetting);
+
     private readonly SettingsStorage _settingsStorage = new();
 
     private AppSettings? _settings;
     private IAnimalCommands? _commands;
+    private ISystemAutostart? _systemAutostart;
     private PosixSignalRegistration? _terminationRegistration;
 
     /// <inheritdoc />
@@ -86,6 +92,7 @@ public sealed partial class App : Application
                 AnimalSize size => size == _settings.Size,
                 PauseSetting => _settings.Paused,
                 AlwaysOnTopSetting => _settings.AlwaysOnTop,
+                LaunchAtStartupSetting => IsLaunchAtStartupEnabled(),
                 _ => item.IsChecked,
             };
         }
@@ -103,7 +110,8 @@ public sealed partial class App : Application
             desktop.Exit += OnExit;
 
             _settings = _settingsStorage.Load();
-            var animalWindow = new AnimalWindow(_settings);
+            _systemAutostart = CreateSystemAutostart();
+            var animalWindow = new AnimalWindow(_settings, _systemAutostart);
             animalWindow.Closed += (_, _) => desktop.Shutdown();
 
             // Save right away: a self-update exits the process without raising the Exit event.
@@ -182,6 +190,14 @@ public sealed partial class App : Application
 
     private void OnTopmostClick(object? sender, EventArgs e) => _commands?.ToggleAlwaysOnTop();
 
+    private async void OnLaunchAtStartupClick(object? sender, EventArgs e)
+    {
+        if (_commands != null)
+        {
+            await _commands.ToggleLaunchAtStartupAsync();
+        }
+    }
+
     private void OnRecenterClick(object? sender, EventArgs e) => _commands?.Recenter();
 
     private async void OnCheckUpdatesClick(object? sender, EventArgs e)
@@ -208,5 +224,28 @@ public sealed partial class App : Application
         // A desktop pet should not take the whole session down with it.
         Console.Error.WriteLine($"Catomania: {e.Exception}");
         e.Handled = true;
+    }
+
+    private bool IsLaunchAtStartupEnabled()
+        => _systemAutostart?.IsLaunchAtStartupEnabledAsync().GetAwaiter().GetResult() ?? false;
+
+    private static ISystemAutostart? CreateSystemAutostart()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return new LinuxSystemAutostart();
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return new MacSystemAutostart();
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return new WindowsSystemAutostart();
+        }
+
+        return null;
     }
 }

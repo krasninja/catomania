@@ -37,6 +37,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private readonly MenuItem _pauseMenuItem;
     private readonly MenuItem _furMenuItem;
     private readonly MenuItem _topmostMenuItem;
+    private readonly MenuItem _launchAtStartupMenuItem;
+    private readonly ISystemAutostart? _systemAutostart;
     private readonly FallbackCursorPositionProvider _fallbackCursorPositionProvider = new();
     private readonly CompositeCursorPositionProvider _cursorPositionProvider;
     private readonly AnimalSimulator _simulator;
@@ -57,7 +59,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     /// Used by the XAML designer.
     /// </summary>
     public AnimalWindow()
-        : this(new AppSettings())
+        : this(new AppSettings(), null)
     {
     }
 
@@ -65,9 +67,11 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     /// Initializes a new instance of the <see cref="AnimalWindow" /> class.
     /// </summary>
     /// <param name="settings">Application settings.</param>
-    public AnimalWindow(AppSettings settings)
+    /// <param name="systemAutostart">System autostart service, or <c>null</c> if not available.</param>
+    public AnimalWindow(AppSettings settings, ISystemAutostart? systemAutostart = null)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _systemAutostart = systemAutostart;
 
         InitializeComponent();
 
@@ -76,6 +80,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _pauseMenuItem = this.GetControl<MenuItem>("PauseMenuItem");
         _furMenuItem = this.GetControl<MenuItem>("FurMenuItem");
         _topmostMenuItem = this.GetControl<MenuItem>("TopmostMenuItem");
+        _launchAtStartupMenuItem = this.GetControl<MenuItem>("LaunchAtStartupMenuItem");
         _speechBubble = this.GetControl<Border>("SpeechBubble");
         _speechText = this.GetControl<TextBlock>("SpeechText");
 
@@ -146,6 +151,28 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     {
         _settings.AlwaysOnTop = !_settings.AlwaysOnTop;
         CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public async Task ToggleLaunchAtStartupAsync()
+    {
+        if (_systemAutostart == null)
+        {
+            return;
+        }
+
+        var enabled = await _systemAutostart.IsLaunchAtStartupEnabledAsync();
+        if (enabled)
+        {
+            await _systemAutostart.DisableLaunchAtStartupAsync();
+        }
+        else
+        {
+            await _systemAutostart.EnableLaunchAtStartupAsync();
+        }
+
+        SyncMenu();
+        SettingsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <inheritdoc />
@@ -381,6 +408,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     private void OnTopmostClick(object? sender, RoutedEventArgs e) => ToggleAlwaysOnTop();
 
+    private async void OnLaunchAtStartupClick(object? sender, RoutedEventArgs e) => await ToggleLaunchAtStartupAsync();
+
     private void OnRecenterClick(object? sender, RoutedEventArgs e) => Recenter();
 
     private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e) => await CheckForUpdatesAsync();
@@ -500,6 +529,11 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _pauseMenuItem.IsChecked = _settings.Paused;
         _topmostMenuItem.IsChecked = _settings.AlwaysOnTop;
         _furMenuItem.IsEnabled = _settings.Animal == AnimalKind.Cat;
+        if (_systemAutostart != null)
+        {
+            _launchAtStartupMenuItem.IsChecked = _systemAutostart.IsLaunchAtStartupEnabledAsync().GetAwaiter().GetResult();
+        }
+
         foreach (var item in GetMenuItems())
         {
             item.IsChecked = item.Tag switch

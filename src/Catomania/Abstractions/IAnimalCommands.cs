@@ -53,6 +53,12 @@ public interface IAnimalCommands
     void Say();
 
     /// <summary>
+    /// Toggle launching the application at system startup.
+    /// </summary>
+    /// <returns>A task that completes when the toggle is done.</returns>
+    Task ToggleLaunchAtStartupAsync();
+
+    /// <summary>
     /// Check the release feed for updates, apply them and show a report.
     /// </summary>
     /// <returns>A task that completes when the check is done.</returns>

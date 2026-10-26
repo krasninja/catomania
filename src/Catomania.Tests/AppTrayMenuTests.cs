@@ -22,7 +22,7 @@ public sealed class AppTrayMenuTests
 
             var items = GetTopLevelItems(trayIcon);
             Assert.Equal(
-                new[] { "Pause", "Animal", "Speed", "Fur", "Size", "Always on Top", "Recenter", "Check for Updates", "Quit Catomania" },
+                new[] { "Pause", "Animal", "Speed", "Fur", "Size", "Configuration", "Always on Top", "Recenter", "Check for Updates", "Quit Catomania" },
                 items.Select(item => item.Header));
             Assert.Equal(3, trayIcon.Menu!.Items.OfType<NativeMenuItemSeparator>().Count());
 
@@ -41,9 +41,13 @@ public sealed class AppTrayMenuTests
             Assert.Equal(
                 new[] { "Small", "Medium", "Large" },
                 GetChildren(items, "Size").Select(item => item.Header));
+            Assert.Equal(
+                new[] { "Launch at system startup" },
+                GetChildren(items, "Configuration").Select(item => item.Header));
             Assert.All(
                 GetChildren(items, "Animal").Concat(GetChildren(items, "Speed")).Concat(GetChildren(items, "Fur")).Concat(GetChildren(items, "Size")),
                 item => Assert.Equal(MenuItemToggleType.Radio, item.ToggleType));
+            Assert.Equal(MenuItemToggleType.CheckBox, GetChild(items, "Configuration", "Launch at system startup").ToggleType);
         }, CancellationToken.None);
 
     [Fact]
@@ -56,6 +60,7 @@ public sealed class AppTrayMenuTests
 
             RaiseClick(GetItem(items, "Pause"));
             RaiseClick(GetItem(items, "Always on Top"));
+            RaiseClick(GetChild(items, "Configuration", "Launch at system startup"));
             RaiseClick(GetItem(items, "Recenter"));
             RaiseClick(GetItem(items, "Check for Updates"));
             RaiseClick(GetItem(items, "Quit Catomania"));
@@ -69,6 +74,7 @@ public sealed class AppTrayMenuTests
                 {
                     "pause",
                     "alwaysOnTop",
+                    "launchAtStartup",
                     "recenter",
                     "checkForUpdates",
                     "quit",
@@ -175,6 +181,12 @@ public sealed class AppTrayMenuTests
         public void SetSize(AnimalSize size) => Calls.Add($"size:{size}");
 
         public void ToggleAlwaysOnTop() => Calls.Add("alwaysOnTop");
+
+        public Task ToggleLaunchAtStartupAsync()
+        {
+            Calls.Add("launchAtStartup");
+            return Task.CompletedTask;
+        }
 
         public void Recenter() => Calls.Add("recenter");
 

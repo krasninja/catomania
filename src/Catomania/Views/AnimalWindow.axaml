@@ -116,17 +116,23 @@
                           ToggleType="Radio"
                           Click="OnSizeClick" />
             </MenuItem>
+            <MenuItem Header="Configuration">
+                <MenuItem x:Name="TopmostMenuItem"
+                          Header="Always on Top"
+                          ToggleType="CheckBox"
+                          Click="OnTopmostClick" />
+                <MenuItem x:Name="LaunchAtStartupMenuItem"
+                          Header="Launch at system startup"
+                          ToggleType="CheckBox"
+                          Click="OnLaunchAtStartupClick" />
+            </MenuItem>
             <Separator />
-            <MenuItem x:Name="TopmostMenuItem"
-                      Header="Always on Top"
-                      ToggleType="CheckBox"
-                      Click="OnTopmostClick" />
             <MenuItem Header="Recenter"
                       Click="OnRecenterClick" />
             <MenuItem Header="Check for Updates"
                       Click="OnCheckUpdatesClick" />
             <Separator />
-            <MenuItem Header="Quit Catomania"
+            <MenuItem Header="Quit"
                       Click="OnQuitClick" />
         </ContextMenu>
     </Window.ContextMenu>
