@@ -100,11 +100,11 @@
                                                 ToggleType="CheckBox"
                                                 CommandParameter="{x:Static local:App.LaunchAtStartupSetting}"
                                                 Click="OnLaunchAtStartupClick" />
+                                <NativeMenuItem Header="Always on Top"
+                                                ToggleType="CheckBox"
+                                                CommandParameter="{x:Static local:App.AlwaysOnTopSetting}"
+                                                Click="OnTopmostClick" />
                             </NativeMenu>
-                            <NativeMenuItem Header="Always on Top"
-                                            ToggleType="CheckBox"
-                                            CommandParameter="{x:Static local:App.AlwaysOnTopSetting}"
-                                            Click="OnTopmostClick" />
                         </NativeMenuItem>
                         <NativeMenuItemSeparator />
                         <NativeMenuItem Header="Recenter"

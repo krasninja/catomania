@@ -19,7 +19,7 @@ namespace Catomania.Views;
 /// A small transparent window the animal lives in. It is moved by <see cref="AnimalChaseService" />
 /// and can be dragged around with the mouse.
 /// </summary>
-public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands, IDisposable
+public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands, IAppCommands, IDisposable
 {
     /// <summary>
     /// Delay before the first automatic update check, so it does not slow down the start.

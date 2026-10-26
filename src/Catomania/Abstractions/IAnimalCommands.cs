@@ -20,12 +20,6 @@ public interface IAnimalCommands
     void SetSpeed(AnimalSpeed speed);
 
     /// <summary>
-    /// Set the animal that chases the cursor.
-    /// </summary>
-    /// <param name="kind">Animal kind.</param>
-    void SetAnimal(AnimalKind kind);
-
-    /// <summary>
     /// Set the fur color scheme.
     /// </summary>
     /// <param name="colorScheme">Fur color scheme.</param>
@@ -38,34 +32,7 @@ public interface IAnimalCommands
     void SetSize(AnimalSize size);
 
     /// <summary>
-    /// Toggle keeping the animal above other windows.
-    /// </summary>
-    void ToggleAlwaysOnTop();
-
-    /// <summary>
-    /// Move the animal back to the cursor.
-    /// </summary>
-    void Recenter();
-
-    /// <summary>
     /// Make the animal say its sound.
     /// </summary>
     void Say();
-
-    /// <summary>
-    /// Toggle launching the application at system startup.
-    /// </summary>
-    /// <returns>A task that completes when the toggle is done.</returns>
-    Task ToggleLaunchAtStartupAsync();
-
-    /// <summary>
-    /// Check the release feed for updates, apply them and show a report.
-    /// </summary>
-    /// <returns>A task that completes when the check is done.</returns>
-    Task CheckForUpdatesAsync();
-
-    /// <summary>
-    /// Quit the application.
-    /// </summary>
-    void Quit();
 }

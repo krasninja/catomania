@@ -40,6 +40,7 @@ public sealed partial class App : Application
 
     private AppSettings? _settings;
     private IAnimalCommands? _commands;
+    private IAppCommands? _appCommands;
     private ISystemAutostart? _systemAutostart;
     private PosixSignalRegistration? _terminationRegistration;
 
@@ -53,11 +54,13 @@ public sealed partial class App : Application
     /// Connect the tray menu declared in the application XAML to the animal and show the tray icon.
     /// </summary>
     /// <param name="settings">Application settings.</param>
-    /// <param name="commands">The commands to run when the menu items are clicked.</param>
-    public void AttachTrayIcon(AppSettings settings, IAnimalCommands commands)
+    /// <param name="commands">The animal commands to run when the menu items are clicked.</param>
+    /// <param name="appCommands">The application commands to run when the menu items are clicked.</param>
+    public void AttachTrayIcon(AppSettings settings, IAnimalCommands commands, IAppCommands appCommands)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _commands = commands ?? throw new ArgumentNullException(nameof(commands));
+        _appCommands = appCommands ?? throw new ArgumentNullException(nameof(appCommands));
         SyncTrayMenu();
         foreach (var trayIcon in TrayIcon.GetIcons(this) ?? [])
         {
@@ -118,7 +121,7 @@ public sealed partial class App : Application
             animalWindow.SettingsChanged += (_, _) => _settingsStorage.Save(_settings);
 
             // The tray icon needs no separate quit handling: the icons are disposed on dispatcher shutdown.
-            AttachTrayIcon(_settings, animalWindow);
+            AttachTrayIcon(_settings, animalWindow, animalWindow);
             animalWindow.SettingsChanged += (_, _) => SyncTrayMenu();
 
             desktop.MainWindow = animalWindow;
@@ -160,7 +163,7 @@ public sealed partial class App : Application
     {
         if (sender is NativeMenuItem { CommandParameter: AnimalKind kind })
         {
-            _commands?.SetAnimal(kind);
+            _appCommands?.SetAnimal(kind);
         }
     }
 
@@ -188,27 +191,27 @@ public sealed partial class App : Application
         }
     }
 
-    private void OnTopmostClick(object? sender, EventArgs e) => _commands?.ToggleAlwaysOnTop();
+    private void OnTopmostClick(object? sender, EventArgs e) => _appCommands?.ToggleAlwaysOnTop();
 
     private async void OnLaunchAtStartupClick(object? sender, EventArgs e)
     {
-        if (_commands != null)
+        if (_appCommands != null)
         {
-            await _commands.ToggleLaunchAtStartupAsync();
+            await _appCommands.ToggleLaunchAtStartupAsync();
         }
     }
 
-    private void OnRecenterClick(object? sender, EventArgs e) => _commands?.Recenter();
+    private void OnRecenterClick(object? sender, EventArgs e) => _appCommands?.Recenter();
 
     private async void OnCheckUpdatesClick(object? sender, EventArgs e)
     {
-        if (_commands != null)
+        if (_appCommands != null)
         {
-            await _commands.CheckForUpdatesAsync();
+            await _appCommands.CheckForUpdatesAsync();
         }
     }
 
-    private void OnQuitClick(object? sender, EventArgs e) => _commands?.Quit();
+    private void OnQuitClick(object? sender, EventArgs e) => _appCommands?.Quit();
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
