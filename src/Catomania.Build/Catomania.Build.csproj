@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="Cake.Frosting" Version="6.3.0" />
     <!-- Overrides the vulnerable transitive version brought by Cake.NuGet (NU1903, GHSA-846f-f764-76mx). -->
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
 </Project>

@@ -178,6 +178,11 @@ public sealed class AppTrayMenuTests
 
         public void Recenter() => Calls.Add("recenter");
 
+        /// <inheritdoc />
+        public void Say()
+        {
+        }
+
         public Task CheckForUpdatesAsync()
         {
             Calls.Add("checkForUpdates");
