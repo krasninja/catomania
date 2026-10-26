@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Catomania.Abstractions;
 using Catomania.Animals;
 using Catomania.Controls;
 using Catomania.Input;

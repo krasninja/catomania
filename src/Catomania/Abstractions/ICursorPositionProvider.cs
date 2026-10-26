@@ -1,6 +1,6 @@
 using Catomania.Simulation;
 
-namespace Catomania.Input;
+namespace Catomania.Abstractions;
 
 /// <summary>
 /// Provides the global cursor position.

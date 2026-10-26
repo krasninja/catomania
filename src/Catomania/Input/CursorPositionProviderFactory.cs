@@ -1,3 +1,4 @@
+using Catomania.Abstractions;
 using Catomania.Simulation;
 
 namespace Catomania.Input;

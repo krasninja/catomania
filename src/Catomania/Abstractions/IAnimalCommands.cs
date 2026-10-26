@@ -1,6 +1,6 @@
 using Catomania.Models;
 
-namespace Catomania.Services;
+namespace Catomania.Abstractions;
 
 /// <summary>
 /// The commands the user can run on the animal, shared by the animal's context menu

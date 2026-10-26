@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Catomania.Abstractions;
 using Catomania.Models;
 using Catomania.Services;
 using Catomania.Views;

@@ -1,7 +1,8 @@
 using Catomania.Models;
+using Catomania.Services;
 using Catomania.Simulation;
 
-namespace Catomania.Services;
+namespace Catomania.Abstractions;
 
 /// <summary>
 /// The window the animal lives in, as seen by <see cref="AnimalChaseService" />.

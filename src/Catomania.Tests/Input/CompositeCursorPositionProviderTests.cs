@@ -1,3 +1,4 @@
+using Catomania.Abstractions;
 using Catomania.Input;
 using Catomania.Simulation;
 using Xunit;

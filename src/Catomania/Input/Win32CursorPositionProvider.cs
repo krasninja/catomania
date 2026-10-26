@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Catomania.Abstractions;
 using Catomania.Simulation;
 
 namespace Catomania.Input;

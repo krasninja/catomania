@@ -1,5 +1,5 @@
 using Avalonia.Threading;
-using Catomania.Input;
+using Catomania.Abstractions;
 using Catomania.Models;
 using Catomania.Simulation;
 

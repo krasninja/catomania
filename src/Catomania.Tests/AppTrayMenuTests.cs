@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Headless;
+using Catomania.Abstractions;
 using Catomania.Models;
-using Catomania.Services;
 using Xunit;
 
 namespace Catomania.Tests;

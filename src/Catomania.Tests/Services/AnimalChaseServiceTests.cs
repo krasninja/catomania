@@ -1,4 +1,4 @@
-using Catomania.Input;
+using Catomania.Abstractions;
 using Catomania.Models;
 using Catomania.Services;
 using Catomania.Simulation;
