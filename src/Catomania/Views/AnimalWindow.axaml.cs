@@ -41,6 +41,9 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private readonly AnimalSimulator _simulator;
     private readonly AnimalChaseService _chaseService;
     private readonly DispatcherTimer _updateCheckTimer;
+    private readonly DispatcherTimer _speechBubbleTimer;
+    private readonly Border _speechBubble;
+    private readonly TextBlock _speechText;
 
     private bool _isDragging;
     private bool _isCheckingUpdates;
@@ -72,6 +75,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _pauseMenuItem = this.GetControl<MenuItem>("PauseMenuItem");
         _furMenuItem = this.GetControl<MenuItem>("FurMenuItem");
         _topmostMenuItem = this.GetControl<MenuItem>("TopmostMenuItem");
+        _speechBubble = this.GetControl<Border>("SpeechBubble");
+        _speechText = this.GetControl<TextBlock>("SpeechText");
 
         _cursorPositionProvider = CursorPositionProviderFactory.CreateDefault(
             _fallbackCursorPositionProvider,
@@ -83,6 +88,9 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         _updateCheckTimer = new DispatcherTimer { Interval = FirstUpdateCheckDelay };
         _updateCheckTimer.Tick += OnUpdateCheckTimerTick;
+
+        _speechBubbleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        _speechBubbleTimer.Tick += OnSpeechBubbleTimerTick;
 
         ApplySettings();
         SyncMenu();
@@ -141,6 +149,15 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     /// <inheritdoc />
     public void Recenter() => _chaseService.Recenter();
+
+    /// <inheritdoc />
+    public void Say()
+    {
+        _speechText.Text = _animalView.Animal.Sound;
+        _speechBubble.IsVisible = true;
+        _speechBubbleTimer.Stop();
+        _speechBubbleTimer.Start();
+    }
 
     /// <inheritdoc />
     public Task CheckForUpdatesAsync() => CheckForUpdatesAsync(silent: false);
@@ -225,6 +242,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
             return;
         }
 
+        Say();
         _isDragging = true;
         _dragWindowPosition = Position;
         _dragPointerPosition = this.PointToScreen(e.GetPosition(this));
@@ -321,6 +339,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         _disposed = true;
         _updateCheckTimer.Stop();
+        _speechBubbleTimer.Stop();
         _chaseService.Dispose();
         _cursorPositionProvider.Dispose();
     }
@@ -369,6 +388,12 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     {
         _updateCheckTimer.Interval = UpdateCheckInterval;
         await CheckForUpdatesAsync(silent: true);
+    }
+
+    private void OnSpeechBubbleTimerTick(object? sender, EventArgs e)
+    {
+        _speechBubbleTimer.Stop();
+        _speechBubble.IsVisible = false;
     }
 
     /// <summary>

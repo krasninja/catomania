@@ -104,6 +104,9 @@ public sealed class Dog : Animal
     public override Color EyeColor => IrisColor;
 
     /// <inheritdoc />
+    public override string Sound => "Woof!";
+
+    /// <inheritdoc />
     public override AnimalSimulatorOptions CreateSimulatorOptions() => new()
     {
         WalkStrideLength = WalkStride / DesignSize,

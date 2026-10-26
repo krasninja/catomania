@@ -18,7 +18,22 @@
         Topmost="True"
         TransparencyLevelHint="Transparent">
 
-    <controls:AnimalView x:Name="AnimalView" />
+    <Grid>
+        <controls:AnimalView x:Name="AnimalView" />
+        <Border x:Name="SpeechBubble"
+                Background="#F0FFFFFF"
+                CornerRadius="8"
+                Padding="8,4"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,4,0,0"
+                IsVisible="False">
+            <TextBlock x:Name="SpeechText"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Foreground="#FF333333" />
+        </Border>
+    </Grid>
 
     <Window.ContextMenu>
         <ContextMenu x:Name="AnimalContextMenu">

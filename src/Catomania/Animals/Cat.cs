@@ -105,6 +105,9 @@ public sealed class Cat : Animal
     public override Color EyeColor => Palette.EyeColor;
 
     /// <inheritdoc />
+    public override string Sound => "Meow!";
+
+    /// <inheritdoc />
     public override AnimalSimulatorOptions CreateSimulatorOptions() => new()
     {
         WalkStrideLength = WalkStride / DesignSize,

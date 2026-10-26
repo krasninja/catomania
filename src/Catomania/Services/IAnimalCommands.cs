@@ -48,6 +48,11 @@ public interface IAnimalCommands
     void Recenter();
 
     /// <summary>
+    /// Make the animal say its sound.
+    /// </summary>
+    void Say();
+
+    /// <summary>
     /// Check the release feed for updates, apply them and show a report.
     /// </summary>
     /// <returns>A task that completes when the check is done.</returns>

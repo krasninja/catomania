@@ -44,6 +44,11 @@ public abstract class Animal
     public abstract Color EyeColor { get; }
 
     /// <summary>
+    /// Gets the sound the animal makes.
+    /// </summary>
+    public abstract string Sound { get; }
+
+    /// <summary>
     /// Create an animal of the kind configured in the settings.
     /// </summary>
     /// <param name="settings">Application settings.</param>

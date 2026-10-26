@@ -88,6 +88,9 @@ public sealed class Panda : Animal
     public override Color EyeColor => IrisColor;
 
     /// <inheritdoc />
+    public override string Sound => "Mrr!";
+
+    /// <inheritdoc />
     public override AnimalSimulatorOptions CreateSimulatorOptions() => new()
     {
         WalkStrideLength = WalkStride / DesignSize,
