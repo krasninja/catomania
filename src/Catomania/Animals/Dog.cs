@@ -53,11 +53,12 @@ public sealed class Dog : Animal
 
     private static readonly Point[] MuzzleFreckles = [new(86, 46), new(88.5, 45), new(84, 44.5)];
 
-    // The tail is drawn pointing left from its base, the stripe is the liver feathering along the top.
+    // The tail is drawn pointing left from its base with a single tip and short feathering underneath,
+    // the stripe is the liver along the top.
     private static readonly Geometry Tail = Parse(
-        "M2 -2 C-6 -6 -14 -8 -20 -10 C-17 -6 -12 -2 -6 1 C-10 3 -14 3 -18 2 C-12 6 -4 5 2 3 Z");
+        "M2 -3 C-5 -6 -13 -8 -22 -7 C-18 -5 -15 -3 -12 -1 Q-10 1.5 -7 0.5 Q-5 3.5 -2 2.5 Q0 4.5 2 3 Z");
 
-    private static readonly Geometry TailStripe = Parse("M2 -2 C-4 -5 -9 -7 -14 -8");
+    private static readonly Geometry TailStripe = Parse("M2 -3 C-4 -5.5 -10 -7.5 -16 -7.5");
 
     private static readonly Geometry Saddle = Parse(
         "M24 57 C28 50 40 49 52 50 C60 51 64 54 63 58 C58 60 48 60 40 61 C32 62 26 61 24 57 Z");
