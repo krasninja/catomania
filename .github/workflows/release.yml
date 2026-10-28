@@ -69,14 +69,14 @@ jobs:
             optional: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # GitVersion and the "previous tag" lookup both need the full history.
           fetch-depth: 0
           fetch-tags: true
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -192,7 +192,7 @@ jobs:
           find output/releases -type f -exec ls -la {} \;
 
       - name: Upload the release files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: releases-${{ matrix.channel }}
           path: output/releases/${{ matrix.channel }}
@@ -206,10 +206,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download every release artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: releases-*
           path: releases
