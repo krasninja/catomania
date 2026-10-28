@@ -175,17 +175,15 @@ jobs:
             echo "::warning::Windows users will see SmartScreen and macOS users will see Gatekeeper."
           fi
 
-      # Disabled: the release pipeline does not launch the packaged app any more. The same GUI
-      # check still runs against the AOT binary in ci.yml. Uncomment the block to enable it again.
-      # - name: Smoke test the packaged application (Linux)
-      #   if: runner.os == 'Linux'
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     cd output/publish
-      #     timeout --signal=TERM 15 xvfb-run --auto-servernum ./Catomania > ./gui.log 2>&1 || true
-      #     cat ./gui.log
-      #     test ! -s ./gui.log
+      - name: Smoke test the packaged application (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd output/publish
+          timeout --signal=TERM 15 xvfb-run --auto-servernum ./Catomania > ./gui.log 2>&1 || true
+          cat ./gui.log
+          test ! -s ./gui.log
 
       - name: List the release output
         shell: bash
