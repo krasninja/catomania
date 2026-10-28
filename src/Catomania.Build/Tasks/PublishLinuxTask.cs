@@ -19,7 +19,7 @@ public sealed class PublishLinuxTask : AsyncFrostingTask<BuildContext>
             context.Directory("./src/Catomania/"),
             new BaseDotNetPublishSettings(context)
             {
-                Runtime = DotNetConstants.RidLinuxX64,
+                Runtime = context.GetRuntimeIdentifier(ApplicationConstants.PlatformLinux),
             });
 
         var velopackArgs = context.GetVelopackArguments(ApplicationConstants.PlatformLinux);

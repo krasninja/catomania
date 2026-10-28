@@ -21,6 +21,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 msbuild.log
+# CI output: AOT binaries, publish logs and test results collected by the GitHub workflows.
+artifacts/
 
 # visual studio
 .vs/

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Catomania.Models;
 using Velopack;
@@ -57,18 +58,30 @@ public sealed class AppUpdateService
     /// <returns>Platform identifier.</returns>
     public static string GetPlatform()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            return "win";
-        }
+        var platform = OperatingSystem.IsWindows() ? "win"
+            : OperatingSystem.IsMacOS() ? "osx"
+            : "linux";
 
-        if (OperatingSystem.IsMacOS())
-        {
-            return "osx";
-        }
-
-        return "linux";
+        // x64 keeps the plain platform name, so the feeds published before the arm64 builds existed
+        // stay valid and nobody is pointed at an empty channel. Every other architecture gets its
+        // own one, matching the channel the build script publishes to. An x64 binary running under
+        // Rosetta or any other emulation reports X64 here, which is what it needs.
+        return RuntimeInformation.ProcessArchitecture == Architecture.X64
+            ? platform
+            : $"{platform}-{GetArchitecture()}";
     }
+
+    /// <summary>
+    /// Get the name of the current process architecture as the build script and Velopack spell it.
+    /// </summary>
+    /// <returns>Architecture name.</returns>
+    private static string GetArchitecture() => RuntimeInformation.ProcessArchitecture switch
+    {
+        Architecture.Arm64 => "arm64",
+        Architecture.Arm => "arm",
+        Architecture.X86 => "x86",
+        _ => RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant(),
+    };
 
     /// <summary>
     /// Get the current application version: the installed one when the application

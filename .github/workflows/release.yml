@@ -1,0 +1,266 @@
+name: Release
+
+on:
+  push:
+    # The repository tags releases as bare semver, for example 0.2.0.
+    tags: ['[0-9]+.[0-9]+.[0-9]+*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish. Leave empty to let GitVersion calculate it.
+        required: false
+        type: string
+      prerelease:
+        description: Mark the GitHub release as a pre-release.
+        required: false
+        type: boolean
+        default: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_VERSION: '10.0.x'
+  # Keep in sync with the Velopack PackageReference in src/Catomania/Catomania.csproj.
+  VPK_VERSION: '1.2.161'
+  GITVERSION_VERSION: '6.3.0'
+
+# Releases must not overlap: Velopack reads the previous packages to build the deltas and the feed.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    # The Intel macOS runners are a paid tier and may not be enabled on the repository. A missing
+    # osx-x64 package must not block the rest of the release.
+    continue-on-error: ${{ matrix.optional }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            os: ubuntu-22.04
+            target: Publish-Linux
+            arch: x64
+            channel: linux
+            optional: false
+          - name: Windows x64
+            os: windows-latest
+            target: Publish-Windows
+            arch: x64
+            channel: win
+            optional: false
+          - name: macOS arm64
+            os: macos-latest
+            target: Publish-Mac
+            arch: arm64
+            channel: osx-arm64
+            optional: false
+          - name: macOS x64
+            os: macos-26-intel
+            target: Publish-Mac
+            arch: x64
+            channel: osx
+            optional: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # GitVersion and the "previous tag" lookup both need the full history.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install the build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet tool install --global vpk --version "${VPK_VERSION}"
+          dotnet tool install --global gitversion.tool --version "${GITVERSION_VERSION}"
+
+      - name: Install the Native AOT toolchain (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # clang and zlib for the ILCompiler, squashfs-tools for the AppImage,
+          # the X11 libraries for the headless smoke test.
+          sudo apt-get install -y clang zlib1g-dev squashfs-tools xvfb \
+            libx11-6 libice6 libsm6 libfontconfig1 libglib2.0-0
+
+      - name: Resolve the version
+        id: version
+        shell: bash
+        env:
+          # Passed through the environment instead of interpolated into the script, so a value
+          # containing shell metacharacters cannot alter what runs.
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION}"
+          if [ -z "${version}" ]; then
+            tag="${GITHUB_REF_NAME}"
+            tag="${tag#refs/tags/}"
+            tag="${tag#v}"
+            if printf '%s' "${tag}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+'; then
+              version="${tag}"
+            fi
+          fi
+          # An empty value makes the build fall back to GitVersion.
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "Publishing version: ${version:-<calculated by GitVersion>}"
+
+      # Velopack reads the packages already in the output directory to build the delta package and
+      # to write the complete releases.<channel>.json feed. A clean checkout has none, so without
+      # this step the feed would only list the new version and existing installations could not
+      # walk their update history any more.
+      - name: Restore the previous release feed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          channel="${{ matrix.channel }}"
+          mkdir -p "output/releases/${channel}"
+          tag="${GITHUB_REF_NAME}"
+          tag="${tag#refs/tags/}"
+          previous="$(git describe --tags --abbrev=0 "${tag}^" 2>/dev/null || true)"
+          if [ -z "${previous}" ]; then
+            echo "No previous tag, starting a fresh feed."
+            exit 0
+          fi
+          echo "Seeding the ${channel} feed from ${previous}."
+          gh release download "${previous}" \
+            --pattern '*.nupkg' --pattern 'RELEASES*' \
+            --pattern "releases.${channel}.json" --pattern "assets.${channel}.json" \
+            --dir "output/releases/${channel}" \
+            || echo "::warning::${previous} has no downloadable ${channel} assets, continuing without deltas."
+          ls -la "output/releases/${channel}" || true
+
+      - name: Publish and package
+        shell: bash
+        env:
+          CATOMANIA_VERSION: ${{ steps.version.outputs.version }}
+          CATOMANIA_ARCH: ${{ matrix.arch }}
+          # Velopack natively reads any option from a VPK_<OPTION> environment variable, so code
+          # signing is wired up purely through secrets and stays a no-op when they are absent.
+          # The exact option names depend on the Velopack version (Azure Trusted Signing needs
+          # 1.3 or newer), check "vpk [<platform>] pack -H" on the target OS before enabling it.
+          VPK_AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          VPK_AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          VPK_AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          VPK_AZURE_CODE_SIGNING_NAME: ${{ secrets.AZURE_CODE_SIGNING_NAME }}
+          VPK_AZURE_TRUSTED_SIGN_FILE: ${{ secrets.AZURE_TRUSTED_SIGN_FILE }}
+        run: >
+          dotnet run --project ./src/Catomania.Build/Catomania.Build.csproj --
+          --target=${{ matrix.target }}
+
+      # Without a signature Windows shows the SmartScreen "Windows protected your PC" dialog and
+      # macOS Gatekeeper refuses to launch the app, so make the state of the build obvious.
+      - name: Report the signing status
+        shell: bash
+        env:
+          SIGNING_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          if [ -z "${SIGNING_TENANT_ID}" ]; then
+            echo "::warning::No signing secrets are configured, publishing UNSIGNED packages."
+            echo "::warning::Windows users will see SmartScreen and macOS users will see Gatekeeper."
+          fi
+
+      - name: Smoke test the packaged application (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd output/publish
+          timeout --signal=TERM 15 xvfb-run --auto-servernum ./Catomania > ./gui.log 2>&1 || true
+          cat ./gui.log
+          test ! -s ./gui.log
+
+      - name: List the release output
+        shell: bash
+        run: |
+          set -euo pipefail
+          find output/releases -type f -exec ls -la {} \;
+
+      - name: Upload the release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: releases-${{ matrix.channel }}
+          path: output/releases/${{ matrix.channel }}
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish the GitHub release
+    # Jobs marked continue-on-error report success even when they failed, so an unavailable Intel
+    # macOS runner does not block this job, while a real failure of a required package does.
+    needs: package
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download every release artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: releases-*
+          path: releases
+          merge-multiple: true
+
+      - name: Prepare the assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The artifact round trip does not preserve the executable bit, restore it for the
+          # formats that need it.
+          find releases -type f \( -name '*.AppImage' -o -name '*.dmg' -o -name '*.exe' \) \
+            -exec chmod +x {} \;
+          # Never publish the debug information of a Native AOT build.
+          find releases -type f \( -name '*.pdb' -o -name '*.dbg' \) -delete
+          find releases -type d -name '*.dSYM' -exec rm -rf {} +
+          ls -laR releases
+
+      - name: Create or update the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          tag="${tag#refs/tags/}"
+          if [ -z "${tag}" ]; then
+            tag="${INPUT_VERSION}"
+          fi
+          if [ -z "${tag}" ]; then
+            echo "::error::No tag and no version input, cannot publish."
+            exit 1
+          fi
+
+          prerelease=()
+          if [ "${INPUT_PRERELEASE}" = "true" ]; then
+            prerelease+=(--prerelease)
+          fi
+
+          if gh release view "${tag}" > /dev/null 2>&1; then
+            echo "Release ${tag} exists, replacing its assets."
+            gh release upload "${tag}" releases/* --clobber
+          else
+            # --target makes gh create the tag when the run was dispatched manually with a version
+            # instead of a tag push, and is a no-op when the tag already points at this commit.
+            gh release create "${tag}" releases/* \
+              --target "${GITHUB_SHA}" \
+              --title "Catomania ${tag}" \
+              --generate-notes \
+              "${prerelease[@]}"
+          fi

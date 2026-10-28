@@ -1,0 +1,199 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_VERSION: '10.0.x'
+
+# A newer push to the same branch supersedes the running build.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # GitVersion needs the full history to calculate the version.
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ./src/Catomania.sln
+
+      - name: Build
+        run: dotnet build ./src/Catomania.sln --configuration Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test ./src/Catomania.Tests --configuration Release --no-build
+          --logger trx --results-directory ./artifacts/test-results
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./artifacts/test-results
+          if-no-files-found: ignore
+
+  # Compiles on every platform to catch platform specific code and analyzer errors early,
+  # without paying for a full Native AOT publish.
+  compile-check:
+    name: Compile (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build
+        run: dotnet build ./src/Catomania.sln --configuration Release
+
+  # Publishes a real Native AOT binary and proves it starts. This is the check that matters:
+  # trimming and AOT problems only surface at publish time or at runtime, never in a plain build.
+  aot-verify:
+    name: AOT verify (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            rid: linux-x64
+            exe: Catomania
+          - os: windows-latest
+            rid: win-x64
+            exe: Catomania.exe
+          - os: macos-latest
+            rid: osx-arm64
+            exe: Catomania
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install the Native AOT toolchain (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          # clang and zlib are required by the ILCompiler, the rest by Avalonia at runtime.
+          sudo apt-get install -y clang zlib1g-dev xvfb \
+            libx11-6 libice6 libsm6 libfontconfig1 libglib2.0-0
+
+      - name: Publish (Native AOT)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ./artifacts
+          dotnet publish ./src/Catomania --configuration Release \
+            --runtime "${{ matrix.rid }}" --output ./artifacts/aot \
+            2>&1 | tee ./artifacts/publish.log
+
+      - name: Fail on AOT analyzer warnings
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'warning (IL|NETSDK)[0-9]+' ./artifacts/publish.log; then
+            echo "::error::Native AOT analyzer warnings found:"
+            grep -E 'warning (IL|NETSDK)[0-9]+' ./artifacts/publish.log | sort -u
+            exit 1
+          fi
+          echo "No AOT analyzer warnings."
+
+      - name: Check the native dependencies were deployed
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -la ./artifacts/aot
+          test -f "./artifacts/aot/${{ matrix.exe }}"
+          # Skia and HarfBuzz are native libraries, they are not compiled into the AOT binary and
+          # have to sit next to it or the application cannot render anything. The exact file names
+          # differ per platform, so match on the library rather than on a hard coded name.
+          for library in SkiaSharp HarfBuzzSharp; do
+            if ! find ./artifacts/aot -maxdepth 1 -name "*${library}*" | grep -q .; then
+              echo "::error::No native ${library} library next to the AOT binary."
+              exit 1
+            fi
+          done
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            test -f ./artifacts/aot/libAvaloniaNative.dylib
+          fi
+
+      - name: Smoke test the update check
+        shell: bash
+        run: |
+          set -uo pipefail
+          cd ./artifacts/aot
+          # Exercises the Velopack locator, HttpClient, JSON feed parsing and SemanticVersion,
+          # the paths that used to rely on reflection before the source generated context.
+          # A missing or unreachable feed is reported as an error by design and exits 1, that is
+          # not an AOT problem, so only a crash or a stack trace fails this step.
+          platform=linux
+          case "${{ matrix.rid }}" in
+            win-*) platform=win ;;
+            osx-*) platform=osx ;;
+          esac
+          set +e
+          "./${{ matrix.exe }}" --update-check --update-url "https://catomania.anti-soft.ru/${platform}" > ./update.log 2>&1
+          status=$?
+          set -e
+          cat ./update.log
+          case "${status}" in
+            0|1) ;;
+            *) echo "::error::The AOT binary exited with ${status}." ; exit 1 ;;
+          esac
+          if grep -qiE 'unhandled exception|at Catomania\.|System\.[A-Za-z.]*Exception' ./update.log; then
+            echo "::error::The update check threw, the AOT build is broken."
+            exit 1
+          fi
+
+      - name: Smoke test the GUI (Linux, headless X)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd ./artifacts/aot
+          # The animal window has to open and the chase loop has to run without an exception.
+          # The app reports unhandled exceptions on stderr and keeps running, so a non-empty
+          # log means something broke at runtime under AOT.
+          timeout --signal=TERM 15 xvfb-run --auto-servernum ./Catomania > ./gui.log 2>&1 || true
+          cat ./gui.log
+          test ! -s ./gui.log
+
+      - name: Upload the AOT binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: aot-${{ matrix.rid }}
+          path: ./artifacts/aot
+          if-no-files-found: error

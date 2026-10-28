@@ -17,24 +17,8 @@ public static class DotNetConstants
 
     #endregion
 
-    #region .NET RID Catalog
-
-    // https://docs.microsoft.com/en-us/dotnet/core/rid-catalog.
-
-    /// <summary>Linux x64 runtime identifier.</summary>
-    public const string RidLinuxX64 = $"{ApplicationConstants.PlatformLinux}-{ApplicationConstants.ArchitectureX64}";
-
-    /// <summary>Linux ARM64 runtime identifier.</summary>
-    public const string RidLinuxArm64 = $"{ApplicationConstants.PlatformLinux}-{ApplicationConstants.ArchitectureArm64}";
-
-    /// <summary>Windows x64 runtime identifier.</summary>
-    public const string RidWindowsX64 = $"{ApplicationConstants.PlatformWindows}-{ApplicationConstants.ArchitectureX64}";
-
-    /// <summary>macOS x64 runtime identifier.</summary>
-    public const string RidMacOSX64 = $"{ApplicationConstants.PlatformMacOS}-{ApplicationConstants.ArchitectureX64}";
-
-    /// <summary>macOS ARM64 runtime identifier.</summary>
-    public const string RidMacOSArm64 = $"{ApplicationConstants.PlatformMacOS}-{ApplicationConstants.ArchitectureArm64}";
-
-    #endregion
+    // Runtime identifiers are not listed here on purpose. They are the platform identifier from
+    // <see cref="ApplicationConstants" /> and the architecture of the build combined by
+    // <see cref="BuildContext.GetRuntimeIdentifier" />, so a single definition of both is enough.
+    // The catalog of valid values is at https://docs.microsoft.com/en-us/dotnet/core/rid-catalog.
 }

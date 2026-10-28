@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using Catomania.Models;
 using Catomania.Services;
@@ -26,6 +27,26 @@ public sealed class AppUpdateServiceTests
         Assert.Equal(
             $"{AppUpdateService.BaseUpdateUrl}/{AppUpdateService.GetPlatform()}",
             AppUpdateService.GetDefaultUpdateUrl());
+    }
+
+    [Fact]
+    public void GetPlatform_QualifiesTheChannelWithTheArchitectureExceptOnX64()
+    {
+        var platform = AppUpdateService.GetPlatform();
+
+        // The channel has to start with the platform the build script publishes to, otherwise the
+        // application reads a feed that nobody writes.
+        var expectedPrefix = OperatingSystem.IsWindows() ? "win"
+            : OperatingSystem.IsMacOS() ? "osx"
+            : "linux";
+        Assert.StartsWith(expectedPrefix, platform, StringComparison.Ordinal);
+
+        // x64 keeps the plain platform name so the feeds published before the arm64 builds existed
+        // stay valid. Every other architecture gets its own channel, matching BuildContext.GetChannel.
+        var expected = RuntimeInformation.ProcessArchitecture == Architecture.X64
+            ? expectedPrefix
+            : $"{expectedPrefix}-{RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()}";
+        Assert.Equal(expected, platform);
     }
 
     [Fact]

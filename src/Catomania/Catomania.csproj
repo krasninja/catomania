@@ -11,6 +11,24 @@
     <Description>A kitty that chases the mouse cursor across the screen.</Description>
   </PropertyGroup>
 
+  <!-- The application ships as a Native AOT binary: no JIT, faster startup and a smaller footprint.
+       These properties only take effect during "dotnet publish"; day to day builds and the test
+       project keep using the regular JIT pipeline. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+    <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <StripSymbols>true</StripSymbols>
+    <DebuggerSupport>false</DebuggerSupport>
+    <!-- Report warnings per assembly instead of collapsing them into a single one, so the
+         analyzer output stays actionable. -->
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <!-- Native AOT is always a single file, the single file bundler must stay out of the way. -->
+    <PublishSingleFile>false</PublishSingleFile>
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <EmbeddedResource Include="Input\Scripts\kwin-cursor.js" LogicalName="Catomania.Input.Scripts.kwin-cursor.js" />

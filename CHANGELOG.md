@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cursor tracking fixes.
 - Autostart.
 - Animal looks at cursor in pause mode.
+- The application is published as a Native AOT binary: faster startup, a smaller download and no JIT.
 
 ## [0.2.0]
 

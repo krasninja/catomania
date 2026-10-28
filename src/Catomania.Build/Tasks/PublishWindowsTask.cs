@@ -19,7 +19,7 @@ public sealed class PublishWindowsTask : AsyncFrostingTask<BuildContext>
             context.Directory("./src/Catomania/"),
             new BaseDotNetPublishSettings(context)
             {
-                Runtime = DotNetConstants.RidWindowsX64,
+                Runtime = context.GetRuntimeIdentifier(ApplicationConstants.PlatformWindows),
             });
 
         var velopackArgs = context.GetVelopackArguments(ApplicationConstants.PlatformWindows);

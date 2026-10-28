@@ -5,7 +5,7 @@ using Cake.Core.IO.Arguments;
 namespace Catomania.Build.Tasks;
 
 /// <summary>
-/// Base settings for publishing the application as a single compressed file.
+/// Base settings for publishing the application as a Native AOT binary.
 /// </summary>
 public sealed class BaseDotNetPublishSettings : DotNetPublishSettings
 {
@@ -19,13 +19,24 @@ public sealed class BaseDotNetPublishSettings : DotNetPublishSettings
         properties ??= string.Empty;
 
         Force = true;
-        PublishSingleFile = true;
-        EnableCompressionInSingleFile = true;
+
+        // The application ships as a Native AOT binary (see Catomania.csproj). AOT output is a
+        // single native executable by definition, so the single file bundler and its compression
+        // have to stay off. PublishTrimmed must not be set at all here: AOT implies it and the SDK
+        // rejects an explicit false with "PublishTrimmed is implied by native compilation".
+        PublishSingleFile = false;
+        EnableCompressionInSingleFile = false;
+        SelfContained = true;
+
         Configuration = DotNetConstants.ConfigurationRelease;
         OutputDirectory = context.OutputDirectory;
         NoLogo = true;
         ArgumentCustomization = pag =>
         {
+            // Cake's DotNetPublishSettings has no PublishAot property, so the AOT switch is passed
+            // as an MSBuild property. The csproj sets it for Release too, this keeps it explicit.
+            pag.Append(new TextArgument("-p:PublishAot=true"));
+
             // For reference: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/.
             pag.Append(new TextArgument($"-p:InformationalVersion={context.Version}"));
 

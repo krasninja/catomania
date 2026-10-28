@@ -43,7 +43,7 @@ The extension and the script share only the cursor position. On other Wayland co
 
 ## Build & publish installers
 
-The repository contains a Cake Frosting build script (`./build.sh`) that publishes self-contained single file binaries and packs them with [Velopack](https://velopack.io/):
+The repository contains a Cake Frosting build script (`./build.sh`) that publishes the application as a [Native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/) binary and packs it with [Velopack](https://velopack.io/):
 
 ```bash
 ./build.sh --target=Publish-Linux
@@ -51,12 +51,34 @@ The repository contains a Cake Frosting build script (`./build.sh`) that publish
 ./build.sh --target=Publish-Mac
 ```
 
-Published binaries are placed to `./output/publish`, Velopack releases (setup, portable package and the update feed) to `./output/releases/<platform>`. The version is calculated by GitVersion and can be overridden with the `CATOMANIA_VERSION` environment variable (for example, `CATOMANIA_VERSION=1.2.3 ./build.sh --target=Publish-Linux`).
+Published binaries are placed to `./output/publish`, Velopack releases (setup, portable package and the update feed) to `./output/releases/<channel>`. The version is calculated by GitVersion and can be overridden with the `CATOMANIA_VERSION` environment variable (for example, `CATOMANIA_VERSION=1.2.3 ./build.sh --target=Publish-Linux`).
+
+The architecture defaults to `x64` and is set with the `CATOMANIA_ARCH` environment variable or the `--arch` argument, for example `CATOMANIA_ARCH=arm64 ./build.sh --target=Publish-Mac`. x64 publishes to the plain channel (`win`, `linux`, `osx`), any other architecture to a channel of its own (`osx-arm64`), which is also the feed path the application reads.
 
 Prerequisites:
 
 - The Velopack CLI: `dotnet tool install -g vpk`.
-- On Linux additionally `squashfs-tools` for the AppImage package: `sudo dnf install squashfs-tools` or `sudo apt install squashfs-tools`.
+- GitVersion for the version calculation: `dotnet tool install -g gitversion.tool`.
+- The Native AOT toolchain of the target platform:
+
+  | OS | Prerequisites |
+  | --- | --- |
+  | Linux | `sudo apt install clang zlib1g-dev`, plus `squashfs-tools` for the AppImage package |
+  | Windows | Visual Studio 2022 or later with the *Desktop development with C++* workload |
+  | macOS | The Xcode command line tools, plus `hdiutil` and `ditto` for the `.dmg` |
+
+Native AOT cannot cross compile, so every target has to be built on a machine with the matching operating system **and** CPU architecture: `osx-x64` needs an Intel Mac, `osx-arm64` an Apple Silicon one.
+
+`Publish-Mac` also wraps the `.app` bundle into a `.dmg` as its last step, using `hdiutil`. That step is skipped with a message anywhere but on macOS. To rebuild only the disk image from an already published bundle, run `./build.sh --target=Pack-Mac-Dmg`.
+
+## Continuous integration
+
+Two GitHub workflows live in `.github/workflows`:
+
+- **`ci.yml`** runs on every push and pull request: it builds and tests the solution, compiles on all three platforms and publishes a real Native AOT binary per platform. The AOT job fails on any trim or AOT analyzer warning, checks that the Skia and HarfBuzz native libraries were deployed next to the binary, runs the `--update-check` path and, on Linux, starts the animal window under a headless X server.
+- **`release.yml`** runs when a semver tag is pushed. It packages every platform in parallel, creates the GitHub release and uploads the installers, the portable packages and the update feed. Before packing it downloads the previous release into `./output/releases/<channel>` so Velopack can build the delta package and keep the full feed: without that step the feed would only list the new version.
+
+Code signing is wired through the `VPK_*` environment variables Velopack reads natively and stays disabled while the corresponding repository secrets are empty. Unsigned Windows builds show the SmartScreen warning and unsigned macOS builds are blocked by Gatekeeper.
 
 ## Updates
 
