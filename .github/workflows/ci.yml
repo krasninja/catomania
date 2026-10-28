@@ -10,6 +10,10 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_VERSION: '10.0.x'
+  # Keep in sync with the Velopack PackageReference in src/Catomania/Catomania.csproj
+  # and with the versions used by release.yml.
+  VPK_VERSION: '1.2.161'
+  GITVERSION_VERSION: '6.3.0'
 
 # A newer push to the same branch supersedes the running build.
 concurrency:
@@ -74,10 +78,13 @@ jobs:
       - name: Build
         run: dotnet build ./src/Catomania.sln --configuration Release
 
-  # Publishes a real Native AOT binary and proves it starts. This is the check that matters:
-  # trimming and AOT problems only surface at publish time or at runtime, never in a plain build.
+  # Publishes a real Native AOT binary, packs it with Velopack and proves it starts. This is the
+  # check that matters: trimming and AOT problems only surface at publish time or at runtime,
+  # never in a plain build. It runs the exact same Cake targets as release.yml, so the uploaded
+  # artifacts are the ready-to-deploy Velopack files (installers, portable packages, update
+  # feeds) instead of the raw publish output.
   aot-verify:
-    name: AOT verify (${{ matrix.rid }})
+    name: Package & AOT verify (${{ matrix.rid }})
     strategy:
       fail-fast: false
       matrix:
@@ -85,12 +92,21 @@ jobs:
           - os: ubuntu-22.04
             rid: linux-x64
             exe: Catomania
+            target: Publish-Linux
+            arch: x64
+            channel: linux
           - os: windows-latest
             rid: win-x64
             exe: Catomania.exe
+            target: Publish-Windows
+            arch: x64
+            channel: win
           - os: macos-latest
             rid: osx-arm64
             exe: Catomania
+            target: Publish-Mac
+            arch: arm64
+            channel: osx-arm64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -103,21 +119,34 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install the build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet tool install --global vpk --version "${VPK_VERSION}"
+          dotnet tool install --global gitversion.tool --version "${GITVERSION_VERSION}"
+
       - name: Install the Native AOT toolchain (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          # clang and zlib are required by the ILCompiler, the rest by Avalonia at runtime.
-          sudo apt-get install -y clang zlib1g-dev xvfb \
+          # clang and zlib are required by the ILCompiler, squashfs-tools by the Velopack
+          # AppImage packer, the rest by Avalonia at runtime.
+          sudo apt-get install -y clang zlib1g-dev squashfs-tools xvfb \
             libx11-6 libice6 libsm6 libfontconfig1 libglib2.0-0
 
-      - name: Publish (Native AOT)
+      # Runs the same Cake Frosting target as release.yml: it publishes the Native AOT binary
+      # into ./output/publish and packs it with Velopack into ./output/releases/<channel>.
+      # The version is calculated by GitVersion, so CI packages get a prerelease version.
+      - name: Publish and package (Native AOT + Velopack)
         shell: bash
+        env:
+          CATOMANIA_ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
           mkdir -p ./artifacts
-          dotnet publish ./src/Catomania --configuration Release \
-            --runtime "${{ matrix.rid }}" --output ./artifacts/aot \
+          dotnet run --project ./src/Catomania.Build/Catomania.Build.csproj -- \
+            --target=${{ matrix.target }} \
             2>&1 | tee ./artifacts/publish.log
 
       - name: Fail on AOT analyzer warnings
@@ -135,26 +164,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ls -la ./artifacts/aot
-          test -f "./artifacts/aot/${{ matrix.exe }}"
+          ls -la ./output/publish
+          test -f "./output/publish/${{ matrix.exe }}"
           # Skia and HarfBuzz are native libraries, they are not compiled into the AOT binary and
           # have to sit next to it or the application cannot render anything. The exact file names
           # differ per platform, so match on the library rather than on a hard coded name.
           for library in SkiaSharp HarfBuzzSharp; do
-            if ! find ./artifacts/aot -maxdepth 1 -name "*${library}*" | grep -q .; then
+            if ! find ./output/publish -maxdepth 1 -name "*${library}*" | grep -q .; then
               echo "::error::No native ${library} library next to the AOT binary."
               exit 1
             fi
           done
           if [ "${{ runner.os }}" = "macOS" ]; then
-            test -f ./artifacts/aot/libAvaloniaNative.dylib
+            test -f ./output/publish/libAvaloniaNative.dylib
           fi
 
       - name: Smoke test the update check
         shell: bash
         run: |
           set -uo pipefail
-          cd ./artifacts/aot
+          cd ./output/publish
           # Exercises the Velopack locator, HttpClient, JSON feed parsing and SemanticVersion,
           # the paths that used to rely on reflection before the source generated context.
           # A missing or unreachable feed is reported as an error by design and exits 1, that is
@@ -184,7 +213,7 @@ jobs:
       #   shell: bash
       #   run: |
       #     set -euo pipefail
-      #     cd ./artifacts/aot
+      #     cd ./output/publish
       #     # The animal window has to open and the chase loop has to run without an exception.
       #     # The app reports unhandled exceptions on stderr and keeps running, so a non-empty
       #     # log means something broke at runtime under AOT.
@@ -192,9 +221,17 @@ jobs:
       #     cat ./gui.log
       #     test ! -s ./gui.log
 
-      - name: Upload the AOT binary
+      - name: List the Velopack output
+        shell: bash
+        run: |
+          set -euo pipefail
+          find ./output/releases -type f -exec ls -la {} \;
+
+      # The ready-to-deploy Velopack files: installers (Setup.exe, .AppImage, .dmg), the full
+      # and delta packages (.nupkg) and the update feeds (RELEASES, releases.<channel>.json).
+      - name: Upload the Velopack release files
         uses: actions/upload-artifact@v5
         with:
-          name: aot-${{ matrix.rid }}
-          path: ./artifacts/aot
+          name: velopack-${{ matrix.channel }}
+          path: ./output/releases/${{ matrix.channel }}
           if-no-files-found: error
