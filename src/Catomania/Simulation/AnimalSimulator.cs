@@ -137,7 +137,11 @@ public sealed class AnimalSimulator
         var previousPosition = Position;
         Position += Velocity * deltaSeconds;
         Position = input.Bounds.Clamp(Position);
-        if (Math.Abs(Velocity.X) > _options.FacingThreshold)
+        if (input.IsPaused && state == AnimalAnimationState.Idle)
+        {
+            FacingRight = input.CursorPosition.X >= Position.X;
+        }
+        else if (Math.Abs(Velocity.X) > _options.FacingThreshold)
         {
             FacingRight = Velocity.X > 0;
         }
