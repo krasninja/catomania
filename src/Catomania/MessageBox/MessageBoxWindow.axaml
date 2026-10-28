@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:abstractions="using:Catomania.Abstractions"
+        xmlns:messageBox="using:Catomania.MessageBox"
+        mc:Ignorable="d"
+        d:DesignWidth="300"
+        d:DesignHeight="100"
+        x:Class="Catomania.MessageBox.MessageBoxWindow"
+        x:DataType="messageBox:MessageBoxViewModel"
+        x:CompileBindings="True"
+        Title="{Binding Caption}"
+        Width="300"
+        WindowStartupLocation="CenterOwner"
+        Topmost="True"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        CanMaximize="False"
+        CanMinimize="False"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://Catomania/Resources/MessageBox.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+C" Command="{Binding CopyCommand}" />
+    </Window.KeyBindings>
+
+    <Grid RowDefinitions="*,Auto" Margin="20">
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="26" />
+                <ColumnDefinition Width="250" />
+            </Grid.ColumnDefinitions>
+
+            <Path
+                x:Name="IconPath"
+                Grid.Column="0"
+                Margin="0,0,15,0"
+                Width="32"
+                Height="32"
+                Stretch="Uniform" />
+            <TextBlock
+                Grid.Column="1"
+                Name="MessageTextBlock"
+                Text="{Binding Message}"
+                TextWrapping="Wrap"
+                VerticalAlignment="Center" />
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button
+                Content="OK"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.OK}"
+                IsDefault="True"
+                IsVisible="{Binding ShowOkButton}" />
+            <Button
+                Content="Yes"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.Yes}"
+                IsVisible="{Binding ShowYesButton}" />
+            <Button
+                Content="No"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.No}"
+                IsCancel="True"
+                IsVisible="{Binding ShowNoButton}" />
+            <Button
+                Content="Cancel"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.Cancel}"
+                IsCancel="True"
+                IsVisible="{Binding ShowCancelButton}" />
+            <Button
+                Content="Abort"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.Abort}"
+                IsVisible="{Binding ShowAbortButton}" />
+            <Button
+                Content="Retry"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.Retry}"
+                IsVisible="{Binding ShowRetryButton}" />
+            <Button
+                Content="Ignore"
+                Command="{Binding ActionSelectCommand}"
+                CommandParameter="{x:Static abstractions:DialogResult.Ignore}"
+                IsVisible="{Binding ShowIgnoreButton}" />
+        </StackPanel>
+    </Grid>
+</Window>

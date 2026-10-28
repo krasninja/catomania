@@ -111,6 +111,8 @@
                                         Click="OnRecenterClick" />
                         <NativeMenuItem Header="Check for Updates"
                                         Click="OnCheckUpdatesClick" />
+                        <NativeMenuItem Header="About"
+                                        Click="OnAboutClick" />
                         <NativeMenuItemSeparator />
                         <NativeMenuItem Header="Quit Catomania"
                                         Click="OnQuitClick" />

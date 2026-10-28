@@ -211,6 +211,8 @@ public sealed partial class App : Application
         }
     }
 
+    private void OnAboutClick(object? sender, EventArgs e) => _appCommands?.ShowAbout();
+
     private void OnQuitClick(object? sender, EventArgs e) => _appCommands?.Quit();
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)

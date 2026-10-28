@@ -1,14 +1,15 @@
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.Threading;
 using Catomania.Abstractions;
 using Catomania.Animals;
 using Catomania.Controls;
 using Catomania.Input;
+using Catomania.MessageBox;
 using Catomania.Models;
 using Catomania.Services;
 using Catomania.Simulation;
@@ -189,6 +190,24 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     /// <inheritdoc />
     public Task CheckForUpdatesAsync() => CheckForUpdatesAsync(silent: false);
+
+    /// <inheritdoc />
+    public void ShowAbout()
+    {
+        var dialog = new MessageBoxWindow(new MessageBoxViewModel(GetAboutMessage(), "About Catomania"));
+        _ = dialog.ShowDialog(this);
+    }
+
+    /// <summary>
+    /// Build the "About" message: the application name, platform and version.
+    /// </summary>
+    /// <returns>About message text.</returns>
+    public static string GetAboutMessage()
+        => string.Join(
+            Environment.NewLine,
+            "Catomania",
+            $"Version: {AppUpdateService.GetAssemblyVersion()}",
+            $"Platform: {RuntimeInformation.OSDescription} ({RuntimeInformation.ProcessArchitecture})");
 
     /// <inheritdoc />
     public void Quit()
@@ -414,6 +433,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e) => await CheckForUpdatesAsync();
 
+    private void OnAboutClick(object? sender, RoutedEventArgs e) => ShowAbout();
+
     private async void OnUpdateCheckTimerTick(object? sender, EventArgs e)
     {
         _updateCheckTimer.Interval = UpdateCheckInterval;
@@ -482,21 +503,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     private void ShowUpdateReport(string message)
     {
-        var dialog = new Window
-        {
-            Title = "Catomania Updates",
-            SizeToContent = SizeToContent.WidthAndHeight,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            CanResize = false,
-            ShowInTaskbar = false,
-            Content = new TextBlock
-            {
-                Text = message,
-                Margin = new Thickness(16),
-                MaxWidth = 360,
-                TextWrapping = TextWrapping.Wrap,
-            },
-        };
+        var dialog = new MessageBoxWindow(new MessageBoxViewModel(message, "Catomania Updates"));
         _ = dialog.ShowDialog(this);
     }
 

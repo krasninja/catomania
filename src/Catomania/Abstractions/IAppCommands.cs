@@ -36,6 +36,11 @@ public interface IAppCommands
     Task CheckForUpdatesAsync();
 
     /// <summary>
+    /// Show the "About" dialog with the application name, platform and version.
+    /// </summary>
+    void ShowAbout();
+
+    /// <summary>
     /// Quit the application.
     /// </summary>
     void Quit();
