@@ -21,7 +21,7 @@
     <Grid>
         <controls:AnimalView x:Name="AnimalView" />
         <Border x:Name="SpeechBubble"
-                Background="#F0FFFFFF"
+                Background="#A9FFFFFF"
                 CornerRadius="8"
                 Padding="8,4"
                 HorizontalAlignment="Center"
@@ -31,7 +31,7 @@
             <TextBlock x:Name="SpeechText"
                        FontSize="14"
                        FontWeight="Bold"
-                       Foreground="#FF333333" />
+                       Foreground="#E6333333" />
         </Border>
     </Grid>
 
