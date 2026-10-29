@@ -22,4 +22,9 @@ public enum AnimalKind
     /// A springer spaniel.
     /// </summary>
     Dog,
+
+    /// <summary>
+    /// A mint snake with a leaf on its head.
+    /// </summary>
+    Snake,
 }

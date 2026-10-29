@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autostart.
 - Animal looks at cursor in pause mode.
 - The application is published as a Native AOT binary: faster startup, a smaller download and no JIT.
+- Snake: a chubby mint snake with a big head and a leaf on top, it scoots like an inchworm and sleeps curled into a ring.
 
 ## [0.2.0]
 
