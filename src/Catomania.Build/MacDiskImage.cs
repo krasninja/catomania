@@ -65,7 +65,15 @@ public static class MacDiskImage
 
         var dmgPath = channelDirectory
             .CombineWithFilePath($"{ApplicationConstants.PackId}-{context.Version}-{channel}.dmg");
-        context.DeleteFile(dmgPath);
+
+        // Cake's DeleteFile throws a FileNotFoundException instead of ignoring a missing file, and
+        // on a clean checkout - which is always the case in CI - no image has been created yet.
+        // The delete only guards against a stale image of the same version, hdiutil is passed -ov
+        // below and overwrites whatever is there anyway.
+        if (context.FileExists(dmgPath))
+        {
+            context.DeleteFile(dmgPath);
+        }
 
         // UDZO is a compressed, read only image, the usual format for distribution.
         RunOrFail(
