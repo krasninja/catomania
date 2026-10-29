@@ -29,6 +29,9 @@ public class BuildContext : FrostingContext
     /// <summary>
     /// Temporary directory the contents of the macOS disk image are staged in. It must not live
     /// inside <see cref="OutputDirectory" />: Velopack packs everything it finds there.
+    /// Never clean it with <c>CleanDirectory</c> directly: while the image is built it holds a
+    /// symlink to the real <c>/Applications</c>, and Cake recurses through symlinks. Use
+    /// <c>MacDiskImage</c>, which unlinks the shortcut first.
     /// </summary>
     public ConvertableDirectoryPath DmgStagingDirectory => this.Directory("./output/dmg-staging");
 

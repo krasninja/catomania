@@ -19,6 +19,13 @@ namespace Catomania.Build;
 public static class MacDiskImage
 {
     /// <summary>
+    /// Name of the shortcut to <c>/Applications</c> placed inside the staged volume, so the
+    /// application installs by dragging. Both ends have to agree on it: it is created as a symlink
+    /// and the cleanup has to know it is one, see <see cref="CleanStagingDirectory" />.
+    /// </summary>
+    private const string ApplicationsShortcutName = "Applications";
+
+    /// <summary>
     /// Wrap the published application bundle into a compressed disk image.
     /// Does nothing with a message when not running on macOS.
     /// </summary>
@@ -47,7 +54,7 @@ public static class MacDiskImage
         // ditto is the canonical way to copy a bundle on macOS: unlike a plain file copy it keeps
         // the executable bits, the resource forks and the symlinks inside the bundle intact.
         DirectoryPath stagingDirectory = context.DmgStagingDirectory;
-        context.CleanDirectory(stagingDirectory);
+        CleanStagingDirectory(context, stagingDirectory);
         var stagedAppPath = stagingDirectory.Combine($"{ApplicationConstants.PackId}.app");
         RunOrFail(
             context,
@@ -61,7 +68,7 @@ public static class MacDiskImage
             new ProcessArgumentBuilder()
                 .Append("-s")
                 .Append("/Applications")
-                .AppendQuoted(stagingDirectory.Combine("Applications").FullPath));
+                .AppendQuoted(stagingDirectory.Combine(ApplicationsShortcutName).FullPath));
 
         var dmgPath = channelDirectory
             .CombineWithFilePath($"{ApplicationConstants.PackId}-{context.Version}-{channel}.dmg");
@@ -87,9 +94,41 @@ public static class MacDiskImage
                 .Append("-format").Append("UDZO")
                 .AppendQuoted(dmgPath.FullPath));
 
-        context.CleanDirectory(stagingDirectory);
+        CleanStagingDirectory(context, stagingDirectory);
         context.Information($"Created {dmgPath}");
         return dmgPath;
+    }
+
+    /// <summary>
+    /// Empty the staging directory, creating it when it does not exist yet.
+    /// </summary>
+    /// <param name="context">Build context.</param>
+    /// <param name="stagingDirectory">Staging directory to empty.</param>
+    /// <remarks>
+    /// Plain <c>CleanDirectory</c> must never be pointed at this directory: Cake recurses through
+    /// symlinks instead of unlinking them, so it walks through the <c>Applications</c> shortcut into
+    /// the real <c>/Applications</c> and deletes whatever is in there. Only file permissions stop it,
+    /// which is why this used to surface as "Access to the path ... is denied" on a CI runner and
+    /// would have silently wiped user writable applications on a developer machine.
+    /// The shortcut is therefore unlinked first - <see cref="System.IO.File.Delete(string)" /> removes
+    /// the link itself and never touches its target - and only the plain files that remain go to Cake.
+    /// </remarks>
+    private static void CleanStagingDirectory(BuildContext context, DirectoryPath stagingDirectory)
+    {
+        var shortcutPath = stagingDirectory.Combine(ApplicationsShortcutName).FullPath;
+
+        // DirectoryInfo is the only reliable probe here: Cake reports FileExists == false and
+        // DirectoryExists == true for a symlink to a directory, so neither alias can tell the
+        // shortcut apart from a real directory. LinkTarget is non null for a symlink only, and for
+        // a missing path it is null, so a first run on a clean checkout is a plain no-op.
+        // Fully qualified because Cake.Core.IO has an internal File type of its own.
+        if (new System.IO.DirectoryInfo(shortcutPath).LinkTarget is not null)
+        {
+            System.IO.File.Delete(shortcutPath);
+        }
+
+        // Creates the directory as well when it is missing, which is the case on a clean checkout.
+        context.CleanDirectory(stagingDirectory);
     }
 
     private static void RunOrFail(BuildContext context, string tool, ProcessArgumentBuilder arguments)
