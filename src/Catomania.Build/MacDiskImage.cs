@@ -26,7 +26,8 @@ public static class MacDiskImage
     private const string ApplicationsShortcutName = "Applications";
 
     /// <summary>
-    /// Wrap the published application bundle into a compressed disk image.
+    /// Ad-hoc sign the published application bundle and wrap it into a compressed disk image.
+    /// The bundle is removed afterwards, the image is the only macOS deliverable.
     /// Does nothing with a message when not running on macOS.
     /// </summary>
     /// <param name="context">Build context.</param>
@@ -49,6 +50,19 @@ public static class MacDiskImage
         {
             throw new CakeException($"The application bundle {appPath} is missing, run Publish-Mac first.");
         }
+
+        // vpk bundle neither signs nor seals the bundle, only the AOT binary carries the linker's
+        // ad-hoc signature. Gatekeeper reports such a downloaded app as "damaged" on Apple Silicon,
+        // so seal the whole bundle with an ad-hoc signature. This is not a substitute for a
+        // Developer ID signature and notarization, users still have to allow the app once.
+        RunOrFail(
+            context,
+            "codesign",
+            new ProcessArgumentBuilder()
+                .Append("--force")
+                .Append("--deep")
+                .Append("--sign").Append("-")
+                .AppendQuoted(appPath.FullPath));
 
         // The volume holds the application and a link to /Applications so it installs by dragging.
         // ditto is the canonical way to copy a bundle on macOS: unlike a plain file copy it keeps
@@ -95,6 +109,12 @@ public static class MacDiskImage
                 .AppendQuoted(dmgPath.FullPath));
 
         CleanStagingDirectory(context, stagingDirectory);
+
+        // The bundle now lives in the image. Left next to it, it would be uploaded as a loose
+        // directory, and the artifact zip drops the executable bits, which also makes macOS report
+        // it as damaged. Directory.Delete removes symlinks inside the bundle without following
+        // them, unlike Cake's DeleteDirectory.
+        System.IO.Directory.Delete(appPath.FullPath, recursive: true);
         context.Information($"Created {dmgPath}");
         return dmgPath;
     }
