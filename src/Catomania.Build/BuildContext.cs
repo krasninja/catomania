@@ -36,6 +36,11 @@ public class BuildContext : FrostingContext
     public ConvertableDirectoryPath DmgStagingDirectory => this.Directory("./output/dmg-staging");
 
     /// <summary>
+    /// Picture of all animals on green grass, shown in the README.
+    /// </summary>
+    public ConvertableFilePath AnimalsImageFile => this.File("./output/animals.png");
+
+    /// <summary>
     /// Files excluded from the Velopack package. Passing <c>--exclude</c> replaces the Velopack
     /// default of <c>.*\.pdb</c>, so every format has to be listed. Native AOT writes the debug
     /// information next to the binary in a platform specific format instead of a portable pdb, and

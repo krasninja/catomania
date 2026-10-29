@@ -71,6 +71,8 @@ Native AOT cannot cross compile, so every target has to be built on a machine wi
 
 `Publish-Mac` also wraps the `.app` bundle into a `.dmg` as its last step, using `hdiutil`. That step is skipped with a message anywhere but on macOS. To rebuild only the disk image from an already published bundle, run `./build.sh --target=Pack-Mac-Dmg`.
 
+`./build.sh --target=Generate-Animals-Image` draws all animals on green grass with the application's own rendering code and saves the picture to `./output/animals.png`.
+
 ## Continuous integration
 
 Two GitHub workflows live in `.github/workflows`:

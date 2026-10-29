@@ -8,7 +8,7 @@ namespace Catomania.Build.Tasks;
 /// </summary>
 [TaskName("Pack-Mac-Dmg")]
 [TaskDescription("Create a macOS .dmg from the already published application bundle")]
-public sealed class CreateMacDmgTask : FrostingTask<BuildContext>
+public sealed class PackMacDmgTask : FrostingTask<BuildContext>
 {
     /// <inheritdoc />
     public override void Run(BuildContext context) => MacDiskImage.Create(context);
