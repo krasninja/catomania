@@ -17,16 +17,49 @@ class Program
     public static int Main(string[] args)
     {
         // Velopack hooks for installed applications: updates, restarts and shortcuts.
-        VelopackApp.Build().Run();
+        var velopackApp = VelopackApp.Build();
+        if (OperatingSystem.IsWindows())
+        {
+            // Only Windows has an uninstaller to hook into.
+            velopackApp.OnBeforeUninstallFastCallback(_ => DisableLaunchAtStartup());
+        }
+
+        velopackApp.Run();
 
         if (Array.Exists(args, arg => arg == UpdateCheckArgument))
         {
             return RunUpdateCheck(args);
         }
 
+        // Held until the process exits. A self-update restarts the application only after this
+        // process has quit, so the new version never finds the lock taken.
+        using var instanceLock = SingleInstanceLock.TryAcquire();
+        if (instanceLock == null)
+        {
+            Console.Error.WriteLine("Catomania: another instance is already running.");
+            return 0;
+        }
+
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
         return 0;
+    }
+
+    /// <summary>
+    /// Remove the launch at system startup entry, so an uninstalled application does not leave
+    /// a startup entry pointing at an executable that no longer exists.
+    /// </summary>
+    private static void DisableLaunchAtStartup()
+    {
+        try
+        {
+            App.CreateSystemAutostart()?.DisableLaunchAtStartupAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception e)
+        {
+            // The uninstall must go on regardless.
+            Console.Error.WriteLine($"Catomania: cannot disable the launch at startup: {e.Message}");
+        }
     }
 
     /// <summary>
@@ -61,5 +94,7 @@ class Program
             .WithDeveloperTools()
 #endif
             .WithInterFont()
+            // A desktop pet lives in the menu bar and its own window, not in the Dock or Cmd+Tab.
+            .With(new MacOSPlatformOptions { ShowInDock = false })
             .LogToTrace();
 }

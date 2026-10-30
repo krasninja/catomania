@@ -100,9 +100,8 @@ public class BuildContext : FrostingContext
 
     /// <summary>
     /// Get the Velopack release channel of a platform. It is also the name of the subdirectory the
-    /// releases are written to. x64 keeps the plain platform name, so the feeds already published at
-    /// <c>https://catomania.anti-soft.ru/&lt;platform&gt;</c> stay valid, other architectures get their own
-    /// channel to keep the feeds separate.
+    /// releases are written to. x64 keeps the plain platform name, so the channel of the installations made before the
+    /// arm64 builds existed stays valid, other architectures get their own channel to keep the feeds separate.
     /// </summary>
     /// <param name="platform">Platform identifier.</param>
     /// <returns>Release channel.</returns>

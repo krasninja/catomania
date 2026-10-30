@@ -188,13 +188,9 @@ jobs:
           # the paths that used to rely on reflection before the source generated context.
           # A missing or unreachable feed is reported as an error by design and exits 1, that is
           # not an AOT problem, so only a crash or a stack trace fails this step.
-          platform=linux
-          case "${{ matrix.rid }}" in
-            win-*) platform=win ;;
-            osx-*) platform=osx ;;
-          esac
+          # The default feed is the latest GitHub release.
           set +e
-          "./${{ matrix.exe }}" --update-check --update-url "https://catomania.anti-soft.ru/${platform}" > ./update.log 2>&1
+          "./${{ matrix.exe }}" --update-check > ./update.log 2>&1
           status=$?
           set -e
           cat ./update.log

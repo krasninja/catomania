@@ -53,9 +53,9 @@ Code signing is wired through the `VPK_*` environment variables Velopack reads n
 
 ## Updates
 
-The application checks the Velopack release feed at `https://catomania.anti-soft.ru/<platform>`, where `<platform>` is `win`, `linux` or `osx`:
+The application reads the Velopack release feed from the assets of the latest GitHub release, `https://github.com/krasninja/catomania/releases/latest/download/releases.<channel>.json`, where `<channel>` is `win`, `linux`, `osx` or `osx-arm64`. Every release has to carry the feeds and packages of all channels, which `release.yml` takes care of; pre-releases are not offered as updates. The macOS builds are only bundled (`vpk bundle`), not packed, so they cannot update themselves yet.
 
-- Right-click the cat and choose **Check for Updates**.
+- Right-click the animal and choose **Check for Updates**.
 - Or run `Catomania --update-check`, optionally with `--update-url <uri>` to use another feed. The command prints the check result and exits, applying the update when one is available.
 
 Self-update works when the application is installed by Velopack: on Linux run the packed `catomania.AppImage` (the updater replaces the AppImage file in place), on Windows run the installed setup. Development and portable builds only report the available version.

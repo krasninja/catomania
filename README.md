@@ -26,6 +26,16 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
 4. Settings are saved between runs in the user configuration directory.
 5. Self-updates from the Velopack release feed when installed.
 
+## Install
+
+Download the latest build from the [releases page](https://github.com/krasninja/catomania/releases/latest):
+
+- **Windows**: `catomania-win-Setup.exe`, or the portable `catomania-win-Portable.zip`. The builds are not code signed yet, so SmartScreen may warn you: choose *More info → Run anyway*.
+- **macOS**: the `.dmg` for your chip, then drag `catomania.app` into Applications. The app is not notarized yet, so the first launch is blocked: open *System Settings → Privacy & Security* and click *Open Anyway*, or run `xattr -dr com.apple.quarantine /Applications/catomania.app` once. Catomania lives in the menu bar, not in the Dock.
+- **Linux**: `catomania.AppImage`, make it executable with `chmod +x catomania.AppImage` and run it.
+
+Installed builds (Windows setup, Linux AppImage) update themselves from the latest GitHub release. Only one Catomania runs at a time; starting it again does nothing.
+
 ## Linux and Wayland
 
 Wayland does not let applications read the global cursor position, and XWayland knows it only while the cursor is over an X11 window, that is, over the cat. So on Wayland Catomania asks the compositor:

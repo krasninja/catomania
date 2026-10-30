@@ -250,7 +250,11 @@ public sealed partial class App : Application
     private bool IsLaunchAtStartupEnabled()
         => _systemAutostart?.IsLaunchAtStartupEnabledAsync().GetAwaiter().GetResult() ?? false;
 
-    private static ISystemAutostart? CreateSystemAutostart()
+    /// <summary>
+    /// Create the launch at system startup service of the current platform.
+    /// </summary>
+    /// <returns>Autostart service, or <c>null</c> when the platform is not supported.</returns>
+    internal static ISystemAutostart? CreateSystemAutostart()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {

@@ -217,7 +217,7 @@
               <p class="small text-secondary mb-0">AppImage, x64<br><code>catomania.AppImage</code></p>
             </div>
             <div class="d-grid mt-auto">
-              <a class="btn btn-success" id="dl-linux" href="https://github.com/krasninja/catomania/releases/latest" data-bs-toggle="tooltip" data-bs-title="Works on most distributions. Make it executable once: chmod +x catomania.AppImage">
+              <a class="btn btn-success" id="dl-linux" href="https://github.com/krasninja/catomania/releases/latest/download/catomania.AppImage" data-bs-toggle="tooltip" data-bs-title="Works on most distributions. Make it executable once: chmod +x catomania.AppImage">
                 <i class="bi bi-download me-2" aria-hidden="true"></i>Download for Linux
               </a>
             </div>
@@ -235,10 +235,10 @@
               <p class="small text-secondary mb-0">Installer, x64<br><code>catomania-win-Setup.exe</code></p>
             </div>
             <div class="d-grid gap-2 mt-auto">
-              <a class="btn btn-primary" id="dl-windows" href="https://catomania.anti-soft.ru/win/catomania-win-Setup.exe" data-bs-toggle="tooltip" data-bs-title="Windows 10 and 11. A portable zip is attached to the same release if you prefer not to install">
+              <a class="btn btn-primary" id="dl-windows" href="https://github.com/krasninja/catomania/releases/latest/download/catomania-win-Setup.exe" data-bs-toggle="tooltip" data-bs-title="Windows 10 and 11. A portable zip is attached to the same release if you prefer not to install">
                 <i class="bi bi-download me-2" aria-hidden="true"></i>Download for Windows
               </a>
-              <a class="btn btn-outline-primary btn-sm" id="dl-macos-intel" href="https://catomania.anti-soft.ru/win/catomania-win-Portable.zip">
+              <a class="btn btn-outline-primary btn-sm" id="dl-windows-portable" href="https://github.com/krasninja/catomania/releases/latest/download/catomania-win-Portable.zip">
                 Portable (.zip)
               </a>
             </div>
@@ -256,10 +256,10 @@
               <p class="small text-secondary mb-0">Disk image<br>Apple Silicon &amp; Intel</p>
             </div>
             <div class="d-grid gap-2 mt-auto">
-              <a class="btn btn-success" id="dl-macos" href="https://github.com/krasninja/catomania/releases/latest" data-bs-toggle="tooltip" data-bs-title="Apple Silicon (M1 and newer). Drag catomania.app into Applications">
+              <a class="btn btn-success" id="dl-macos" href="https://catomania.anti-soft.ru/osx/catomania-osx-arm64.dmg" data-bs-toggle="tooltip" data-bs-title="Apple Silicon (M1 and newer). Drag catomania.app into Applications">
                 <i class="bi bi-download me-2" aria-hidden="true"></i>Download for macOS
               </a>
-              <a class="btn btn-outline-success btn-sm" id="dl-macos-intel" href="https://github.com/krasninja/catomania/releases/latest">
+              <a class="btn btn-outline-success btn-sm" id="dl-macos-intel" href="https://catomania.anti-soft.ru/osx/catomania-osx-arm64.dmg">
                 Intel Mac (.dmg)
               </a>
             </div>
@@ -273,10 +273,12 @@
         <div class="alert alert-light border small mb-0 d-flex gap-2">
           <i class="bi bi-shield-exclamation text-warning-emphasis flex-shrink-0 mt-1" aria-hidden="true"></i>
           <div>
-            <strong>Before you install:</strong> the builds are not code signed yet, so Windows may
-            show a SmartScreen warning and macOS may ask you to allow the app in
-            <em>System Settings &rarr; Privacy &amp; Security</em>. On Linux, make the AppImage
-            executable first: <code>chmod +x catomania.AppImage</code>.
+            <strong>Before you install:</strong> the builds are not code signed yet. On Windows,
+            SmartScreen may warn you: choose <em>More info &rarr; Run anyway</em>. On macOS, the
+            first launch is blocked: open <em>System Settings &rarr; Privacy &amp; Security</em>
+            and click <em>Open Anyway</em> next to Catomania, or run
+            <code>xattr -dr com.apple.quarantine /Applications/catomania.app</code> once. On Linux,
+            make the AppImage executable first: <code>chmod +x catomania.AppImage</code>.
           </div>
         </div>
       </div>
@@ -437,6 +439,9 @@
               <li class="mb-0">
                 <strong>macOS</strong> &mdash; take the <code>.dmg</code> that matches your chip
                 (Apple Silicon or Intel), then drag <code>catomania.app</code> into Applications.
+                The app is not notarized yet, so allow it once in <em>System Settings &rarr;
+                Privacy &amp; Security &rarr; Open Anyway</em>. It lives in the menu bar, not in the
+                Dock.
               </li>
             </ul>
           </div>
@@ -486,10 +491,10 @@
         <div id="faq-updates" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
           <div class="accordion-body small">
             <p class="mb-2">
-              The app checks the Velopack release feed at
-              <code>https://catomania.anti-soft.ru/&lt;platform&gt;</code>, where
-              <code>&lt;platform&gt;</code> is <code>win</code>, <code>linux</code> or
-              <code>osx</code>:
+              The app checks the latest
+              <a href="https://github.com/krasninja/catomania/releases/latest">GitHub release</a>
+              in the background every few hours and restarts itself into a new version when there
+              is one. You can also check right away:
             </p>
             <ul class="mb-2 ps-3">
               <li class="mb-1">Right-click the animal and choose <strong>Check for Updates</strong>.</li>
@@ -501,8 +506,8 @@
             </ul>
             <p class="mb-0 text-secondary">
               Self-update needs an installed build: run the packed AppImage on Linux or the
-              installed setup on Windows. Development and portable builds only report the available
-              version.
+              installed setup on Windows. The macOS app and the portable builds only report the
+              available version; download the new one from this page.
             </p>
           </div>
         </div>
@@ -607,6 +612,7 @@
     var links = {
       linux: document.getElementById('dl-linux'),
       windows: document.getElementById('dl-windows'),
+      windowsPortable: document.getElementById('dl-windows-portable'),
       macos: document.getElementById('dl-macos'),
       macosIntel: document.getElementById('dl-macos-intel')
     };
@@ -634,6 +640,7 @@
     function staticLinks() {
       links.linux.href = LATEST_DOWNLOAD + 'catomania.AppImage';
       links.windows.href = LATEST_DOWNLOAD + 'catomania-win-Setup.exe';
+      links.windowsPortable.href = LATEST_DOWNLOAD + 'catomania-win-Portable.zip';
       links.macos.href = LATEST;
       links.macosIntel.href = LATEST;
     }
@@ -655,12 +662,19 @@
 
           var linux = findAsset(release.assets, function (n) { return /\.appimage$/i.test(n); });
           var windows = findAsset(release.assets, function (n) { return /-setup\.exe$/i.test(n); });
+          var windowsPortable = findAsset(release.assets, function (n) { return /win-portable\.zip$/i.test(n); });
           var silicon = findAsset(release.assets, function (n) { return /osx-arm64\.dmg$/i.test(n); });
           var intel = findAsset(release.assets, function (n) { return /osx\.dmg$/i.test(n); });
 
           if (linux) { links.linux.href = linux.browser_download_url; }
           if (windows) { links.windows.href = windows.browser_download_url; }
-          if (intel) { links.macosIntel.href = intel.browser_download_url; }
+          if (windowsPortable) { links.windowsPortable.href = windowsPortable.browser_download_url; }
+          // The Intel build is optional in the release workflow, do not offer a button that leads nowhere.
+          if (intel) {
+            links.macosIntel.href = intel.browser_download_url;
+          } else {
+            links.macosIntel.classList.add('d-none');
+          }
           // Apple Silicon is the common case; an x64-only release still deserves a working button.
           links.macos.href = (silicon || intel || { browser_download_url: LATEST }).browser_download_url;
 

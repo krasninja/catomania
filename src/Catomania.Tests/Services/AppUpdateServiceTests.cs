@@ -22,11 +22,9 @@ public sealed class AppUpdateServiceTests
     }
 
     [Fact]
-    public void GetDefaultUpdateUrl_PointsToThePlatformFeed()
+    public void UpdateUrl_DefaultsToTheLatestGitHubRelease()
     {
-        Assert.Equal(
-            $"{AppUpdateService.BaseUpdateUrl}/{AppUpdateService.GetPlatform()}",
-            AppUpdateService.GetDefaultUpdateUrl());
+        Assert.Equal(AppUpdateService.DefaultUpdateUrl, new AppUpdateService().UpdateUrl);
     }
 
     [Fact]

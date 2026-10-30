@@ -13,9 +13,10 @@ namespace Catomania.Services;
 public sealed class AppUpdateService
 {
     /// <summary>
-    /// Base URI with the Velopack releases per platform.
+    /// Velopack release feed: the assets of the latest GitHub release. The release holds the feeds of
+    /// every channel side by side (<c>releases.&lt;channel&gt;.json</c>), so one URI serves all platforms.
     /// </summary>
-    public const string BaseUpdateUrl = "https://catomania.anti-soft.ru";
+    public const string DefaultUpdateUrl = "https://github.com/krasninja/catomania/releases/latest/download";
 
     private readonly UpdateManager _updateManager;
     private readonly HttpMessageHandler? _httpMessageHandler;
@@ -23,7 +24,7 @@ public sealed class AppUpdateService
     /// <summary>
     /// Initializes a new instance of the <see cref="AppUpdateService" /> class.
     /// </summary>
-    /// <param name="updateUrl">Release feed URI, the platform default one when omitted.</param>
+    /// <param name="updateUrl">Release feed URI, <see cref="DefaultUpdateUrl" /> when omitted.</param>
     /// <param name="locator">Velopack locator, the application one when omitted. Used by tests.</param>
     /// <param name="httpMessageHandler">HTTP handler used to read the release feed, the default one when omitted. Used by tests.</param>
     public AppUpdateService(
@@ -31,7 +32,7 @@ public sealed class AppUpdateService
         IVelopackLocator? locator = null,
         HttpMessageHandler? httpMessageHandler = null)
     {
-        UpdateUrl = updateUrl ?? GetDefaultUpdateUrl();
+        UpdateUrl = updateUrl ?? DefaultUpdateUrl;
         _updateManager = new UpdateManager(UpdateUrl, null, locator);
         _httpMessageHandler = httpMessageHandler;
     }
@@ -47,13 +48,7 @@ public sealed class AppUpdateService
     public bool IsInstalled => _updateManager.IsInstalled;
 
     /// <summary>
-    /// Get the default release feed URI for the current platform.
-    /// </summary>
-    /// <returns>Release feed URI.</returns>
-    public static string GetDefaultUpdateUrl() => $"{BaseUpdateUrl}/{GetPlatform()}";
-
-    /// <summary>
-    /// Get the current platform identifier used in the release feed URI.
+    /// Get the Velopack channel of the current platform, it names the feed file <c>releases.&lt;channel&gt;.json</c>.
     /// </summary>
     /// <returns>Platform identifier.</returns>
     public static string GetPlatform()
