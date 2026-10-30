@@ -165,6 +165,8 @@ jobs:
 
       # Without a signature Windows shows the SmartScreen "Windows protected your PC" dialog and
       # macOS Gatekeeper refuses to launch the app, so make the state of the build obvious.
+      # The Azure secrets only sign Windows. The macOS bundle is always ad-hoc signed only, see
+      # MacDiskImage.cs, until a Developer ID certificate and notarization are wired up.
       - name: Report the signing status
         shell: bash
         env:

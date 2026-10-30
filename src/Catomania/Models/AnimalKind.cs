@@ -27,4 +27,9 @@ public enum AnimalKind
     /// A mint snake with a leaf on its head.
     /// </summary>
     Snake,
+
+    /// <summary>
+    /// A scarlet macaw.
+    /// </summary>
+    Parrot,
 }
