@@ -24,6 +24,11 @@ namespace Catomania.Views;
 public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands, IAppCommands, IDisposable
 {
     /// <summary>
+    /// The project website.
+    /// </summary>
+    public const string WebsiteUrl = "https://github.com/krasninja/catomania";
+
+    /// <summary>
     /// Delay before the first automatic update check, so it does not slow down the start.
     /// </summary>
     public static readonly TimeSpan FirstUpdateCheckDelay = TimeSpan.FromMinutes(1);
@@ -206,6 +211,9 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     /// <inheritdoc />
     public Task CheckForUpdatesAsync() => CheckForUpdatesAsync(silent: false);
+
+    /// <inheritdoc />
+    public Task OpenWebsiteAsync() => Launcher.LaunchUriAsync(new Uri(WebsiteUrl));
 
     /// <inheritdoc />
     public void ShowAbout()
@@ -499,6 +507,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private void OnRecenterClick(object? sender, RoutedEventArgs e) => Recenter();
 
     private async void OnCheckUpdatesClick(object? sender, RoutedEventArgs e) => await CheckForUpdatesAsync();
+
+    private async void OnWebsiteClick(object? sender, RoutedEventArgs e) => await OpenWebsiteAsync();
 
     private void OnAboutClick(object? sender, RoutedEventArgs e) => ShowAbout();
 

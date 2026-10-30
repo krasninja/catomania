@@ -184,8 +184,12 @@
                       Click="OnRecenterClick" />
             <MenuItem Header="Check for Updates"
                       Click="OnCheckUpdatesClick" />
-            <MenuItem Header="About"
-                      Click="OnAboutClick" />
+            <MenuItem Header="Help">
+                <MenuItem Header="Website"
+                          Click="OnWebsiteClick" />
+                <MenuItem Header="About"
+                          Click="OnAboutClick" />
+            </MenuItem>
             <Separator />
             <MenuItem Header="Quit"
                       Click="OnQuitClick" />

@@ -36,6 +36,12 @@ public interface IAppCommands
     Task CheckForUpdatesAsync();
 
     /// <summary>
+    /// Open the project website in the default browser.
+    /// </summary>
+    /// <returns>A task that completes when the browser is launched.</returns>
+    Task OpenWebsiteAsync();
+
+    /// <summary>
     /// Show the "About" dialog with the application name, platform and version.
     /// </summary>
     void ShowAbout();

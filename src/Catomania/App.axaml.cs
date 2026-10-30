@@ -227,6 +227,14 @@ public sealed partial class App : Application
         }
     }
 
+    private async void OnWebsiteClick(object? sender, EventArgs e)
+    {
+        if (_appCommands != null)
+        {
+            await _appCommands.OpenWebsiteAsync();
+        }
+    }
+
     private void OnAboutClick(object? sender, EventArgs e) => _appCommands?.ShowAbout();
 
     private void OnQuitClick(object? sender, EventArgs e) => _appCommands?.Quit();
