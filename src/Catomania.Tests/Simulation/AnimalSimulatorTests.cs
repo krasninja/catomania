@@ -451,4 +451,74 @@ public class AnimalSimulatorTests
         Assert.Equal(AnimalTrick.None, simulator.Trick);
         Assert.Equal(position, simulator.Position);
     }
+
+    [Fact]
+    public void Update_ZoomiesTrick_ShouldRunAwayAndComeBack()
+    {
+        // Arrange.
+        var origin = new ScreenPoint(1000, 500);
+        var simulator = CreateSimulator(origin);
+        var input = CreateInput(new ScreenPoint(1010, 500), isPaused: true) with { SpriteSize = 100 };
+        simulator.StartTrick(AnimalTrick.Zoomies, input);
+        var maxDistance = 0.0;
+        var hasRun = false;
+
+        // Act.
+        for (var elapsed = 0.0; elapsed < 20 && simulator.Trick != AnimalTrick.None; elapsed += Step)
+        {
+            simulator.Update(Step, input);
+            maxDistance = Math.Max(maxDistance, ScreenPoint.Distance(simulator.Position, origin));
+            hasRun |= simulator.State == AnimalAnimationState.Run;
+        }
+
+        // Assert.
+        Assert.True(hasRun);
+        Assert.True(maxDistance > 150, $"should dash far, got {maxDistance}");
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+        Assert.True(ScreenPoint.Distance(simulator.Position, origin) < 1, $"should come back, got {simulator.Position}");
+    }
+
+    [Fact]
+    public void Update_BunnyHopsTrick_ShouldHopAwayAndBack()
+    {
+        // Arrange.
+        var origin = new ScreenPoint(500, 500);
+        var simulator = CreateSimulator(origin);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true) with { SpriteSize = 100 };
+        simulator.StartTrick(AnimalTrick.BunnyHops, input);
+        var maxDistance = 0.0;
+
+        // Act.
+        for (var elapsed = 0.0; elapsed < 10 && simulator.Trick != AnimalTrick.None; elapsed += Step)
+        {
+            simulator.Update(Step, input);
+            maxDistance = Math.Max(maxDistance, ScreenPoint.Distance(simulator.Position, origin));
+        }
+
+        // Assert.
+        Assert.True(maxDistance > 30, $"should hop away, got {maxDistance}");
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+        Assert.True(ScreenPoint.Distance(simulator.Position, origin) < 1, $"should come back, got {simulator.Position}");
+    }
+
+    [Theory]
+    [InlineData(AnimalTrick.Emote)]
+    [InlineData(AnimalTrick.Wiggle)]
+    [InlineData(AnimalTrick.Shake)]
+    [InlineData(AnimalTrick.Spin)]
+    public void Update_TrickInPlace_ShouldFinishWhereItStarted(AnimalTrick trick)
+    {
+        // Arrange.
+        var position = new ScreenPoint(500, 500);
+        var simulator = CreateSimulator(position);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        simulator.StartTrick(trick, input);
+
+        // Act.
+        Run(simulator, input, 3);
+
+        // Assert.
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+        Assert.Equal(position, simulator.Position);
+    }
 }

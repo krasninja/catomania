@@ -5,11 +5,21 @@ namespace Catomania.Simulation;
 /// <summary>
 /// Simulates the animal: it walks and runs towards the cursor, stops nearby, idles and falls asleep
 /// when the cursor does not move for a while. While chasing is paused it plays a random trick from time
-/// to time: a short walk, looking around, a hop or its sound. The class is pure logic and knows nothing about
+/// to time: a short walk, looking around, a hop, a spin, a wiggle and so on. The class is pure logic and knows nothing about
 /// windows and timers, so it can be unit tested.
 /// </summary>
 public sealed class AnimalSimulator
 {
+    /// <summary>
+    /// Number of hops in the <see cref="AnimalTrick.BunnyHops" /> trick, half of them out and half back.
+    /// </summary>
+    public const int BunnyHopCount = 6;
+
+    /// <summary>
+    /// Fraction of a hop spent crouching before the take-off and, the same, after the landing.
+    /// </summary>
+    public const double HopCrouchFraction = 0.2;
+
     private const double TwoPi = Math.PI * 2;
 
     // The phase wraps every two cycles, so motions at half of the phase rate stay continuous.
@@ -24,6 +34,14 @@ public sealed class AnimalSimulator
     private const int LookAroundGlances = 5;
     private const double HopDurationSeconds = 0.8;
     private const double SpeakDurationSeconds = 2;
+    private const double WiggleDurationSeconds = 1.6;
+    private const double ShakeDurationSeconds = 0.9;
+    private const double SpinDurationSeconds = 0.9;
+    private const double BunnyHopDurationSeconds = 0.55;
+
+    // Zoomies are walk legs run at full speed, longer and with shorter rests.
+    private const double ZoomiesDistanceFactor = 3;
+    private const double ZoomiesRestSeconds = 0.25;
     private const double TrickWalkRestSeconds = 0.6;
     private const int TrickWalkMinLegs = 2;
     private const int TrickWalkMaxLegs = 3;
@@ -36,7 +54,13 @@ public sealed class AnimalSimulator
             AnimalTrick.Walk,
             AnimalTrick.LookAround,
             AnimalTrick.Hop,
-            AnimalTrick.Speak
+            AnimalTrick.Speak,
+            AnimalTrick.Emote,
+            AnimalTrick.Wiggle,
+            AnimalTrick.Shake,
+            AnimalTrick.BunnyHops,
+            AnimalTrick.Spin,
+            AnimalTrick.Zoomies
         ];
 
     private readonly AnimalSimulatorOptions _options;
@@ -230,11 +254,15 @@ public sealed class AnimalSimulator
         TrickProgress = 0;
         _trickTime = 0;
         _trickFacingRight = FacingRight;
-        if (trick == AnimalTrick.Walk)
+        _trickWalkOrigin = Position;
+        if (trick is AnimalTrick.Walk or AnimalTrick.Zoomies)
         {
             _trickWalkStep = TrickWalkStep.Out;
-            _trickWalkOrigin = Position;
             _trickWalkLegsLeft = _random.Next(TrickWalkMinLegs, TrickWalkMaxLegs + 1) - 1;
+            _trickWalkTarget = GetTrickWalkTarget(input);
+        }
+        else if (trick == AnimalTrick.BunnyHops)
+        {
             _trickWalkTarget = GetTrickWalkTarget(input);
         }
     }
@@ -276,14 +304,18 @@ public sealed class AnimalSimulator
         {
             AnimalTrick.LookAround => LookAroundGlanceSeconds * LookAroundGlances,
             AnimalTrick.Hop => HopDurationSeconds,
-            AnimalTrick.Speak => SpeakDurationSeconds,
+            AnimalTrick.Speak or AnimalTrick.Emote => SpeakDurationSeconds,
+            AnimalTrick.Wiggle => WiggleDurationSeconds,
+            AnimalTrick.Shake => ShakeDurationSeconds,
+            AnimalTrick.Spin => SpinDurationSeconds,
+            AnimalTrick.BunnyHops => BunnyHopDurationSeconds * BunnyHopCount,
             _ => 0,
         };
 
         var state = AnimalAnimationState.Idle;
         var isFinished = false;
         var previousPosition = Position;
-        if (Trick == AnimalTrick.Walk)
+        if (Trick is AnimalTrick.Walk or AnimalTrick.Zoomies)
         {
             (state, isFinished) = UpdateTrickWalk(deltaSeconds, input);
         }
@@ -292,7 +324,11 @@ public sealed class AnimalSimulator
             Velocity = ScreenPoint.Zero;
             TrickProgress = Math.Min(1, _trickTime / duration);
             isFinished = _trickTime >= duration;
-            if (Trick == AnimalTrick.LookAround)
+            if (Trick == AnimalTrick.BunnyHops)
+            {
+                UpdateBunnyHops(input);
+            }
+            else if (Trick == AnimalTrick.LookAround)
             {
                 // Looks away and back again on every other glance.
                 var glance = Math.Min((int)(_trickTime / LookAroundGlanceSeconds), LookAroundGlances - 1);
@@ -315,9 +351,10 @@ public sealed class AnimalSimulator
 
     private (AnimalAnimationState State, bool IsFinished) UpdateTrickWalk(double deltaSeconds, in AnimalInput input)
     {
+        var isZoomies = Trick == AnimalTrick.Zoomies;
         if (_trickWalkStep == TrickWalkStep.Rest)
         {
-            if (_trickTime >= TrickWalkRestSeconds)
+            if (_trickTime >= (isZoomies ? ZoomiesRestSeconds : TrickWalkRestSeconds))
             {
                 // Wanders a few legs, then walks back home.
                 if (_trickWalkLegsLeft > 0)
@@ -338,7 +375,7 @@ public sealed class AnimalSimulator
         var target = input.Bounds.Clamp(_trickWalkStep == TrickWalkStep.Out ? _trickWalkTarget : _trickWalkOrigin);
         var toTarget = target - Position;
         var distance = toTarget.Length;
-        var walkSpeed = _options.WalkSpeed * Math.Max(0, input.SpeedMultiplier);
+        var walkSpeed = (isZoomies ? _options.RunSpeed : _options.WalkSpeed) * Math.Max(0, input.SpeedMultiplier);
         if (distance < 1 || walkSpeed <= 0)
         {
             Position = target;
@@ -362,7 +399,25 @@ public sealed class AnimalSimulator
             FacingRight = Velocity.X > 0;
         }
 
-        return (AnimalAnimationState.Walk, false);
+        return (isZoomies ? AnimalAnimationState.Run : AnimalAnimationState.Walk, false);
+    }
+
+    private void UpdateBunnyHops(in AnimalInput input)
+    {
+        // The animal moves only while in the air, half of the hops out to the target and half back.
+        const int hopsOneWay = BunnyHopCount / 2;
+        var hops = TrickProgress * BunnyHopCount;
+        var hop = Math.Min((int)hops, BunnyHopCount - 1);
+        var air = Math.Clamp((hops - hop - HopCrouchFraction) / (1 - (2 * HopCrouchFraction)), 0, 1);
+        var isBack = hop >= hopsOneWay;
+        var along = ((hop % hopsOneWay) + ((1 - Math.Cos(Math.PI * air)) / 2)) / hopsOneWay;
+        var (from, to) = isBack ? (_trickWalkTarget, _trickWalkOrigin) : (_trickWalkOrigin, _trickWalkTarget);
+        Position = input.Bounds.Clamp(from + ((to - from) * along));
+
+        if (Math.Abs(to.X - from.X) > 1)
+        {
+            FacingRight = to.X > from.X;
+        }
     }
 
     private ScreenPoint GetTrickWalkTarget(in AnimalInput input)
@@ -370,6 +425,11 @@ public sealed class AnimalSimulator
         var spriteSize = input.SpriteSize > 0 ? input.SpriteSize : DefaultSpriteSize;
         var range = _options.TrickWalkMaxDistance - _options.TrickWalkMinDistance;
         var distance = (_options.TrickWalkMinDistance + (_random.NextDouble() * Math.Max(0, range))) * spriteSize;
+        if (Trick == AnimalTrick.Zoomies)
+        {
+            distance *= ZoomiesDistanceFactor;
+        }
+
         var angle = _random.NextDouble() * TwoPi;
         var offset = new ScreenPoint(Math.Cos(angle) * distance, Math.Sin(angle) * distance);
 

@@ -33,6 +33,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     /// </summary>
     public static readonly TimeSpan UpdateCheckInterval = TimeSpan.FromHours(6);
 
+    private static readonly string[] Emotes = ["?", "!", "♥", "♪", "…"];
+
     private readonly AppSettings _settings;
     private readonly AnimalView _animalView;
     private readonly ContextMenu _contextMenu;
@@ -200,14 +202,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     public void Recenter() => _chaseService.Recenter();
 
     /// <inheritdoc />
-    public void Say()
-    {
-        _speechText.Text = _animalView.Animal.Sound;
-        _speechBubble.Topmost = Topmost;
-        _speechBubble.IsOpen = true;
-        _speechBubbleTimer.Stop();
-        _speechBubbleTimer.Start();
-    }
+    public void Say() => ShowSpeechBubble(_animalView.Animal.Sound);
 
     /// <inheritdoc />
     public Task CheckForUpdatesAsync() => CheckForUpdatesAsync(silent: false);
@@ -292,9 +287,16 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     /// <inheritdoc />
     void IAnimalHost.ApplyRenderState(AnimalRenderState state)
     {
-        if (state.Trick == AnimalTrick.Speak && _trick != AnimalTrick.Speak)
+        if (state.Trick != _trick)
         {
-            Say();
+            if (state.Trick == AnimalTrick.Speak)
+            {
+                Say();
+            }
+            else if (state.Trick == AnimalTrick.Emote)
+            {
+                ShowSpeechBubble(Emotes[Random.Shared.Next(Emotes.Length)]);
+            }
         }
 
         _trick = state.Trick;
@@ -504,6 +506,15 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     {
         _updateCheckTimer.Interval = UpdateCheckInterval;
         await CheckForUpdatesAsync(silent: true);
+    }
+
+    private void ShowSpeechBubble(string text)
+    {
+        _speechText.Text = text;
+        _speechBubble.Topmost = Topmost;
+        _speechBubble.IsOpen = true;
+        _speechBubbleTimer.Stop();
+        _speechBubbleTimer.Start();
     }
 
     private void OnSpeechBubbleTimerTick(object? sender, EventArgs e)

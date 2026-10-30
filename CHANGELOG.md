@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Snake: a chubby mint snake with a big head and a leaf on top, it scoots like an inchworm and sleeps curled into a ring.
 - Parrot: a scarlet macaw with rainbow-banded wings and a big hooked beak, it waddles, runs in flapping hops and sleeps squatting.
 - Fur colors for the dog (liver, black, red and lemon on white) and the parrot (scarlet, blue and gold, green and hyacinth macaws). The "Fur" menu shows the colors of the current animal, each animal remembers its own.
-- Idle tricks in pause mode: every 3-10 minutes the animal takes a short walk, looks around, hops or makes its sound.
+- Idle tricks in pause mode: every 30 seconds to 2 minutes the animal takes a short walk, gets the zoomies, bunny hops, hops, spins, wiggles, shakes itself, looks around, makes its sound or shows an emote.
 
 ## [0.2.0]
 

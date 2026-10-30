@@ -30,9 +30,13 @@ public abstract class Animal
 
     // The highest point of the hop, the tallest animal still fits into the design space.
     private const double HopHeight = 14;
+    private const double SpinHeight = 16;
+    private const double BunnyHopHeight = 8;
 
-    // Fractions of the hop spent crouching before the take-off and after the landing.
-    private const double HopCrouchFraction = 0.2;
+    private const double WiggleRocks = 4;
+    private const double WiggleAngle = 8 * Math.PI / 180;
+    private const double ShakeJiggles = 7;
+    private const double ShakeSkew = 0.2;
 
     /// <summary>
     /// Gets the kind of the animal.
@@ -80,21 +84,21 @@ public abstract class Animal
     public virtual AnimalSimulatorOptions CreateSimulatorOptions() => new();
 
     /// <summary>
-    /// Draw a frame of the animal in the design space, facing right. The hop trick is applied here
-    /// for all animals.
+    /// Draw a frame of the animal in the design space, facing right. The tricks that move the whole
+    /// body, like hops and wiggles, are applied here for all animals.
     /// </summary>
     /// <param name="context">Drawing context.</param>
     /// <param name="state">Render state produced by the simulation.</param>
     public void Render(DrawingContext context, AnimalRenderState state)
     {
         ArgumentNullException.ThrowIfNull(context);
-        if (state.Trick != AnimalTrick.Hop)
+        if (GetTrickTransform(state) is not { } transform)
         {
             Draw(context, state);
             return;
         }
 
-        using (context.PushTransform(GetHopTransform(state.TrickProgress)))
+        using (context.PushTransform(transform))
         {
             Draw(context, state);
         }
@@ -108,7 +112,7 @@ public abstract class Animal
     protected abstract void Draw(DrawingContext context, AnimalRenderState state);
 
     /// <summary>
-    /// Draw the shadow on the ground. It stays on the ground and shrinks while the animal hops.
+    /// Draw the shadow on the ground. It stays on the ground during the tricks and shrinks while the animal hops.
     /// </summary>
     /// <param name="context">Drawing context.</param>
     /// <param name="brush">Shadow brush.</param>
@@ -126,16 +130,15 @@ public abstract class Animal
     {
         ArgumentNullException.ThrowIfNull(context);
         var center = new Point(centerX, GroundY + 2);
-        if (state.Trick != AnimalTrick.Hop)
+        if (GetTrickTransform(state) is not { } transform || !transform.TryInvert(out var inverse))
         {
             context.DrawEllipse(brush, null, center, radiusX, radiusY);
             return;
         }
 
-        // Undo the hop transform pushed by Render.
-        var (height, _, _) = GetHopPose(state.TrickProgress);
-        var shrink = 1 - (0.35 * height / HopHeight);
-        using (context.PushTransform(GetHopTransform(state.TrickProgress).Invert()))
+        // Undo the trick transform pushed by Render.
+        var shrink = 1 - (0.35 * GetHopHeight(state) / HopHeight);
+        using (context.PushTransform(inverse))
         {
             context.DrawEllipse(brush, null, center, radiusX * shrink, radiusY * shrink);
         }
@@ -213,21 +216,61 @@ public abstract class Animal
         }
     }
 
-    private static Matrix GetHopTransform(double progress)
+    private static Matrix? GetTrickTransform(AnimalRenderState state)
     {
-        var (height, scaleX, scaleY) = GetHopPose(progress);
-        return Matrix.CreateTranslation(-DesignSize / 2, -GroundY)
-            * Matrix.CreateScale(scaleX, scaleY)
-            * Matrix.CreateTranslation(DesignSize / 2, GroundY - height);
+        var progress = Math.Clamp(state.TrickProgress, 0, 1);
+
+        // Rises and fades out smoothly, so the trick does not jerk at the start and at the end.
+        var envelope = Math.Sin(Math.PI * progress);
+        return state.Trick switch
+        {
+            AnimalTrick.Hop or AnimalTrick.Spin or AnimalTrick.BunnyHops => GetHopTransform(state),
+            AnimalTrick.Wiggle => AroundFeet(Matrix.CreateRotation(
+                Math.Sin(progress * TwoPi * WiggleRocks) * WiggleAngle * envelope)),
+            AnimalTrick.Shake => AroundFeet(Matrix.CreateSkew(
+                Math.Sin(progress * TwoPi * ShakeJiggles) * ShakeSkew * envelope, 0)),
+            _ => null,
+        };
     }
 
-    private static (double Height, double ScaleX, double ScaleY) GetHopPose(double progress)
+    private static Matrix GetHopTransform(AnimalRenderState state)
     {
-        progress = Math.Clamp(progress, 0, 1);
-        var crouch = progress < HopCrouchFraction
-            ? progress / HopCrouchFraction
-            : progress > 1 - HopCrouchFraction
-                ? (1 - progress) / HopCrouchFraction
+        var (height, scaleX, scaleY) = GetHopPose(state);
+        return AroundFeet(Matrix.CreateScale(scaleX, scaleY)) * Matrix.CreateTranslation(0, -height);
+    }
+
+    // Applies the transform with the point on the ground between the feet as the origin.
+    private static Matrix AroundFeet(Matrix transform) => Matrix.CreateTranslation(-DesignSize / 2, -GroundY)
+        * transform
+        * Matrix.CreateTranslation(DesignSize / 2, GroundY);
+
+    private static double GetHopHeight(AnimalRenderState state) => state.Trick is AnimalTrick.Hop
+        or AnimalTrick.Spin
+        or AnimalTrick.BunnyHops
+            ? GetHopPose(state).Height
+            : 0;
+
+    private static (double Height, double ScaleX, double ScaleY) GetHopPose(AnimalRenderState state)
+    {
+        const double crouchFraction = AnimalSimulator.HopCrouchFraction;
+        var progress = Math.Clamp(state.TrickProgress, 0, 1);
+        var maxHeight = HopHeight;
+        if (state.Trick == AnimalTrick.BunnyHops)
+        {
+            // A series of small hops, each one goes through the full crouch, flight and landing.
+            var hops = progress * AnimalSimulator.BunnyHopCount;
+            progress = Math.Min(1, hops - Math.Min(Math.Floor(hops), AnimalSimulator.BunnyHopCount - 1));
+            maxHeight = BunnyHopHeight;
+        }
+        else if (state.Trick == AnimalTrick.Spin)
+        {
+            maxHeight = SpinHeight;
+        }
+
+        var crouch = progress < crouchFraction
+            ? progress / crouchFraction
+            : progress > 1 - crouchFraction
+                ? (1 - progress) / crouchFraction
                 : -1;
         if (crouch >= 0)
         {
@@ -237,9 +280,18 @@ public abstract class Animal
         }
 
         // In the air, stretched when going up and coming down.
-        var flight = (progress - HopCrouchFraction) / (1 - (2 * HopCrouchFraction));
+        var flight = (progress - crouchFraction) / (1 - (2 * crouchFraction));
         var stretch = Math.Abs(Math.Cos(Math.PI * flight));
-        return (Math.Sin(Math.PI * flight) * HopHeight, 1 - (0.04 * stretch), 1 + (0.06 * stretch));
+        var scaleX = 1 - (0.04 * stretch);
+        if (state.Trick == AnimalTrick.Spin)
+        {
+            // Turning around: the body narrows to the side view of a flat sprite, flips and widens back.
+            // It never gets exactly flat, so the transform stays invertible for the shadow.
+            var turn = Math.Cos(TwoPi * flight);
+            scaleX *= Math.Abs(turn) < 0.05 ? Math.CopySign(0.05, turn) : turn;
+        }
+
+        return (Math.Sin(Math.PI * flight) * maxHeight, scaleX, 1 + (0.06 * stretch));
     }
 
     /// <summary>

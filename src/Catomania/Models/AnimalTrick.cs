@@ -29,4 +29,34 @@ public enum AnimalTrick
     /// The animal makes its sound.
     /// </summary>
     Speak,
+
+    /// <summary>
+    /// The animal shows an emote in the speech bubble: a question mark, a heart, a note.
+    /// </summary>
+    Emote,
+
+    /// <summary>
+    /// The animal rocks from side to side, happy.
+    /// </summary>
+    Wiggle,
+
+    /// <summary>
+    /// The animal shakes itself like a wet dog.
+    /// </summary>
+    Shake,
+
+    /// <summary>
+    /// The animal hops a few times in a random direction and hops back.
+    /// </summary>
+    BunnyHops,
+
+    /// <summary>
+    /// The animal hops and turns around in the air.
+    /// </summary>
+    Spin,
+
+    /// <summary>
+    /// The animal dashes a few legs in random directions at full speed and runs back.
+    /// </summary>
+    Zoomies,
 }
