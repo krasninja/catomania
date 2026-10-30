@@ -28,6 +28,12 @@ public class AnimalSimulatorTests
         bool isPaused = false)
         => new(cursorPosition, bounds ?? Bounds, speedMultiplier, isDragging, isPaused);
 
+    private static AnimalSimulatorOptions CreateTrickOptions() => new()
+    {
+        TrickMinIntervalSeconds = 1,
+        TrickMaxIntervalSeconds = 1,
+    };
+
     private static void Run(AnimalSimulator simulator, AnimalInput input, double seconds)
     {
         for (var elapsed = 0.0; elapsed < seconds; elapsed += Step)
@@ -261,5 +267,188 @@ public class AnimalSimulatorTests
         Assert.Equal(simulator.FacingRight, state.FacingRight);
         Assert.Equal(simulator.Phase, state.Phase);
         Assert.Equal(simulator.IsBlinking, state.IsBlinking);
+        Assert.Equal(simulator.Trick, state.Trick);
+        Assert.Equal(simulator.TrickProgress, state.TrickProgress);
+    }
+
+    [Fact]
+    public void Update_PausedAndIdle_ShouldStartATrick()
+    {
+        // Arrange.
+        var simulator = CreateSimulator(new ScreenPoint(500, 500), CreateTrickOptions());
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        var hasPlayedTrick = false;
+
+        // Act.
+        for (var elapsed = 0.0; elapsed < 2; elapsed += Step)
+        {
+            simulator.Update(Step, input);
+            hasPlayedTrick |= simulator.Trick != AnimalTrick.None;
+        }
+
+        // Assert.
+        Assert.True(hasPlayedTrick);
+    }
+
+    [Fact]
+    public void Update_NotPaused_ShouldNotStartATrick()
+    {
+        // Arrange.
+        var simulator = CreateSimulator(new ScreenPoint(500, 500), CreateTrickOptions());
+        var input = CreateInput(new ScreenPoint(510, 500));
+
+        // Act.
+        for (var elapsed = 0.0; elapsed < 5; elapsed += Step)
+        {
+            simulator.Update(Step, input);
+
+            // Assert.
+            Assert.Equal(AnimalTrick.None, simulator.Trick);
+        }
+    }
+
+    [Fact]
+    public void Update_PausedAndAsleep_ShouldNotStartATrick()
+    {
+        // Arrange.
+        var options = CreateTrickOptions();
+        options.SleepAfterSeconds = 0.5;
+        var simulator = CreateSimulator(new ScreenPoint(500, 500), options);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        Run(simulator, input, 0.6);
+
+        // Act.
+        Run(simulator, input, 5);
+
+        // Assert.
+        Assert.Equal(AnimalAnimationState.Sleep, simulator.State);
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+    }
+
+    [Fact]
+    public void Update_TrickIsPlayingAndUnpaused_ShouldStopTheTrick()
+    {
+        // Arrange.
+        var simulator = CreateSimulator(new ScreenPoint(500, 500));
+        simulator.StartTrick(AnimalTrick.LookAround, CreateInput(new ScreenPoint(510, 500), isPaused: true));
+
+        // Act.
+        simulator.Update(Step, CreateInput(new ScreenPoint(510, 500)));
+
+        // Assert.
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+    }
+
+    [Fact]
+    public void Update_WalkTrick_ShouldWalkAwayAndComeBack()
+    {
+        // Arrange.
+        var origin = new ScreenPoint(500, 500);
+        var simulator = CreateSimulator(origin);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true) with { SpriteSize = 100 };
+        simulator.StartTrick(AnimalTrick.Walk, input);
+        var maxDistance = 0.0;
+        var hasWalked = false;
+
+        // Act.
+        for (var elapsed = 0.0; elapsed < 20 && simulator.Trick != AnimalTrick.None; elapsed += Step)
+        {
+            simulator.Update(Step, input);
+            maxDistance = Math.Max(maxDistance, ScreenPoint.Distance(simulator.Position, origin));
+            hasWalked |= simulator.State == AnimalAnimationState.Walk;
+        }
+
+        // Assert.
+        Assert.True(hasWalked);
+        Assert.True(maxDistance > 30, $"should walk away, got {maxDistance}");
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+        Assert.True(ScreenPoint.Distance(simulator.Position, origin) < 1, $"should come back, got {simulator.Position}");
+    }
+
+    [Fact]
+    public void Update_WalkTrick_ShouldWalkBothHorizontallyAndVertically()
+    {
+        // Arrange.
+        var origin = new ScreenPoint(500, 500);
+        var simulator = CreateSimulator(origin);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true) with { SpriteSize = 100 };
+        var maxOffsetX = 0.0;
+        var maxOffsetY = 0.0;
+
+        // Act.
+        for (var i = 0; i < 5; i++)
+        {
+            simulator.StartTrick(AnimalTrick.Walk, input);
+            for (var elapsed = 0.0; elapsed < 20 && simulator.Trick != AnimalTrick.None; elapsed += Step)
+            {
+                simulator.Update(Step, input);
+                maxOffsetX = Math.Max(maxOffsetX, Math.Abs(simulator.Position.X - origin.X));
+                maxOffsetY = Math.Max(maxOffsetY, Math.Abs(simulator.Position.Y - origin.Y));
+            }
+        }
+
+        // Assert.
+        Assert.True(maxOffsetX > 30, $"should walk horizontally, got {maxOffsetX}");
+        Assert.True(maxOffsetY > 30, $"should walk vertically, got {maxOffsetY}");
+    }
+
+    [Fact]
+    public void Update_WalkTrickInTheCorner_ShouldWalkAwayFromTheEdges()
+    {
+        // Arrange.
+        var origin = new ScreenPoint(Bounds.Right, Bounds.Bottom);
+        var simulator = CreateSimulator(origin);
+        var input = CreateInput(origin, isPaused: true) with { SpriteSize = 100 };
+        simulator.StartTrick(AnimalTrick.Walk, input);
+
+        // Act.
+        Run(simulator, input, 1);
+
+        // Assert.
+        var distance = ScreenPoint.Distance(simulator.Position, origin);
+        Assert.True(distance > 30, $"should walk out of the corner, got {distance}");
+    }
+
+    [Fact]
+    public void Update_LookAroundTrick_ShouldTurnFromSideToSide()
+    {
+        // Arrange.
+        var simulator = CreateSimulator(new ScreenPoint(500, 500));
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        simulator.Update(Step, input);
+        simulator.StartTrick(AnimalTrick.LookAround, input);
+        var hasLookedLeft = false;
+
+        // Act.
+        for (var elapsed = 0.0; elapsed < 5 && simulator.Trick != AnimalTrick.None; elapsed += Step)
+        {
+            simulator.Update(Step, input);
+            hasLookedLeft |= !simulator.FacingRight;
+        }
+
+        // Assert.
+        Assert.True(hasLookedLeft);
+        Assert.True(simulator.FacingRight);
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+    }
+
+    [Fact]
+    public void Update_HopTrick_ShouldProgressAndFinishInPlace()
+    {
+        // Arrange.
+        var position = new ScreenPoint(500, 500);
+        var simulator = CreateSimulator(position);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        simulator.StartTrick(AnimalTrick.Hop, input);
+
+        // Act.
+        Run(simulator, input, 0.4);
+        var progress = simulator.TrickProgress;
+        Run(simulator, input, 1);
+
+        // Assert.
+        Assert.InRange(progress, 0.3, 0.7);
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+        Assert.Equal(position, simulator.Position);
     }
 }

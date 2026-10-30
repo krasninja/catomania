@@ -107,7 +107,7 @@ public sealed class Parrot : Animal
     };
 
     /// <inheritdoc />
-    public override void Render(DrawingContext context, AnimalRenderState state)
+    protected override void Draw(DrawingContext context, AnimalRenderState state)
     {
         if (state.State == AnimalAnimationState.Sleep)
         {
@@ -138,7 +138,7 @@ public sealed class Parrot : Animal
         };
         var isFlapping = state.State is AnimalAnimationState.Run or AnimalAnimationState.Dragged;
 
-        context.DrawEllipse(ShadowBrush, null, new Point(46, GroundY + 2), 20 - (pose.Lift * 0.6), 4);
+        DrawShadow(context, ShadowBrush, state, 46, 20 - (pose.Lift * 0.6), 4);
 
         using (context.PushTransform(Matrix.CreateTranslation(0, -pose.Lift)))
         {

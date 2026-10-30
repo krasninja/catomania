@@ -89,7 +89,7 @@ public sealed class Snake : Animal
     };
 
     /// <inheritdoc />
-    public override void Render(DrawingContext context, AnimalRenderState state)
+    protected override void Draw(DrawingContext context, AnimalRenderState state)
     {
         switch (state.State)
         {
@@ -120,7 +120,7 @@ public sealed class Snake : Animal
         var tailX = TailX + (arch * 0.9);
         var bob = (-arch * 0.25) + (isIdle ? Math.Sin(phase * 0.5) * 0.8 : 0);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 30 - (arch * 0.3), 4);
+        DrawShadow(context, ShadowBrush, state, 50, 30 - (arch * 0.3), 4);
 
         var points = new Point[BodySegments + 1 + NeckSegments];
         var widths = new double[points.Length];

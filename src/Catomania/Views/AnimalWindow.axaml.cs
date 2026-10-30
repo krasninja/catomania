@@ -53,6 +53,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private bool _isDragging;
     private bool _isCheckingUpdates;
     private bool _disposed;
+    private AnimalTrick _trick;
     private PixelPoint _dragWindowPosition;
     private PixelPoint _dragPointerPosition;
 
@@ -102,6 +103,10 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         ApplySettings();
         SyncMenu();
+
+#if DEBUG
+        AddTricksMenu();
+#endif
 
         _contextMenu.Opening += (_, _) => SyncMenu();
         Opened += OnOpened;
@@ -285,7 +290,16 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     }
 
     /// <inheritdoc />
-    void IAnimalHost.ApplyRenderState(AnimalRenderState state) => _animalView.Update(state);
+    void IAnimalHost.ApplyRenderState(AnimalRenderState state)
+    {
+        if (state.Trick == AnimalTrick.Speak && _trick != AnimalTrick.Speak)
+        {
+            Say();
+        }
+
+        _trick = state.Trick;
+        _animalView.Update(state);
+    }
 
     /// <inheritdoc />
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -409,6 +423,32 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     }
 
     private void OnPauseClick(object? sender, RoutedEventArgs e) => TogglePause();
+
+#if DEBUG
+    // Debug only: plays a trick at once instead of waiting minutes for a random one.
+    private void AddTricksMenu()
+    {
+        var tricksMenuItem = new MenuItem { Header = "Tricks" };
+        foreach (var trick in Enum.GetValues<AnimalTrick>())
+        {
+            if (trick == AnimalTrick.None)
+            {
+                continue;
+            }
+
+            var trickMenuItem = new MenuItem { Header = trick.ToString() };
+            trickMenuItem.Click += (_, _) => _chaseService.StartTrick(trick);
+            tricksMenuItem.Items.Add(trickMenuItem);
+        }
+
+        // Tricks are played only while chasing is paused.
+        _contextMenu.Opening += (_, _) => tricksMenuItem.IsEnabled = _settings.Paused;
+
+        // Placed after the settings submenus, before the separator of the Recenter command.
+        var commandsSeparator = _contextMenu.Items.OfType<Separator>().ElementAt(1);
+        _contextMenu.Items.Insert(_contextMenu.Items.IndexOf(commandsSeparator), tricksMenuItem);
+    }
+#endif
 
     private void OnAnimalClick(object? sender, RoutedEventArgs e)
     {

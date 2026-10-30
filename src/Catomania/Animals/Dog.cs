@@ -122,7 +122,7 @@ public sealed class Dog : Animal
     };
 
     /// <inheritdoc />
-    public override void Render(DrawingContext context, AnimalRenderState state)
+    protected override void Draw(DrawingContext context, AnimalRenderState state)
     {
         if (state.State == AnimalAnimationState.Sleep)
         {
@@ -161,7 +161,7 @@ public sealed class Dog : Animal
 
         if (!isDragged)
         {
-            context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 32, 4);
+            DrawShadow(context, ShadowBrush, state, 50, 32, 4);
         }
 
         var wag = state.State switch

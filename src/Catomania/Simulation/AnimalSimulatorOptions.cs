@@ -77,6 +77,27 @@ public sealed class AnimalSimulatorOptions
     public double BlinkDurationSeconds { get; set; } = 0.13;
 
     /// <summary>
+    /// Gets or sets the minimum interval between tricks in seconds. Tricks are played only while chasing
+    /// is paused and the animal is awake, the time is not counted otherwise.
+    /// </summary>
+    public double TrickMinIntervalSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// Gets or sets the maximum interval between tricks in seconds.
+    /// </summary>
+    public double TrickMaxIntervalSeconds { get; set; } = 120;
+
+    /// <summary>
+    /// Gets or sets the minimum distance of the trick walk, as a fraction of the sprite size.
+    /// </summary>
+    public double TrickWalkMinDistance { get; set; } = 0.6;
+
+    /// <summary>
+    /// Gets or sets the maximum distance of the trick walk, as a fraction of the sprite size.
+    /// </summary>
+    public double TrickWalkMaxDistance { get; set; } = 1.5;
+
+    /// <summary>
     /// Gets or sets the maximum processed time step in seconds, protects from jumps after a suspend.
     /// </summary>
     public double MaxDeltaSeconds { get; set; } = 0.1;

@@ -115,7 +115,7 @@ public sealed class Cat : Animal
     };
 
     /// <inheritdoc />
-    public override void Render(DrawingContext context, AnimalRenderState state)
+    protected override void Draw(DrawingContext context, AnimalRenderState state)
     {
         if (state.State == AnimalAnimationState.Sleep)
         {
@@ -154,7 +154,7 @@ public sealed class Cat : Animal
 
         if (!isDragged)
         {
-            context.DrawEllipse(palette.ShadowBrush, null, new Point(50, GroundY + 2), 30 * stretch, 4);
+            DrawShadow(context, palette.ShadowBrush, state, 50, 30 * stretch, 4);
         }
 
         DrawTail(context, palette, bob, phase, isDragged);

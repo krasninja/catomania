@@ -98,7 +98,7 @@ public sealed class Panda : Animal
     };
 
     /// <inheritdoc />
-    public override void Render(DrawingContext context, AnimalRenderState state)
+    protected override void Draw(DrawingContext context, AnimalRenderState state)
     {
         if (state.State == AnimalAnimationState.Sleep)
         {
@@ -134,7 +134,7 @@ public sealed class Panda : Animal
 
         if (!isDragged)
         {
-            context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 27, 4);
+            DrawShadow(context, ShadowBrush, state, 50, 27, 4);
         }
 
         // Tail stub.

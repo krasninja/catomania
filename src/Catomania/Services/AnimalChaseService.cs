@@ -31,6 +31,7 @@ public sealed class AnimalChaseService : IDisposable
     private bool _hasCursorPosition;
     private long _lastTickTimestamp;
     private double _workAreasRefreshTime = WorkAreasRefreshSeconds;
+    private AnimalTrick _pendingTrick;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimalChaseService" /> class.
@@ -110,6 +111,12 @@ public sealed class AnimalChaseService : IDisposable
     }
 
     /// <summary>
+    /// Start the trick on the next tick. Tricks are played only while chasing is paused.
+    /// </summary>
+    /// <param name="trick">Trick to play.</param>
+    public void StartTrick(AnimalTrick trick) => _pendingTrick = trick;
+
+    /// <summary>
     /// Advance the simulation and move the window.
     /// </summary>
     /// <param name="deltaSeconds">Time elapsed since the previous tick in seconds.</param>
@@ -126,13 +133,20 @@ public sealed class AnimalChaseService : IDisposable
         // Computed every tick, so the bounds follow the animal dragged to another screen and the sprite size changes at once.
         _bounds = ComputeBounds(_simulator.Position);
 
-        _simulator.Update(deltaSeconds, new AnimalInput(
+        var input = new AnimalInput(
             cursorPosition,
             _bounds,
             _settings.Speed.ToMultiplier(),
             _host.IsDragging,
             _settings.Paused,
-            Math.Min(_host.SpriteSize.X, _host.SpriteSize.Y)));
+            Math.Min(_host.SpriteSize.X, _host.SpriteSize.Y));
+        if (_pendingTrick != AnimalTrick.None)
+        {
+            _simulator.StartTrick(_pendingTrick, input);
+            _pendingTrick = AnimalTrick.None;
+        }
+
+        _simulator.Update(deltaSeconds, input);
 
         if (!_host.IsDragging)
         {

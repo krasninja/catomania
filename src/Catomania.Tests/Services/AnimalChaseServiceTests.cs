@@ -81,6 +81,22 @@ public class AnimalChaseServiceTests
     }
 
     [Fact]
+    public void StartTrick_Paused_ShouldPlayTheTrickOnTheNextTick()
+    {
+        // Arrange.
+        var host = new FakeAnimalHost();
+        var settings = new AppSettings { Paused = true };
+        var service = CreateService(host, new StubCursorPositionProvider(new ScreenPoint(1500, 500)), settings);
+
+        // Act.
+        service.StartTrick(AnimalTrick.Hop);
+        service.Tick(1.0 / 60);
+
+        // Assert.
+        Assert.Equal(AnimalTrick.Hop, host.LastRenderState.Trick);
+    }
+
+    [Fact]
     public void Tick_Paused_ShouldNotMoveTheWindow()
     {
         // Arrange.
