@@ -7,18 +7,19 @@ namespace Catomania.Animals;
 
 /// <summary>
 /// A macaw drawn in profile: a scarlet, blue-and-gold, green or hyacinth macaw with banded wings, a long tail,
-/// a bare face and a big hooked beak. It waddles, runs in hops flapping its wings, sleeps squatting with
+/// a bare face and a big hooked beak. It waddles, flies flapping its wings when running, sleeps squatting with
 /// the head tucked into the chest and flaps both wings when it is picked up.
 /// </summary>
 public sealed class Parrot : Animal
 {
-    // Short legs take short steps, see Cat for how the stride is chosen. The run is a hop per cycle.
+    // Short legs take short steps, see Cat for how the stride is chosen. The run is a flight, two wingbeats per cycle.
     private const double WalkStanceFraction = 0.5;
     private const double WalkReach = 5;
     private const double WalkLift = 3;
     private const double WalkStride = 2 * WalkReach / WalkStanceFraction;
     private const double RunStride = 44;
-    private const double HopHeight = 7;
+    private const double FlightHeight = 6;
+    private const double FlightBob = 1.5;
 
     private const double DanglingLegLength = 12;
 
@@ -123,9 +124,9 @@ public sealed class Parrot : Animal
         var phase = state.Phase;
         var pose = state.State switch
         {
-            // Hops once per cycle, flapping twice: on the ground for the second half of the cycle.
+            // Flies above the ground, flapping twice per cycle and rising a little on each downstroke.
             AnimalAnimationState.Run => new Pose(
-                Math.Max(0, Math.Sin(phase)) * HopHeight, 14, 95 + (35 * Math.Sin(phase * 2)), 6, -6),
+                FlightHeight - (FlightBob * Math.Sin(phase * 2)), 14, 95 + (35 * Math.Sin(phase * 2)), 6, -6),
             // Waddles, rocking from foot to foot.
             AnimalAnimationState.Walk => new Pose(
                 Math.Abs(Math.Sin(phase)) * 1.2, Math.Sin(phase) * 4, 0, 0, Math.Sin(phase) * 4),
@@ -182,8 +183,8 @@ public sealed class Parrot : Animal
                 var (offsetX, footLift) = GetFootOffset(phase, new Gait(WalkReach, WalkLift, WalkStanceFraction));
                 foot = new Point(hip.X + offsetX, GroundY - footLift + lift);
                 break;
-            case AnimalAnimationState.Run when lift > 0.5:
-                // Tucked under the body in the air.
+            case AnimalAnimationState.Run:
+                // Tucked under the body in flight.
                 foot = new Point(hip.X - 4, hip.Y + 6);
                 isCurled = true;
                 break;
