@@ -6,8 +6,8 @@ using Catomania.Simulation;
 namespace Catomania.Animals;
 
 /// <summary>
-/// A liver and white springer spaniel drawn in profile: long legs, long ears that fly back when it runs
-/// with a bound, it sleeps stretched out with the head on the paws and paddles in its dreams.
+/// A springer spaniel drawn in profile, white with liver, black, red or lemon patches: long legs, long ears
+/// that fly back when it runs with a bound, it sleeps stretched out with the head on the paws and paddles in its dreams.
 /// </summary>
 public sealed class Dog : Animal
 {
@@ -25,26 +25,13 @@ public sealed class Dog : Animal
     private const double DanglingLegLength = 20;
 
     private static readonly Color CoatColor = Color.FromUInt32(0xFFF7F4EE);
-    private static readonly Color IrisColor = Color.FromUInt32(0xFFB8741C);
 
-    private static readonly IBrush Coat = new SolidColorBrush(CoatColor);
+    private static readonly IBrush WhiteCoat = new SolidColorBrush(CoatColor);
     private static readonly IBrush CoatShade = new SolidColorBrush(Color.FromUInt32(0xFFDDD6CA));
-    private static readonly IBrush Liver = new SolidColorBrush(Color.FromUInt32(0xFF6B3A26));
-    private static readonly IBrush LiverFar = new SolidColorBrush(Color.FromUInt32(0xFF552C1C));
-    private static readonly IBrush Iris = new SolidColorBrush(IrisColor);
-    private static readonly IBrush Pupil = new SolidColorBrush(Color.FromUInt32(0xFF1E120C));
-    private static readonly IBrush NoseBrush = new SolidColorBrush(Color.FromUInt32(0xFF3A1F16));
     private static readonly IBrush Tongue = new SolidColorBrush(Color.FromUInt32(0xFFE57F8D));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
-    private static readonly IBrush OutlineBrush = new SolidColorBrush(Color.FromUInt32(0xFF24150E));
-    private static readonly IBrush LiverDark = new SolidColorBrush(Color.FromUInt32(0xFF45231A));
-    private static readonly IPen OutlinePen = new Pen(OutlineBrush, 1.3, null, PenLineCap.Round, PenLineJoin.Round);
-    private static readonly IPen ThinOutlinePen = new Pen(OutlineBrush, 1.1, null, PenLineCap.Round, PenLineJoin.Round);
-    private static readonly IPen MouthPen = new Pen(OutlineBrush, 1, null, PenLineCap.Round);
-    private static readonly IPen StrandPen = new Pen(LiverDark, 1, null, PenLineCap.Round);
-    private static readonly IPen TailStripePen = new Pen(Liver, 2.4, null, PenLineCap.Round);
-    private static readonly IPen BlazePen = new Pen(Coat, 2.2, null, PenLineCap.Round);
-    private static readonly IPen ClosedEyePen = new Pen(Coat, 1.3, null, PenLineCap.Round);
+    private static readonly IPen BlazePen = new Pen(WhiteCoat, 2.2, null, PenLineCap.Round);
+    private static readonly IPen ClosedEyePen = new Pen(WhiteCoat, 1.3, null, PenLineCap.Round);
     private static readonly IPen ZzzPen = new Pen(
         new SolidColorBrush(Color.FromUInt32(0xFFC9D6E3)), 1.8, null, PenLineCap.Round, PenLineJoin.Round);
 
@@ -54,7 +41,7 @@ public sealed class Dog : Animal
     private static readonly Point[] MuzzleFreckles = [new(86, 46), new(88.5, 45), new(84, 44.5)];
 
     // The tail is drawn pointing left from its base with a single tip and short feathering underneath,
-    // the stripe is the liver along the top.
+    // the stripe is the patch color along the top.
     private static readonly Geometry Tail = Parse(
         "M2 -3 C-5 -6 -13 -8 -22 -7 C-18 -5 -15 -3 -12 -1 Q-10 1.5 -7 0.5 Q-5 3.5 -2 2.5 Q0 4.5 2 3 Z");
 
@@ -95,6 +82,26 @@ public sealed class Dog : Animal
     private static readonly Geometry SleepingEar = Parse(
         "M66 70 C60 72 58 80 59 86 C59 90 62 91 64 89 C66 91 69 90 68 87 C70 82 70 74 66 70 Z");
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Dog" /> class.
+    /// </summary>
+    /// <param name="coat">Coat color.</param>
+    public Dog(DogCoat coat = DogCoat.Liver)
+    {
+        Coat = coat;
+        Palette = DogPalette.FromCoat(coat);
+    }
+
+    /// <summary>
+    /// Gets the coat color.
+    /// </summary>
+    public DogCoat Coat { get; }
+
+    /// <summary>
+    /// Gets the palette used to draw the dog.
+    /// </summary>
+    public DogPalette Palette { get; }
+
     /// <inheritdoc />
     public override AnimalKind Kind => AnimalKind.Dog;
 
@@ -102,7 +109,7 @@ public sealed class Dog : Animal
     public override Color BodyColor => CoatColor;
 
     /// <inheritdoc />
-    public override Color EyeColor => IrisColor;
+    public override Color EyeColor => Palette.IrisColor;
 
     /// <inheritdoc />
     public override string Sound => "Woof!";
@@ -119,15 +126,15 @@ public sealed class Dog : Animal
     {
         if (state.State == AnimalAnimationState.Sleep)
         {
-            DrawSleeping(context, state.Phase);
+            DrawSleeping(context, Palette, state.Phase);
         }
         else
         {
-            DrawUpright(context, state);
+            DrawUpright(context, Palette, state);
         }
     }
 
-    private static void DrawUpright(DrawingContext context, AnimalRenderState state)
+    private static void DrawUpright(DrawingContext context, DogPalette palette, AnimalRenderState state)
     {
         var phase = state.Phase;
         var isDragged = state.State == AnimalAnimationState.Dragged;
@@ -166,31 +173,32 @@ public sealed class Dog : Animal
         };
         using (context.PushTransform(Matrix.CreateRotation(ToRadians(wag)) * Matrix.CreateTranslation(23, 57 + bob)))
         {
-            context.DrawGeometry(Coat, OutlinePen, Tail);
-            context.DrawGeometry(null, TailStripePen, TailStripe);
+            context.DrawGeometry(WhiteCoat, palette.OutlinePen, Tail);
+            context.DrawGeometry(null, palette.TailStripePen, TailStripe);
         }
 
-        DrawLeg(context, 28, FarHipY, bob, phase, gait, isDragged, LiverFar, false);
-        DrawLeg(context, 60, FarHipY, bob, phase + Math.PI, gait, isDragged, CoatShade, true);
+        DrawLeg(context, palette, 28, FarHipY, bob, phase, gait, isDragged, palette.PatchFar, false);
+        DrawLeg(context, palette, 60, FarHipY, bob, phase + Math.PI, gait, isDragged, CoatShade, true);
 
         using (context.PushTransform(RotateAround(pitch, 45, 61) * Matrix.CreateTranslation(0, bob)))
         {
-            context.DrawEllipse(Coat, OutlinePen, new Point(45, 61), 24, 10.5);
-            context.DrawGeometry(Liver, null, Saddle);
-            context.DrawGeometry(Coat, ThinOutlinePen, BellyFringe);
+            context.DrawEllipse(WhiteCoat, palette.OutlinePen, new Point(45, 61), 24, 10.5);
+            context.DrawGeometry(palette.Patch, null, Saddle);
+            context.DrawGeometry(WhiteCoat, palette.ThinOutlinePen, BellyFringe);
         }
 
-        DrawLeg(context, 33, NearHipY, bob, phase + Math.PI, gait, isDragged, Liver, false);
-        DrawLeg(context, 64, NearHipY, bob, phase, gait, isDragged, Coat, true);
+        DrawLeg(context, palette, 33, NearHipY, bob, phase + Math.PI, gait, isDragged, palette.Patch, false);
+        DrawLeg(context, palette, 64, NearHipY, bob, phase, gait, isDragged, WhiteCoat, true);
 
         using (context.PushTransform(RotateAround(pitch * 1.5, 62, 60) * Matrix.CreateTranslation(0, bob * 0.8)))
         {
-            DrawHead(context, state);
+            DrawHead(context, palette, state);
         }
     }
 
     private static void DrawLeg(
         DrawingContext context,
+        DogPalette palette,
         double hipX,
         double hipY,
         double bob,
@@ -212,28 +220,28 @@ public sealed class Dog : Animal
             foot = new Point(hipX + offsetX, GroundY - lift);
         }
 
-        DrawLimb(context, brush, hip, foot, LegWidth, hasFreckles);
+        DrawLimb(context, palette, brush, hip, foot, LegWidth, hasFreckles);
         context.DrawEllipse(
-            brush, ThinOutlinePen, new Point(foot.X + 1.6, foot.Y - (LegWidth * 0.32)), LegWidth * 0.68, LegWidth * 0.42);
+            brush, palette.ThinOutlinePen, new Point(foot.X + 1.6, foot.Y - (LegWidth * 0.32)), LegWidth * 0.68, LegWidth * 0.42);
     }
 
-    private static void DrawHead(DrawingContext context, AnimalRenderState state)
+    private static void DrawHead(DrawingContext context, DogPalette palette, AnimalRenderState state)
     {
         var phase = state.Phase;
         var isDragged = state.State == AnimalAnimationState.Dragged;
         var isMoving = state.State is AnimalAnimationState.Walk or AnimalAnimationState.Run;
 
-        context.DrawGeometry(Liver, OutlinePen, Neck);
-        context.DrawGeometry(Coat, null, ChestRuff);
-        context.DrawEllipse(Liver, OutlinePen, new Point(75, 37), 10.5, 9.5);
-        context.DrawGeometry(Coat, OutlinePen, Muzzle);
+        context.DrawGeometry(palette.Patch, palette.OutlinePen, Neck);
+        context.DrawGeometry(WhiteCoat, null, ChestRuff);
+        context.DrawEllipse(palette.Patch, palette.OutlinePen, new Point(75, 37), 10.5, 9.5);
+        context.DrawGeometry(WhiteCoat, palette.OutlinePen, Muzzle);
         context.DrawGeometry(null, BlazePen, Blaze);
         foreach (var freckle in MuzzleFreckles)
         {
-            context.DrawEllipse(Liver, null, freckle, 0.6, 0.6);
+            context.DrawEllipse(palette.Patch, null, freckle, 0.6, 0.6);
         }
 
-        context.DrawEllipse(NoseBrush, null, new Point(93.5, 41.5), 2.4, 2.2);
+        context.DrawEllipse(palette.Nose, null, new Point(93.5, 41.5), 2.4, 2.2);
         context.DrawEllipse(Brushes.White, null, new Point(93, 40.6), 0.7, 0.45);
 
         if (state.IsBlinking && !isDragged)
@@ -242,22 +250,22 @@ public sealed class Dog : Animal
         }
         else
         {
-            DrawEye(context, isDragged);
+            DrawEye(context, palette, isDragged);
         }
 
         if (isDragged)
         {
             // Surprised open mouth.
-            context.DrawEllipse(NoseBrush, null, new Point(90, 49.5), 1.6, 1.2);
+            context.DrawEllipse(palette.Nose, null, new Point(90, 49.5), 1.6, 1.2);
         }
         else
         {
-            context.DrawGeometry(null, MouthPen, Mouth);
+            context.DrawGeometry(null, palette.MouthPen, Mouth);
             if (isMoving)
             {
                 // Panting, the tongue flaps with the bound.
                 var flap = state.State == AnimalAnimationState.Run ? Math.Sin(phase * 2) * 0.8 : 0;
-                context.DrawEllipse(Tongue, MouthPen, new Point(86.5, 51.5 + flap), 1.7, 2.6);
+                context.DrawEllipse(Tongue, palette.MouthPen, new Point(86.5, 51.5 + flap), 1.7, 2.6);
             }
         }
 
@@ -271,31 +279,31 @@ public sealed class Dog : Animal
         };
         using (context.PushTransform(RotateAround(flapAngle, 72, 32)))
         {
-            context.DrawGeometry(Liver, OutlinePen, Ear);
-            context.DrawGeometry(null, StrandPen, EarStrands);
+            context.DrawGeometry(palette.Patch, palette.OutlinePen, Ear);
+            context.DrawGeometry(null, palette.StrandPen, EarStrands);
         }
     }
 
-    private static void DrawEye(DrawingContext context, bool isDragged)
+    private static void DrawEye(DrawingContext context, DogPalette palette, bool isDragged)
     {
         if (isDragged)
         {
             // Wide open and with a small pupil when the dog is lifted.
             context.DrawEllipse(Brushes.White, null, new Point(78.5, 35.5), 2.8, 2.8);
-            context.DrawEllipse(Iris, null, new Point(79, 35.7), 1.8, 1.8);
-            context.DrawEllipse(Pupil, null, new Point(79.1, 35.8), 0.7, 0.7);
+            context.DrawEllipse(palette.Iris, null, new Point(79, 35.7), 1.8, 1.8);
+            context.DrawEllipse(palette.Pupil, null, new Point(79.1, 35.8), 0.7, 0.7);
         }
         else
         {
-            context.DrawEllipse(Iris, null, new Point(78.5, 35.5), 2.3, 2.4);
-            context.DrawEllipse(Pupil, null, new Point(78.8, 35.7), 1.3, 1.3);
-            context.DrawGeometry(null, StrandPen, Brow);
+            context.DrawEllipse(palette.Iris, null, new Point(78.5, 35.5), 2.3, 2.4);
+            context.DrawEllipse(palette.Pupil, null, new Point(78.8, 35.7), 1.3, 1.3);
+            context.DrawGeometry(null, palette.StrandPen, Brow);
         }
 
         context.DrawEllipse(Brushes.White, null, new Point(77.9, 34.8), 0.7, 0.7);
     }
 
-    private static void DrawSleeping(DrawingContext context, double phase)
+    private static void DrawSleeping(DrawingContext context, DogPalette palette, double phase)
     {
         var breathe = Math.Sin(phase);
 
@@ -306,7 +314,7 @@ public sealed class Dog : Animal
 
         using (context.PushTransform(RotateAround(dream * Math.Sin(phase * 9) * 8, 26, 86)))
         {
-            context.DrawGeometry(Coat, OutlinePen, SleepingTail);
+            context.DrawGeometry(WhiteCoat, palette.OutlinePen, SleepingTail);
         }
 
         // Lying stretched out, the body swells with the breath while staying on the ground.
@@ -315,29 +323,30 @@ public sealed class Dog : Animal
             * Matrix.CreateTranslation(50, GroundY);
         using (context.PushTransform(breath))
         {
-            context.DrawEllipse(Coat, OutlinePen, new Point(46, 82), 25, 9.5);
-            context.DrawGeometry(Liver, null, SleepingSaddle);
-            context.DrawEllipse(Liver, OutlinePen, new Point(30, 82), 9, 8);
+            context.DrawEllipse(WhiteCoat, palette.OutlinePen, new Point(46, 82), 25, 9.5);
+            context.DrawGeometry(palette.Patch, null, SleepingSaddle);
+            context.DrawEllipse(palette.Patch, palette.OutlinePen, new Point(30, 82), 9, 8);
         }
 
         var paw = dream * Math.Sin(phase * 10) * 2.5;
-        DrawLimb(context, Coat, new Point(60, 86), new Point(80 + paw, 89), 6, false);
-        context.DrawEllipse(Coat, ThinOutlinePen, new Point(81.5 + paw, 89.5), 4, 2.5);
+        DrawLimb(context, palette, WhiteCoat, new Point(60, 86), new Point(80 + paw, 89), 6, false);
+        context.DrawEllipse(WhiteCoat, palette.ThinOutlinePen, new Point(81.5 + paw, 89.5), 4, 2.5);
 
         // The head rests on the paws and rises a little with the breath.
         using (context.PushTransform(RotateAround(breathe, 75, 88)))
         {
-            context.DrawEllipse(Liver, OutlinePen, new Point(70, 74), 9.5, 8.5);
-            context.DrawGeometry(Coat, OutlinePen, SleepingMuzzle);
-            context.DrawEllipse(NoseBrush, null, new Point(89.5, 80.5), 2.2, 2);
+            context.DrawEllipse(palette.Patch, palette.OutlinePen, new Point(70, 74), 9.5, 8.5);
+            context.DrawGeometry(WhiteCoat, palette.OutlinePen, SleepingMuzzle);
+            context.DrawEllipse(palette.Nose, null, new Point(89.5, 80.5), 2.2, 2);
             context.DrawGeometry(null, ClosedEyePen, SleepingEye);
-            context.DrawGeometry(Liver, OutlinePen, SleepingEar);
+            context.DrawGeometry(palette.Patch, palette.OutlinePen, SleepingEar);
         }
 
         DrawZzz(context, ZzzPen, new Point(80, 60), phase);
     }
 
-    private static void DrawLimb(DrawingContext context, IBrush brush, Point from, Point to, double width, bool hasFreckles)
+    private static void DrawLimb(
+        DrawingContext context, DogPalette palette, IBrush brush, Point from, Point to, double width, bool hasFreckles)
     {
         // The limb is drawn pointing down from the joint, then rotated towards the end.
         var length = Point.Distance(from, to);
@@ -346,7 +355,7 @@ public sealed class Dog : Animal
         {
             context.DrawRectangle(
                 brush,
-                OutlinePen,
+                palette.OutlinePen,
                 new Rect(-width / 2, -width / 2, width, length + (width / 2)),
                 width / 2,
                 width / 2);
@@ -355,7 +364,7 @@ public sealed class Dog : Animal
             {
                 foreach (var (x, fraction) in LegFreckles)
                 {
-                    context.DrawEllipse(Liver, null, new Point(x, length * fraction), 0.8, 0.8);
+                    context.DrawEllipse(palette.Patch, null, new Point(x, length * fraction), 0.8, 0.8);
                 }
             }
         }

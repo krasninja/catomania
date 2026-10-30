@@ -16,9 +16,19 @@ public sealed class AppSettings
     public AnimalSpeed Speed { get; set; } = AnimalSpeed.Normal;
 
     /// <summary>
-    /// Gets or sets the fur color scheme.
+    /// Gets or sets the cat fur color scheme.
     /// </summary>
     public CatColorScheme ColorScheme { get; set; } = CatColorScheme.Ginger;
+
+    /// <summary>
+    /// Gets or sets the dog coat color.
+    /// </summary>
+    public DogCoat DogCoat { get; set; } = DogCoat.Liver;
+
+    /// <summary>
+    /// Gets or sets the parrot plumage.
+    /// </summary>
+    public ParrotPlumage ParrotPlumage { get; set; } = ParrotPlumage.Scarlet;
 
     /// <summary>
     /// Gets or sets the animal size.

@@ -6,8 +6,8 @@ using Catomania.Simulation;
 namespace Catomania.Animals;
 
 /// <summary>
-/// A scarlet macaw drawn in profile: red body, wings banded yellow, green and blue, a long tail with a blue tip,
-/// a white face and a big hooked beak. It waddles, runs in hops flapping its wings, sleeps squatting with
+/// A macaw drawn in profile: a scarlet, blue-and-gold, green or hyacinth macaw with banded wings, a long tail,
+/// a bare face and a big hooked beak. It waddles, runs in hops flapping its wings, sleeps squatting with
 /// the head tucked into the chest and flaps both wings when it is picked up.
 /// </summary>
 public sealed class Parrot : Animal
@@ -22,32 +22,17 @@ public sealed class Parrot : Animal
 
     private const double DanglingLegLength = 12;
 
-    private static readonly Color PlumageColor = Color.FromUInt32(0xFFE0342F);
-    private static readonly Color IrisColor = Color.FromUInt32(0xFFFAE278);
-
-    private static readonly IBrush Plumage = new SolidColorBrush(PlumageColor);
-    private static readonly IBrush Yellow = new SolidColorBrush(Color.FromUInt32(0xFFFFC83D));
-    private static readonly IBrush Green = new SolidColorBrush(Color.FromUInt32(0xFF3FAE5A));
-    private static readonly IBrush Blue = new SolidColorBrush(Color.FromUInt32(0xFF2F7BD8));
-    private static readonly IBrush Face = new SolidColorBrush(Color.FromUInt32(0xFFFFF6EC));
-    private static readonly IBrush UpperBeakBrush = new SolidColorBrush(Color.FromUInt32(0xFFF0E2C8));
-    private static readonly IBrush LowerBeakBrush = new SolidColorBrush(Color.FromUInt32(0xFF2E2A2A));
-    private static readonly IBrush Iris = new SolidColorBrush(IrisColor);
     private static readonly IBrush Pupil = new SolidColorBrush(Color.FromUInt32(0xFF140C08));
     private static readonly IBrush Blush = new SolidColorBrush(Color.FromUInt32(0xAAF48CA0));
     private static readonly IBrush BodyShade = new SolidColorBrush(Color.FromUInt32(0x30000000));
     private static readonly IBrush FarWingShade = new SolidColorBrush(Color.FromUInt32(0x55000000));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
-    private static readonly IBrush OutlineBrush = new SolidColorBrush(Color.FromUInt32(0xFF5A1414));
     private static readonly IBrush BeakOutlineBrush = new SolidColorBrush(Color.FromUInt32(0xFF2B2B2B));
-    private static readonly IBrush FaceLineBrush = new SolidColorBrush(Color.FromUInt32(0xFFE8A0A0));
     private static readonly IBrush FeatherBrush = new SolidColorBrush(Color.FromUInt32(0x40000000));
     private static readonly IBrush LegBrush = new SolidColorBrush(Color.FromUInt32(0xFF6B6B73));
-    private static readonly IPen OutlinePen = new Pen(OutlineBrush, 1.3, null, PenLineCap.Round, PenLineJoin.Round);
     private static readonly IPen BeakOutlinePen = new Pen(BeakOutlineBrush, 1.1, null, PenLineCap.Round, PenLineJoin.Round);
     private static readonly IPen EyeRingPen = new Pen(BeakOutlineBrush, 0.7);
     private static readonly IPen ClosedEyePen = new Pen(BeakOutlineBrush, 1.3, null, PenLineCap.Round);
-    private static readonly IPen FaceLinePen = new Pen(FaceLineBrush, 0.8, null, PenLineCap.Round);
     private static readonly IPen FeatherPen = new Pen(FeatherBrush, 0.8, null, PenLineCap.Round);
     private static readonly IPen LegPen = new Pen(LegBrush, 3, null, PenLineCap.Round);
     private static readonly IPen ToePen = new Pen(LegBrush, 2, null, PenLineCap.Round, PenLineJoin.Round);
@@ -56,6 +41,9 @@ public sealed class Parrot : Animal
 
     private static readonly Geometry Body = Parse(
         "M44 46 C56 42 66 52 64 66 C62 78 54 84 45 83 C36 82 32 74 34 64 C35 56 38 49 44 46 Z");
+
+    // The chest is the front of the body, clipped to it.
+    private static readonly Geometry ChestShape = new EllipseGeometry(new Rect(50, 52, 18, 34));
 
     private static readonly Geometry BellyShade = Parse("M36 72 C40 80 50 84 58 80 C54 84 48 84 44 83 C38 82 35 78 36 72 Z");
 
@@ -78,14 +66,34 @@ public sealed class Parrot : Animal
     private static readonly Point HeadCenter = new(60, 38);
     private static readonly Point[] Hips = [new(43, 80), new(50, 80)];
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Parrot" /> class.
+    /// </summary>
+    /// <param name="plumage">Plumage.</param>
+    public Parrot(ParrotPlumage plumage = ParrotPlumage.Scarlet)
+    {
+        Plumage = plumage;
+        Palette = ParrotPalette.FromPlumage(plumage);
+    }
+
+    /// <summary>
+    /// Gets the plumage.
+    /// </summary>
+    public ParrotPlumage Plumage { get; }
+
+    /// <summary>
+    /// Gets the palette used to draw the parrot.
+    /// </summary>
+    public ParrotPalette Palette { get; }
+
     /// <inheritdoc />
     public override AnimalKind Kind => AnimalKind.Parrot;
 
     /// <inheritdoc />
-    public override Color BodyColor => PlumageColor;
+    public override Color BodyColor => Palette.PlumageColor;
 
     /// <inheritdoc />
-    public override Color EyeColor => IrisColor;
+    public override Color EyeColor => Palette.IrisColor;
 
     /// <inheritdoc />
     public override string Sound => "Squawk!";
@@ -102,15 +110,15 @@ public sealed class Parrot : Animal
     {
         if (state.State == AnimalAnimationState.Sleep)
         {
-            DrawSleeping(context, state.Phase);
+            DrawSleeping(context, Palette, state.Phase);
         }
         else
         {
-            DrawStanding(context, state);
+            DrawStanding(context, Palette, state);
         }
     }
 
-    private static void DrawStanding(DrawingContext context, AnimalRenderState state)
+    private static void DrawStanding(DrawingContext context, ParrotPalette palette, AnimalRenderState state)
     {
         var phase = state.Phase;
         var pose = state.State switch
@@ -142,17 +150,16 @@ public sealed class Parrot : Animal
             {
                 if (isFlapping)
                 {
-                    DrawWing(context, FarShoulder, pose.WingAngle + 15, isFar: true);
+                    DrawWing(context, palette, FarShoulder, pose.WingAngle + 15, isFar: true);
                 }
 
                 using (context.PushTransform(Matrix.CreateRotation(ToRadians(pose.TailSway)) * Matrix.CreateTranslation(TailBase.X, TailBase.Y)))
                 {
-                    DrawTail(context);
+                    DrawTail(context, palette);
                 }
 
-                context.DrawGeometry(Plumage, OutlinePen, Body);
-                context.DrawGeometry(BodyShade, null, BellyShade);
-                DrawWing(context, NearShoulder, pose.WingAngle, isFar: false);
+                DrawBody(context, palette);
+                DrawWing(context, palette, NearShoulder, pose.WingAngle, isFar: false);
 
                 var eye = state.State switch
                 {
@@ -160,7 +167,7 @@ public sealed class Parrot : Animal
                     _ when state.IsBlinking => EyePose.Closed,
                     _ => EyePose.Open,
                 };
-                DrawHead(context, HeadCenter, pose.HeadTilt, eye);
+                DrawHead(context, palette, HeadCenter, pose.HeadTilt, eye);
             }
         }
     }
@@ -205,7 +212,7 @@ public sealed class Parrot : Animal
         context.DrawLine(ToePen, foot, new Point(foot.X - 3, foot.Y));
     }
 
-    private static void DrawSleeping(DrawingContext context, double phase)
+    private static void DrawSleeping(DrawingContext context, ParrotPalette palette, double phase)
     {
         var breathe = Math.Sin(phase);
 
@@ -219,46 +226,57 @@ public sealed class Parrot : Animal
         {
             using (context.PushTransform(Matrix.CreateScale(0.8, 0.8) * Matrix.CreateRotation(ToRadians(12)) * Matrix.CreateTranslation(36, 74)))
             {
-                DrawTail(context);
+                DrawTail(context, palette);
             }
 
-            context.DrawGeometry(Plumage, OutlinePen, Body);
-            context.DrawGeometry(BodyShade, null, BellyShade);
+            DrawBody(context, palette);
 
             // The wing is folded higher up the back, so it does not reach the ground.
             using (context.PushTransform(Matrix.CreateScale(1, 0.82) * Matrix.CreateTranslation(0, 9)))
             {
-                DrawWing(context, NearShoulder, -4, isFar: false);
+                DrawWing(context, palette, NearShoulder, -4, isFar: false);
             }
 
-            DrawHead(context, new Point(57, 44), 38, EyePose.Closed);
+            DrawHead(context, palette, new Point(57, 44), 38, EyePose.Closed);
         }
 
         DrawZzz(context, ZzzPen, new Point(68, 34), phase);
     }
 
-    private static void DrawTail(DrawingContext context)
+    private static void DrawBody(DrawingContext context, ParrotPalette palette)
     {
-        context.DrawGeometry(Plumage, null, Tail);
-        using (context.PushGeometryClip(Tail))
+        context.DrawGeometry(palette.Plumage, null, Body);
+        using (context.PushGeometryClip(Body))
         {
-            context.DrawEllipse(Blue, null, new Point(-29, 15), 9, 8);
+            context.DrawGeometry(palette.Chest, null, ChestShape);
+            context.DrawGeometry(BodyShade, null, BellyShade);
         }
 
-        context.DrawGeometry(null, OutlinePen, Tail);
+        context.DrawGeometry(null, palette.OutlinePen, Body);
     }
 
-    private static void DrawWing(DrawingContext context, Point shoulder, double angleDegrees, bool isFar)
+    private static void DrawTail(DrawingContext context, ParrotPalette palette)
+    {
+        context.DrawGeometry(palette.Plumage, null, Tail);
+        using (context.PushGeometryClip(Tail))
+        {
+            context.DrawEllipse(palette.TailTip, null, new Point(-29, 15), 9, 8);
+        }
+
+        context.DrawGeometry(null, palette.OutlinePen, Tail);
+    }
+
+    private static void DrawWing(DrawingContext context, ParrotPalette palette, Point shoulder, double angleDegrees, bool isFar)
     {
         using (context.PushTransform(Matrix.CreateRotation(ToRadians(angleDegrees)) * Matrix.CreateTranslation(shoulder.X, shoulder.Y)))
         {
-            // Blue flight feathers, then green, yellow and red coverts towards the shoulder.
-            context.DrawGeometry(Blue, null, Wing);
+            // The flight feathers, then the bands and the coverts towards the shoulder.
+            context.DrawGeometry(palette.FlightFeathers, null, Wing);
             using (context.PushGeometryClip(Wing))
             {
-                context.FillRectangle(Green, new Rect(-20, 9, 40, 14));
-                context.FillRectangle(Yellow, new Rect(-20, 4, 40, 6));
-                context.DrawEllipse(Plumage, null, new Point(0, -1), 12, 6);
+                context.FillRectangle(palette.LowerWingBand, new Rect(-20, 9, 40, 14));
+                context.FillRectangle(palette.UpperWingBand, new Rect(-20, 4, 40, 6));
+                context.DrawEllipse(palette.Coverts, null, new Point(0, -1), 12, 6);
                 context.DrawLine(FeatherPen, new Point(-4, 26), new Point(1, 18));
                 context.DrawLine(FeatherPen, new Point(-9, 32), new Point(-3, 22));
                 if (isFar)
@@ -267,36 +285,46 @@ public sealed class Parrot : Animal
                 }
             }
 
-            context.DrawGeometry(null, OutlinePen, Wing);
+            context.DrawGeometry(null, palette.OutlinePen, Wing);
         }
     }
 
-    private static void DrawHead(DrawingContext context, Point center, double tiltDegrees, EyePose eye)
+    private static void DrawHead(DrawingContext context, ParrotPalette palette, Point center, double tiltDegrees, EyePose eye)
     {
         using (context.PushTransform(RotateAround(tiltDegrees, center.X, center.Y)))
         {
-            context.DrawEllipse(Plumage, OutlinePen, center, 12.5, 12.5);
+            var head = new EllipseGeometry(new Rect(center.X - 12.5, center.Y - 12.5, 25, 25));
+            context.DrawGeometry(palette.Plumage, null, head);
+            if (palette.Forehead != null)
+            {
+                using (context.PushGeometryClip(head))
+                {
+                    context.DrawEllipse(palette.Forehead, null, new Point(center.X + 7, center.Y - 9), 8, 5);
+                }
+            }
 
-            // The bare white face with the rows of tiny red feathers macaws have.
-            context.DrawEllipse(Face, null, new Point(center.X + 5, center.Y + 1.5), 7, 8);
+            context.DrawGeometry(null, palette.OutlinePen, head);
+
+            // The bare face with the rows of tiny feathers macaws have.
+            context.DrawEllipse(palette.Face, null, new Point(center.X + 5, center.Y + 1.5), 7, 8);
             for (var i = 0; i < 3; i++)
             {
                 var y = center.Y + 3 + (i * 2.2);
-                context.DrawLine(FaceLinePen, new Point(center.X + 1.5 + i, y), new Point(center.X + 4.5 + i, y - 0.6));
+                context.DrawLine(palette.FaceLinePen, new Point(center.X + 1.5 + i, y), new Point(center.X + 4.5 + i, y - 0.6));
             }
 
             context.DrawEllipse(Blush, null, new Point(center.X + 3, center.Y + 5), 2.4, 1.5);
-            DrawEye(context, new Point(center.X + 5.5, center.Y - 2), eye);
+            DrawEye(context, palette, new Point(center.X + 5.5, center.Y - 2), eye);
 
             using (context.PushTransform(Matrix.CreateTranslation(center.X + 9.5, center.Y - 4)))
             {
-                context.DrawGeometry(LowerBeakBrush, BeakOutlinePen, LowerBeak);
-                context.DrawGeometry(UpperBeakBrush, BeakOutlinePen, UpperBeak);
+                context.DrawGeometry(palette.LowerBeak, BeakOutlinePen, LowerBeak);
+                context.DrawGeometry(palette.UpperBeak, BeakOutlinePen, UpperBeak);
             }
         }
     }
 
-    private static void DrawEye(DrawingContext context, Point center, EyePose eye)
+    private static void DrawEye(DrawingContext context, ParrotPalette palette, Point center, EyePose eye)
     {
         switch (eye)
         {
@@ -309,12 +337,12 @@ public sealed class Parrot : Animal
                 return;
             case EyePose.Surprised:
                 // Wide open with a small pupil when the parrot is lifted.
-                context.DrawEllipse(Iris, EyeRingPen, center, 3.3, 3.5);
+                context.DrawEllipse(palette.Iris, EyeRingPen, center, 3.3, 3.5);
                 context.DrawEllipse(Pupil, null, center, 1.1, 1.1);
                 break;
             default:
                 // Macaws have a pale yellow iris around a big pupil.
-                context.DrawEllipse(Iris, EyeRingPen, center, 2.8, 3.1);
+                context.DrawEllipse(palette.Iris, EyeRingPen, center, 2.8, 3.1);
                 context.DrawEllipse(Pupil, null, new Point(center.X + 0.3, center.Y + 0.2), 1.8, 2);
                 break;
         }

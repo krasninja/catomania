@@ -83,8 +83,14 @@ public sealed partial class App : Application
         {
             if (FurSetting.Equals(item.CommandParameter))
             {
-                item.IsEnabled = _settings.Animal == AnimalKind.Cat;
+                item.IsEnabled = _settings.Animal.HasFurColors();
+                item.Header = _settings.Animal.GetFurMenuHeader();
                 continue;
+            }
+
+            if (item.CommandParameter is CatColorScheme or DogCoat or ParrotPlumage)
+            {
+                item.IsVisible = _settings.Animal.HasFurOption(item.CommandParameter);
             }
 
             item.IsChecked = item.CommandParameter switch
@@ -92,6 +98,8 @@ public sealed partial class App : Application
                 AnimalKind kind => kind == _settings.Animal,
                 AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
+                DogCoat coat => coat == _settings.DogCoat,
+                ParrotPlumage plumage => plumage == _settings.ParrotPlumage,
                 AnimalSize size => size == _settings.Size,
                 PauseSetting => _settings.Paused,
                 AlwaysOnTopSetting => _settings.AlwaysOnTop,
@@ -177,9 +185,17 @@ public sealed partial class App : Application
 
     private void OnColorSchemeClick(object? sender, EventArgs e)
     {
-        if (sender is NativeMenuItem { CommandParameter: CatColorScheme colorScheme })
+        switch ((sender as NativeMenuItem)?.CommandParameter)
         {
-            _commands?.SetFur(colorScheme);
+            case CatColorScheme colorScheme:
+                _commands?.SetFur(colorScheme);
+                break;
+            case DogCoat coat:
+                _commands?.SetDogCoat(coat);
+                break;
+            case ParrotPlumage plumage:
+                _commands?.SetParrotPlumage(plumage);
+                break;
         }
     }
 

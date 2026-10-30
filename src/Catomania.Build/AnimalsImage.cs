@@ -93,7 +93,7 @@ public static class AnimalsImage
     }
 
     /// <summary>
-    /// Create one animal of every kind, the cat once per fur color.
+    /// Create one animal of every kind, the cat, the dog and the parrot once per color.
     /// </summary>
     /// <returns>Animals in the order they are drawn.</returns>
     private static List<Animal> CreateAnimals()
@@ -101,13 +101,21 @@ public static class AnimalsImage
         var animals = new List<Animal>();
         foreach (var kind in Enum.GetValues<AnimalKind>())
         {
-            if (kind == AnimalKind.Cat)
+            switch (kind)
             {
-                animals.AddRange(Enum.GetValues<CatColorScheme>().Select(scheme => new Cat(scheme)));
-                continue;
+                case AnimalKind.Cat:
+                    animals.AddRange(Enum.GetValues<CatColorScheme>().Select(scheme => new Cat(scheme)));
+                    break;
+                case AnimalKind.Dog:
+                    animals.AddRange(Enum.GetValues<DogCoat>().Select(coat => new Dog(coat)));
+                    break;
+                case AnimalKind.Parrot:
+                    animals.AddRange(Enum.GetValues<ParrotPlumage>().Select(plumage => new Parrot(plumage)));
+                    break;
+                default:
+                    animals.Add(Animal.Create(new AppSettings { Animal = kind }));
+                    break;
             }
-
-            animals.Add(Animal.Create(new AppSettings { Animal = kind }));
         }
 
         return animals;

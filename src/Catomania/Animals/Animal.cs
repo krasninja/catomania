@@ -60,9 +60,9 @@ public abstract class Animal
         return settings.Animal switch
         {
             AnimalKind.Panda => new Panda(),
-            AnimalKind.Dog => new Dog(),
+            AnimalKind.Dog => new Dog(settings.DogCoat),
             AnimalKind.Snake => new Snake(),
-            AnimalKind.Parrot => new Parrot(),
+            AnimalKind.Parrot => new Parrot(settings.ParrotPlumage),
             _ => new Cat(settings.ColorScheme),
         };
     }

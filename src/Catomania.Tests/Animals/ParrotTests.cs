@@ -9,40 +9,42 @@ namespace Catomania.Tests.Animals;
 
 /// <summary>
 /// Tests for <see cref="Parrot" /> drawn by <see cref="AnimalView" />. The parrot is rendered by the headless platform
-/// and the pixels are checked.
+/// and the pixels are checked, for every plumage.
 /// </summary>
 public sealed class ParrotTests
 {
     private static readonly HeadlessUnitTestSession _session = TestHeadlessSession.Instance;
 
-    [Fact]
-    public Task Render_EveryAnimationState_DrawsPlumage()
+    public static TheoryData<ParrotPlumage> Plumages => new(Enum.GetValues<ParrotPlumage>());
+
+    [Theory]
+    [MemberData(nameof(Plumages))]
+    public Task Render_EveryAnimationState_DrawsPlumage(ParrotPlumage plumage)
         => _session.Dispatch(() =>
         {
-            var (parrotView, window) = CreateParrotWindow();
+            var (parrotView, window) = CreateParrotWindow(plumage);
             try
             {
                 foreach (var state in Enum.GetValues<AnimalAnimationState>())
                 {
-                    {
-                        parrotView.Update(new AnimalRenderState(state, true, 1.1, false));
-                        var pixels = AnimalPixels.Capture(window);
-                        var plumagePixels = AnimalPixels.CountColor(pixels, parrotView.Animal.BodyColor, 12);
-                        Assert.True(plumagePixels > 40, $"{state} draws too few plumage pixels: {plumagePixels}");
-                    }
+                    parrotView.Update(new AnimalRenderState(state, true, 1.1, false));
+                    var pixels = AnimalPixels.Capture(window);
+                    var plumagePixels = AnimalPixels.CountColor(pixels, parrotView.Animal.BodyColor, 12);
+                    Assert.True(plumagePixels > 40, $"{state} draws too few plumage pixels: {plumagePixels}");
                 }
-                }
+            }
             finally
             {
                 window.Close();
             }
         }, CancellationToken.None);
 
-    [Fact]
-    public Task Render_FacingLeft_MirrorsTheParrot()
+    [Theory]
+    [MemberData(nameof(Plumages))]
+    public Task Render_FacingLeft_MirrorsTheParrot(ParrotPlumage plumage)
         => _session.Dispatch(() =>
         {
-            var (parrotView, window) = CreateParrotWindow();
+            var (parrotView, window) = CreateParrotWindow(plumage);
             try
             {
                 var eyeColor = parrotView.Animal.EyeColor;
@@ -62,11 +64,12 @@ public sealed class ParrotTests
             }
         }, CancellationToken.None);
 
-    [Fact]
-    public Task Render_Blinking_HidesTheEyes()
+    [Theory]
+    [MemberData(nameof(Plumages))]
+    public Task Render_Blinking_HidesTheEyes(ParrotPlumage plumage)
         => _session.Dispatch(() =>
         {
-            var (parrotView, window) = CreateParrotWindow();
+            var (parrotView, window) = CreateParrotWindow(plumage);
             try
             {
                 var eyeColor = parrotView.Animal.EyeColor;
@@ -86,21 +89,24 @@ public sealed class ParrotTests
             }
         }, CancellationToken.None);
 
-    [Fact]
-    public Task Create_ParrotInSettings_CreatesParrot()
+    [Theory]
+    [MemberData(nameof(Plumages))]
+    public Task Create_ParrotInSettings_CreatesParrotWithThePlumage(ParrotPlumage plumage)
         => _session.Dispatch(() =>
         {
-            var animal = Animal.Create(new AppSettings { Animal = AnimalKind.Parrot, ColorScheme = CatColorScheme.Black });
+            var animal = Animal.Create(new AppSettings { Animal = AnimalKind.Parrot, ParrotPlumage = plumage });
 
             var parrot = Assert.IsType<Parrot>(animal);
             Assert.Equal(AnimalKind.Parrot, parrot.Kind);
+            Assert.Equal(plumage, parrot.Plumage);
+            Assert.Same(ParrotPalette.FromPlumage(plumage), parrot.Palette);
         }, CancellationToken.None);
 
     [Fact]
     public Task Render_EveryAnimationState_StaysInsideTheDesignSpace()
         => _session.Dispatch(() =>
         {
-            var (parrotView, window) = CreateParrotWindow();
+            var (parrotView, window) = CreateParrotWindow(ParrotPlumage.Scarlet);
             try
             {
                 // The raised wings and the long tail must not be cut off at the edges.
@@ -125,5 +131,6 @@ public sealed class ParrotTests
             }
         }, CancellationToken.None);
 
-    private static (AnimalView ParrotView, Window Window) CreateParrotWindow() => AnimalPixels.CreateWindow(new Parrot());
+    private static (AnimalView ParrotView, Window Window) CreateParrotWindow(ParrotPlumage plumage)
+        => AnimalPixels.CreateWindow(new Parrot(plumage));
 }

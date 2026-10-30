@@ -9,17 +9,20 @@ namespace Catomania.Tests.Animals;
 
 /// <summary>
 /// Tests for <see cref="Dog" /> drawn by <see cref="AnimalView" />. The dog is rendered by the headless platform
-/// and the pixels are checked.
+/// and the pixels are checked, for every coat.
 /// </summary>
 public sealed class DogTests
 {
     private static readonly HeadlessUnitTestSession _session = TestHeadlessSession.Instance;
 
-    [Fact]
-    public Task Render_EveryAnimationState_DrawsFur()
+    public static TheoryData<DogCoat> Coats => new(Enum.GetValues<DogCoat>());
+
+    [Theory]
+    [MemberData(nameof(Coats))]
+    public Task Render_EveryAnimationState_DrawsFur(DogCoat coat)
         => _session.Dispatch(() =>
         {
-            var (dogView, window) = CreateDogWindow();
+            var (dogView, window) = CreateDogWindow(coat);
             try
             {
                 foreach (var state in Enum.GetValues<AnimalAnimationState>())
@@ -36,11 +39,12 @@ public sealed class DogTests
             }
         }, CancellationToken.None);
 
-    [Fact]
-    public Task Render_FacingLeft_MirrorsTheDog()
+    [Theory]
+    [MemberData(nameof(Coats))]
+    public Task Render_FacingLeft_MirrorsTheDog(DogCoat coat)
         => _session.Dispatch(() =>
         {
-            var (dogView, window) = CreateDogWindow();
+            var (dogView, window) = CreateDogWindow(coat);
             try
             {
                 var eyeColor = dogView.Animal.EyeColor;
@@ -60,11 +64,12 @@ public sealed class DogTests
             }
         }, CancellationToken.None);
 
-    [Fact]
-    public Task Render_Blinking_HidesTheEyes()
+    [Theory]
+    [MemberData(nameof(Coats))]
+    public Task Render_Blinking_HidesTheEyes(DogCoat coat)
         => _session.Dispatch(() =>
         {
-            var (dogView, window) = CreateDogWindow();
+            var (dogView, window) = CreateDogWindow(coat);
             try
             {
                 var eyeColor = dogView.Animal.EyeColor;
@@ -94,6 +99,18 @@ public sealed class DogTests
             Assert.Equal(AnimalKind.Dog, dog.Kind);
         }, CancellationToken.None);
 
+    [Theory]
+    [MemberData(nameof(Coats))]
+    public Task Create_DogCoatInSettings_CreatesDogWithTheCoat(DogCoat coat)
+        => _session.Dispatch(() =>
+        {
+            var animal = Animal.Create(new AppSettings { Animal = AnimalKind.Dog, DogCoat = coat });
+
+            var dog = Assert.IsType<Dog>(animal);
+            Assert.Equal(coat, dog.Coat);
+            Assert.Same(DogPalette.FromCoat(coat), dog.Palette);
+        }, CancellationToken.None);
+
     [Fact]
     public Task CreateSimulatorOptions_LongLegs_TakeLongerStridesThanTheCat()
         => _session.Dispatch(() =>
@@ -105,5 +122,5 @@ public sealed class DogTests
             Assert.True(dog.RunStrideLength > cat.RunStrideLength);
         }, CancellationToken.None);
 
-    private static (AnimalView DogView, Window Window) CreateDogWindow() => AnimalPixels.CreateWindow(new Dog());
+    private static (AnimalView DogView, Window Window) CreateDogWindow(DogCoat coat) => AnimalPixels.CreateWindow(new Dog(coat));
 }

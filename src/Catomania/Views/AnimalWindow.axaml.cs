@@ -141,6 +141,20 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     }
 
     /// <inheritdoc />
+    public void SetDogCoat(DogCoat coat)
+    {
+        _settings.DogCoat = coat;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
+    public void SetParrotPlumage(ParrotPlumage plumage)
+    {
+        _settings.ParrotPlumage = plumage;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
     public void SetSize(AnimalSize size)
     {
         _settings.Size = size;
@@ -411,9 +425,17 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     private void OnColorSchemeClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is MenuItem { Tag: CatColorScheme colorScheme })
+        switch ((sender as MenuItem)?.Tag)
         {
-            SetFur(colorScheme);
+            case CatColorScheme colorScheme:
+                SetFur(colorScheme);
+                break;
+            case DogCoat coat:
+                SetDogCoat(coat);
+                break;
+            case ParrotPlumage plumage:
+                SetParrotPlumage(plumage);
+                break;
         }
     }
 
@@ -535,7 +557,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     {
         _pauseMenuItem.IsChecked = _settings.Paused;
         _topmostMenuItem.IsChecked = _settings.AlwaysOnTop;
-        _furMenuItem.IsEnabled = _settings.Animal == AnimalKind.Cat;
+        _furMenuItem.IsEnabled = _settings.Animal.HasFurColors();
+        _furMenuItem.Header = _settings.Animal.GetFurMenuHeader();
         if (_systemAutostart != null)
         {
             _launchAtStartupMenuItem.IsChecked = _systemAutostart.IsLaunchAtStartupEnabledAsync().GetAwaiter().GetResult();
@@ -543,11 +566,18 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         foreach (var item in GetMenuItems())
         {
+            if (item.Tag is CatColorScheme or DogCoat or ParrotPlumage)
+            {
+                item.IsVisible = _settings.Animal.HasFurOption(item.Tag);
+            }
+
             item.IsChecked = item.Tag switch
             {
                 AnimalKind kind => kind == _settings.Animal,
                 AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
+                DogCoat coat => coat == _settings.DogCoat,
+                ParrotPlumage plumage => plumage == _settings.ParrotPlumage,
                 AnimalSize size => size == _settings.Size,
                 _ => item.IsChecked,
             };

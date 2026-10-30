@@ -20,10 +20,22 @@ public interface IAnimalCommands
     void SetSpeed(AnimalSpeed speed);
 
     /// <summary>
-    /// Set the fur color scheme.
+    /// Set the cat fur color scheme.
     /// </summary>
     /// <param name="colorScheme">Fur color scheme.</param>
     void SetFur(CatColorScheme colorScheme);
+
+    /// <summary>
+    /// Set the dog coat color.
+    /// </summary>
+    /// <param name="coat">Coat color.</param>
+    void SetDogCoat(DogCoat coat);
+
+    /// <summary>
+    /// Set the parrot plumage.
+    /// </summary>
+    /// <param name="plumage">Plumage.</param>
+    void SetParrotPlumage(ParrotPlumage plumage);
 
     /// <summary>
     /// Set the animal size.

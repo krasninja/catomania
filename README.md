@@ -8,7 +8,7 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
 1. Runs locally on Windows, macOS and Linux (X11, KDE Plasma and GNOME on Wayland, see [Linux and Wayland](#linux-and-wayland)).
 2. The kitty walks and runs towards the cursor, stops nearby, looks around and falls asleep when the cursor does not move for a while.
 3. The cat is drawn with vector shapes, so there are no image assets and it stays sharp at any size.
-4. Five animals: a cat with four fur colors (ginger, gray, black and cream), a panda cub, a springer spaniel, a snake and a parrot.
+4. Five animals: a cat with four fur colors (ginger, gray, black and cream), a panda cub, a springer spaniel with four coats (liver, black, red and lemon on white), a snake and a parrot with four macaw plumages (scarlet, blue and gold, green and hyacinth).
 5. Drag the cat with the left mouse button, double-click it to pause, scroll the mouse wheel over it to change its size.
 6. Right-click the cat for the menu: pause, animal, speed, fur, size, always on top, recenter, check for updates and quit.
 7. Settings are saved between runs in the user configuration directory.
@@ -104,7 +104,9 @@ Settings are stored as JSON in the user configuration directory:
 | Field | Values | Default | Description |
 | --- | --- | --- | --- |
 | `speed` | `Slow`, `Normal`, `Fast` | `Normal` | How fast the cat chases the cursor. |
-| `colorScheme` | `Ginger`, `Gray`, `Black`, `Cream` | `Ginger` | Fur color. |
+| `colorScheme` | `Ginger`, `Gray`, `Black`, `Cream` | `Ginger` | Cat fur color. |
+| `dogCoat` | `Liver`, `Black`, `Red`, `Lemon` | `Liver` | Color of the dog's patches on the white coat. |
+| `parrotPlumage` | `Scarlet`, `BlueAndGold`, `Green`, `Hyacinth` | `Scarlet` | Parrot plumage, a macaw species. |
 | `size` | `Small`, `Medium`, `Large` | `Medium` | Cat size. |
 | `alwaysOnTop` | `true`, `false` | `true` | Keep the cat above other windows. |
 | `paused` | `true`, `false` | `false` | The cat stays in place and does not chase. |
