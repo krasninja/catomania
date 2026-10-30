@@ -20,19 +20,22 @@
 
     <Grid>
         <controls:AnimalView x:Name="AnimalView" />
-        <Border x:Name="SpeechBubble"
-                Background="#A9FFFFFF"
-                CornerRadius="8"
-                Padding="8,4"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Margin="0,4,0,0"
-                IsVisible="False">
-            <TextBlock x:Name="SpeechText"
-                       FontSize="14"
-                       FontWeight="Bold"
-                       Foreground="#E6333333" />
-        </Border>
+        <!-- A popup is its own window, so the bubble can sit above the animal instead of covering it. -->
+        <Popup x:Name="SpeechBubble"
+               PlacementTarget="{Binding #AnimalView}"
+               Placement="Top"
+               IsLightDismissEnabled="False"
+               ShouldUseOverlayLayer="False">
+            <Border Background="#A9FFFFFF"
+                    CornerRadius="8"
+                    Padding="8,4"
+                    IsHitTestVisible="False">
+                <TextBlock x:Name="SpeechText"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           Foreground="#E6333333" />
+            </Border>
+        </Popup>
     </Grid>
 
     <Window.ContextMenu>

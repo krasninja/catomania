@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -46,7 +47,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private readonly AnimalChaseService _chaseService;
     private readonly DispatcherTimer _updateCheckTimer;
     private readonly DispatcherTimer _speechBubbleTimer;
-    private readonly Border _speechBubble;
+    private readonly Popup _speechBubble;
     private readonly TextBlock _speechText;
 
     private bool _isDragging;
@@ -82,7 +83,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _furMenuItem = this.GetControl<MenuItem>("FurMenuItem");
         _topmostMenuItem = this.GetControl<MenuItem>("TopmostMenuItem");
         _launchAtStartupMenuItem = this.GetControl<MenuItem>("LaunchAtStartupMenuItem");
-        _speechBubble = this.GetControl<Border>("SpeechBubble");
+        _speechBubble = this.GetControl<Popup>("SpeechBubble");
         _speechText = this.GetControl<TextBlock>("SpeechText");
 
         _cursorPositionProvider = CursorPositionProviderFactory.CreateDefault(
@@ -197,7 +198,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     public void Say()
     {
         _speechText.Text = _animalView.Animal.Sound;
-        _speechBubble.IsVisible = true;
+        _speechBubble.Topmost = Topmost;
+        _speechBubble.IsOpen = true;
         _speechBubbleTimer.Stop();
         _speechBubbleTimer.Start();
     }
@@ -401,6 +403,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _disposed = true;
         _updateCheckTimer.Stop();
         _speechBubbleTimer.Stop();
+        _speechBubble.IsOpen = false;
         _chaseService.Dispose();
         _cursorPositionProvider.Dispose();
     }
@@ -466,7 +469,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private void OnSpeechBubbleTimerTick(object? sender, EventArgs e)
     {
         _speechBubbleTimer.Stop();
-        _speechBubble.IsVisible = false;
+        _speechBubble.IsOpen = false;
     }
 
     /// <summary>
