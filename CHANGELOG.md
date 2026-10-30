@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Uninstalling on Windows removes the launch at startup entry.
 - macOS: the app no longer shows in the Dock or the app switcher, it lives in the menu bar.
 - Tricks in pause mode.
+- "Website" and "About" menu items.
 
 ## [0.2.0]
 

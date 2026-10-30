@@ -18,13 +18,13 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
 2. The kitty walks and runs towards the cursor, stops nearby, looks around and falls asleep when the cursor does not move for a while.
 3. The cat is drawn with vector shapes, so there are no image assets and it stays sharp at any size.
 4. Five animals:
-  - a cat with four fur colors (ginger, gray, black and cream)
-  - a panda cub
-  - a springer spaniel with four coats (liver, black, red and lemon on white)
-  - a snake
-  - a parrot with four macaw plumages (scarlet, blue and gold, green and hyacinth).
-4. Settings are saved between runs in the user configuration directory.
-5. Self-updates from the Velopack release feed when installed.
+   - a cat with four fur colors (ginger, gray, black and cream)
+   - a panda cub
+   - a springer spaniel with four coats (liver, black, red and lemon on white)
+   - a snake
+   - a parrot with four macaw plumages (scarlet, blue and gold, green and hyacinth).
+5. Settings are saved between runs in the user configuration directory.
+6. Self-updates from the Velopack release feed when installed.
 
 ## Install
 
