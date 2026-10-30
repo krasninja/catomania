@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catomania &mdash; add more cats to your life!</title>
+<meta name="description" content="Catomania is a small desktop pet for Windows, macOS and Linux: a kitty chases the mouse cursor across your screen. Free, open source, MIT licensed.">
+<link rel="icon" type="image/png" href="icon.png">
+
+<!-- Bootstrap 5.3 and Bootstrap Icons from jsDelivr, with the published SRI hashes. -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+  rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css"
+  rel="stylesheet" integrity="sha256-ecmcGh4Ok3+AilgWVyi37QCADwLvXvz80Q3+cUZOZ10=" crossorigin="anonymous">
+
+<style>
+  /*
+   * Brand theme on top of Bootstrap. Grass green is the very palette the animals are drawn on
+   * (src/Catomania.Build/AnimalsImage.cs); blue is the sky above it. Overriding the --bs-* color
+   * tokens recolors the utilities (.text-success, .bg-success, .link-primary, ...), while the
+   * buttons are recolored through their own component variables below.
+   */
+  :root {
+    --cat-grass: #4e9a35;
+    --cat-grass-dark: #3e822a;
+    --cat-grass-light: #8cc85a;
+    --cat-grass-pale: #9fd46a;
+    --cat-blue: #2f80ed;
+    --cat-blue-dark: #1b5fbf;
+    --cat-blue-light: #e8f2fc;
+
+    --bs-primary: #2f80ed;
+    --bs-primary-rgb: 47, 128, 237;
+    --bs-success: #4e9a35;
+    --bs-success-rgb: 78, 154, 53;
+    --bs-link-color: #1b5fbf;
+    --bs-link-color-rgb: 27, 95, 191;
+    --bs-link-hover-color: #3e822a;
+    --bs-link-hover-color-rgb: 62, 130, 42;
+    --bs-body-color: #17313f;
+    --bs-body-color-rgb: 23, 49, 63;
+    --bs-secondary-color: #4a6472;
+    --bs-secondary-color-rgb: 74, 100, 114;
+  }
+  /* Bootstrap component variables: grass green and sky blue button variants. */
+  .btn-success {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--cat-grass);
+    --bs-btn-border-color: var(--cat-grass);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cat-grass-dark);
+    --bs-btn-hover-border-color: var(--cat-grass-dark);
+    --bs-btn-focus-shadow-rgb: 105, 175, 84;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #356f24;
+    --bs-btn-active-border-color: #316822;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--cat-grass);
+    --bs-btn-disabled-border-color: var(--cat-grass);
+  }
+
+  .btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--cat-blue);
+    --bs-btn-border-color: var(--cat-blue);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cat-blue-dark);
+    --bs-btn-hover-border-color: var(--cat-blue-dark);
+    --bs-btn-focus-shadow-rgb: 78, 147, 240;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #1b5fbf;
+    --bs-btn-active-border-color: #1a59b3;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--cat-blue);
+    --bs-btn-disabled-border-color: var(--cat-blue);
+  }
+
+  .btn-outline-primary {
+    --bs-btn-color: var(--cat-blue-dark);
+    --bs-btn-border-color: var(--cat-blue);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cat-blue);
+    --bs-btn-hover-border-color: var(--cat-blue);
+    --bs-btn-focus-shadow-rgb: 47, 128, 237;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--cat-blue-dark);
+    --bs-btn-active-border-color: var(--cat-blue-dark);
+  }
+
+  .btn-outline-success {
+    --bs-btn-color: var(--cat-grass-dark);
+    --bs-btn-border-color: var(--cat-grass);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cat-grass);
+    --bs-btn-hover-border-color: var(--cat-grass);
+    --bs-btn-focus-shadow-rgb: 78, 154, 53;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--cat-grass-dark);
+    --bs-btn-active-border-color: var(--cat-grass-dark);
+  }
+
+  /* A few helpers Bootstrap does not ship: the sky-to-grass hero wash and the grass footer. */
+  .hero-gradient {
+    background-image: linear-gradient(180deg, var(--cat-blue-light) 0%, #f4fbef 60%, #ffffff 100%);
+  }
+
+  .footer-grass {
+    background-image: linear-gradient(180deg, var(--cat-grass-light), var(--cat-grass-dark));
+  }
+
+  .text-gradient {
+    background-image: linear-gradient(90deg, var(--cat-grass-dark), var(--cat-blue-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    background-color: rgba(var(--bs-success-rgb), 0.14);
+  }
+
+  .icon-circle.blue { background-color: rgba(var(--bs-primary-rgb), 0.14); }
+
+  .card-hover { transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+
+  .card-hover:hover { transform: translateY(-0.25rem); }
+</style>
+</head>
+
+<body data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-root-margin="0px 0px -75%" tabindex="0">
+
+<nav class="navbar navbar-expand-lg bg-body sticky-top border-bottom shadow-sm" id="mainNav" aria-label="Main navigation">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#top">
+      <img src="icon.png" alt="" width="32" height="32" class="rounded-3">
+      <span class="text-gradient">Catomania</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="#download">Download</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#good-to-know">Good to know</a></li>
+      </ul>
+      <a class="btn btn-outline-primary btn-sm" href="https://github.com/krasninja/catomania">
+        <i class="bi bi-github me-1" aria-hidden="true"></i>GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero-gradient text-center py-3" id="top">
+  <div class="container py-lg-4">
+    <img src="icon.png" class="rounded-4 shadow" alt="Catomania icon: a ginger cat" width="128" height="128">
+    <h1 class="display-3 fw-bold text-gradient mt-3 mb-1">Catomania</h1>
+    <p class="fs-3 fw-semibold text-success mb-2">Add more cats to your life!</p>
+    <p class="lead text-secondary col-lg-8 mx-auto mb-4">
+      A tiny desktop pet that lives on your screen: it walks, runs and naps while chasing your
+      mouse cursor. Free, open source, and at home on Windows, macOS and Linux.
+    </p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <a class="btn btn-success btn-lg px-4" href="#download">
+        <i class="bi bi-download me-2" aria-hidden="true"></i>Download
+      </a>
+      <a class="btn btn-outline-primary btn-lg px-4" href="https://github.com/krasninja/catomania">
+        <i class="bi bi-github me-2" aria-hidden="true"></i>View on GitHub
+      </a>
+    </div>
+    <p class="small text-secondary mt-4 mb-0">
+      <span class="badge text-bg-success d-none" id="latest-badge"></span>
+      <i class="bi bi-unlock me-1" aria-hidden="true"></i>MIT licensed
+      <span class="mx-1">&middot;</span>
+      <i class="bi bi-laptop me-1" aria-hidden="true"></i>Windows, macOS &amp; Linux
+      <span class="mx-1">&middot;</span>
+      <i class="bi bi-wifi-off me-1" aria-hidden="true"></i>No account, no telemetry
+    </p>
+  </div>
+</header>
+
+<main>
+
+<section class="py-1" id="animals">
+  <div class="container">
+    <div class="text-center mb-1">
+      <img src="animals.png" class="rounded-4 shadow" alt="All animals">
+    </div>
+  </div>
+</section>
+
+<section class="py-3" id="download">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-2">Get Catomania</h2>
+      <p class="text-secondary col-lg-7 mx-auto mb-0">
+        A free download for every desktop. Pick your platform &mdash; the one you are using right
+        now is marked for you.
+      </p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm card-hover position-relative" id="card-linux">
+          <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill text-bg-primary d-none" id="badge-linux">Your system</span>
+          <div class="card-body p-4 text-center d-flex flex-column gap-3">
+            <span class="icon-circle text-success mx-auto" aria-hidden="true"><i class="bi bi-ubuntu"></i></span>
+            <div>
+              <h3 class="h5 mb-1">Linux</h3>
+              <p class="small text-secondary mb-0">AppImage, x64<br><code>catomania.AppImage</code></p>
+            </div>
+            <div class="d-grid mt-auto">
+              <a class="btn btn-success" id="dl-linux" href="https://github.com/krasninja/catomania/releases/latest" data-bs-toggle="tooltip" data-bs-title="Works on most distributions. Make it executable once: chmod +x catomania.AppImage">
+                <i class="bi bi-download me-2" aria-hidden="true"></i>Download for Linux
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm card-hover position-relative" id="card-windows">
+          <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill text-bg-primary d-none" id="badge-windows">Your system</span>
+          <div class="card-body p-4 text-center d-flex flex-column gap-3">
+            <span class="icon-circle blue text-primary mx-auto" aria-hidden="true"><i class="bi bi-windows"></i></span>
+            <div>
+              <h3 class="h5 mb-1">Windows</h3>
+              <p class="small text-secondary mb-0">Installer, x64<br><code>catomania-win-Setup.exe</code></p>
+            </div>
+            <div class="d-grid gap-2 mt-auto">
+              <a class="btn btn-primary" id="dl-windows" href="https://catomania.anti-soft.ru/win/catomania-win-Setup.exe" data-bs-toggle="tooltip" data-bs-title="Windows 10 and 11. A portable zip is attached to the same release if you prefer not to install">
+                <i class="bi bi-download me-2" aria-hidden="true"></i>Download for Windows
+              </a>
+              <a class="btn btn-outline-primary btn-sm" id="dl-macos-intel" href="https://catomania.anti-soft.ru/win/catomania-win-Portable.zip">
+                Portable (.zip)
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm card-hover position-relative" id="card-macos">
+          <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill text-bg-primary d-none" id="badge-macos">Your system</span>
+          <div class="card-body p-4 text-center d-flex flex-column gap-3">
+            <span class="icon-circle text-success mx-auto" aria-hidden="true"><i class="bi bi-apple"></i></span>
+            <div>
+              <h3 class="h5 mb-1">macOS</h3>
+              <p class="small text-secondary mb-0">Disk image<br>Apple Silicon &amp; Intel</p>
+            </div>
+            <div class="d-grid gap-2 mt-auto">
+              <a class="btn btn-success" id="dl-macos" href="https://github.com/krasninja/catomania/releases/latest" data-bs-toggle="tooltip" data-bs-title="Apple Silicon (M1 and newer). Drag catomania.app into Applications">
+                <i class="bi bi-download me-2" aria-hidden="true"></i>Download for macOS
+              </a>
+              <a class="btn btn-outline-success btn-sm" id="dl-macos-intel" href="https://github.com/krasninja/catomania/releases/latest">
+                Intel Mac (.dmg)
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mt-4">
+      <div class="col-lg-10">
+        <div class="alert alert-light border small mb-0 d-flex gap-2">
+          <i class="bi bi-shield-exclamation text-warning-emphasis flex-shrink-0 mt-1" aria-hidden="true"></i>
+          <div>
+            <strong>Before you install:</strong> the builds are not code signed yet, so Windows may
+            show a SmartScreen warning and macOS may ask you to allow the app in
+            <em>System Settings &rarr; Privacy &amp; Security</em>. On Linux, make the AppImage
+            executable first: <code>chmod +x catomania.AppImage</code>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center small text-secondary mt-4 mb-0">
+      Looking for another file, an older version or the update feed?
+      <a href="https://github.com/krasninja/catomania/releases">Browse all releases on GitHub</a>.
+    </p>
+  </div>
+</section>
+<section class="py-5 bg-body-tertiary border-top border-bottom" id="features">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-2">What it does</h2>
+      <p class="text-secondary col-lg-7 mx-auto mb-0">
+        Everything runs locally &mdash; no account, no network, no telemetry. Just an animal
+        wandering across your desktop.
+      </p>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle text-success mb-3" aria-hidden="true"><i class="bi bi-cursor"></i></span>
+            <h3 class="h6 card-title">Chases your cursor</h3>
+            <p class="card-text small text-secondary mb-0">
+              It walks and runs towards the mouse, stops nearby and looks around, exactly like a
+              real cat that has decided you are the entertainment.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle blue text-primary mb-3" aria-hidden="true"><i class="bi bi-moon-stars"></i></span>
+            <h3 class="h6 card-title">Naps when you stop</h3>
+            <p class="card-text small text-secondary mb-0">
+              Leave the cursor alone and the animal falls asleep &mdash; curled into a ring,
+              stretched out or dozing sitting up, depending on who it is.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle text-success mb-3" aria-hidden="true">&#128062;</span>
+            <h3 class="h6 card-title">Five animals</h3>
+            <p class="card-text small text-secondary mb-0">
+              A cat in four fur colors (ginger, gray, black, cream), a panda cub, a springer
+              spaniel, a parrot and a chubby mint snake with a leaf on its head.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle blue text-primary mb-3" aria-hidden="true"><i class="bi bi-vector-pen"></i></span>
+            <h3 class="h6 card-title">Drawn with vectors</h3>
+            <p class="card-text small text-secondary mb-0">
+              No image assets at all: legs, tail, ears, eyes and blinks are vector shapes, so the
+              animal stays sharp at every size.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle text-success mb-3" aria-hidden="true"><i class="bi bi-hand-index-thumb"></i></span>
+            <h3 class="h6 card-title">Pick it up</h3>
+            <p class="card-text small text-secondary mb-0">
+              Drag it with the left mouse button, double-click to pause, scroll the wheel over it
+              to make it bigger or smaller.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle blue text-primary mb-3" aria-hidden="true"><i class="bi bi-list-ul"></i></span>
+            <h3 class="h6 card-title">Menu &amp; saved settings</h3>
+            <p class="card-text small text-secondary mb-0">
+              Right-click for pause, animal, speed, fur, size, always on top, recenter, updates and
+              quit. Your choices survive a restart.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle text-success mb-3" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+            <h3 class="h6 card-title">Self-updating</h3>
+            <p class="card-text small text-secondary mb-0">
+              Installed builds update themselves from the Velopack release feed &mdash; from the
+              menu, or from a terminal with <code>--update-check</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body">
+            <span class="icon-circle blue text-primary mb-3" aria-hidden="true"><i class="bi bi-code-slash"></i></span>
+            <h3 class="h6 card-title">Open source, everywhere</h3>
+            <p class="card-text small text-secondary mb-0">
+              MIT licensed .NET 10 and Avalonia, published as one small Native AOT binary for
+              Windows, macOS and Linux.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="py-5 bg-body-tertiary border-top" id="good-to-know">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-2">Good to know</h2>
+      <p class="text-secondary col-lg-7 mx-auto mb-0">
+        The short version of the fine print: which build to take, Wayland, updates and settings.
+      </p>
+    </div>
+
+    <div class="accordion col-lg-9 mx-auto shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-download" aria-expanded="true" aria-controls="faq-download">
+            <i class="bi bi-question-circle me-2 text-success" aria-hidden="true"></i>Which download should I pick?
+          </button>
+        </h3>
+        <div id="faq-download" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small">
+            <ul class="mb-0 ps-3">
+              <li class="mb-2">
+                <strong>Linux</strong> &mdash; take <code>catomania.AppImage</code>, make it
+                executable (<code>chmod +x catomania.AppImage</code>) and run it. Nothing to
+                install, and the updater replaces the AppImage file in place.
+              </li>
+              <li class="mb-2">
+                <strong>Windows</strong> &mdash; take <code>catomania-win-Setup.exe</code> for the
+                installed app that can update itself, or the portable zip attached to the same
+                release if you prefer not to install anything.
+              </li>
+              <li class="mb-0">
+                <strong>macOS</strong> &mdash; take the <code>.dmg</code> that matches your chip
+                (Apple Silicon or Intel), then drag <code>catomania.app</code> into Applications.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-wayland" aria-expanded="false" aria-controls="faq-wayland">
+            <i class="bi bi-laptop me-2 text-primary" aria-hidden="true"></i>Does it work on Wayland?
+          </button>
+        </h3>
+        <div id="faq-wayland" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small">
+            <p>
+              Wayland does not let applications read the global cursor position, so Catomania asks
+              the compositor instead:
+            </p>
+            <ul class="mb-2 ps-3">
+              <li class="mb-1">
+                <strong>KDE Plasma</strong> &mdash; a small KWin script is loaded over D-Bus when the
+                cat starts and unloaded when it quits. Nothing has to be installed.
+              </li>
+              <li class="mb-1">
+                <strong>GNOME</strong> &mdash; the <code>catomania-cursor@catomania</code> extension
+                is installed into <code>~/.local/share/gnome-shell/extensions</code> and enabled on
+                the first run. GNOME picks up new extensions only at login, so
+                <strong>log out and back in once</strong>. To remove it:
+                <code>gnome-extensions uninstall catomania-cursor@catomania</code>.
+              </li>
+              <li class="mb-0">
+                <strong>Other compositors</strong> &mdash; the animal only sees the cursor while it
+                is close by. X11 works out of the box.
+              </li>
+            </ul>
+            <p class="mb-0 text-secondary">Only the cursor position is shared, nothing else.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-updates" aria-expanded="false" aria-controls="faq-updates">
+            <i class="bi bi-arrow-repeat me-2 text-success" aria-hidden="true"></i>How do updates work?
+          </button>
+        </h3>
+        <div id="faq-updates" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small">
+            <p class="mb-2">
+              The app checks the Velopack release feed at
+              <code>https://catomania.anti-soft.ru/&lt;platform&gt;</code>, where
+              <code>&lt;platform&gt;</code> is <code>win</code>, <code>linux</code> or
+              <code>osx</code>:
+            </p>
+            <ul class="mb-2 ps-3">
+              <li class="mb-1">Right-click the animal and choose <strong>Check for Updates</strong>.</li>
+              <li class="mb-0">
+                Or run <code>Catomania --update-check</code>, optionally with
+                <code>--update-url &lt;uri&gt;</code> to use another feed. It prints the check
+                result and exits, applying the update when one is available.
+              </li>
+            </ul>
+            <p class="mb-0 text-secondary">
+              Self-update needs an installed build: run the packed AppImage on Linux or the
+              installed setup on Windows. Development and portable builds only report the available
+              version.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq-settings" aria-expanded="false" aria-controls="faq-settings">
+            <i class="bi bi-gear me-2 text-primary" aria-hidden="true"></i>What can I configure?
+          </button>
+        </h3>
+        <div id="faq-settings" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small">
+            <p class="mb-2">
+              Everything from the right-click menu is kept as JSON in the user configuration
+              directory: <code>~/.config/Catomania/settings.json</code> on Linux,
+              <code>%APPDATA%\Catomania\settings.json</code> on Windows and
+              <code>~/Library/Application Support/Catomania/settings.json</code> on macOS.
+            </p>
+            <div class="table-responsive">
+              <table class="table table-sm table-striped align-middle mb-0">
+                <caption class="caption-top text-secondary">Settings fields</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Field</th>
+                    <th scope="col">Values</th>
+                    <th scope="col">Default</th>
+                    <th scope="col">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>speed</code></td><td>Slow, Normal, Fast</td><td>Normal</td><td>How fast the animal chases the cursor.</td></tr>
+                  <tr><td><code>colorScheme</code></td><td>Ginger, Gray, Black, Cream</td><td>Ginger</td><td>Fur color of the cat.</td></tr>
+                  <tr><td><code>size</code></td><td>Small, Medium, Large</td><td>Medium</td><td>How big it is drawn.</td></tr>
+                  <tr><td><code>alwaysOnTop</code></td><td>true, false</td><td>true</td><td>Keep the animal above other windows.</td></tr>
+                  <tr><td><code>paused</code></td><td>true, false</td><td>false</td><td>Stay in place and do not chase.</td></tr>
+                  <tr><td><code>sleepAfterSeconds</code></td><td>number</td><td>30</td><td>Cursor inactivity before it falls asleep.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer-grass text-white pt-5 pb-4">
+  <div class="container">
+    <div class="row gy-4 text-center text-lg-start">
+      <div class="col-lg-5">
+        <p class="h5 fw-bold mb-2">Catomania</p>
+        <p class="small mb-0 opacity-75">
+          Add more cats to your life! A desktop pet that chases your cursor, naps when you stop
+          and never phones home. MIT licensed.
+        </p>
+      </div>
+
+      <div class="col-6 col-lg-3">
+        <p class="h6 text-uppercase small fw-bold mb-2 opacity-75">Download</p>
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-1"><a class="link-light text-decoration-none" href="#download">Linux (AppImage)</a></li>
+          <li class="mb-1"><a class="link-light text-decoration-none" href="#download">Windows (Setup)</a></li>
+          <li class="mb-1"><a class="link-light text-decoration-none" href="#download">macOS (.dmg)</a></li>
+          <li class="mb-0"><a class="link-light text-decoration-none" href="https://github.com/krasninja/catomania/releases">All releases</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <p class="h6 text-uppercase small fw-bold mb-2 opacity-75">Project</p>
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-1"><a class="link-light text-decoration-none" href="https://github.com/krasninja/catomania"><i class="bi bi-github me-1" aria-hidden="true"></i>GitHub</a></li>
+          <li class="mb-1"><a class="link-light text-decoration-none" href="https://github.com/krasninja/catomania/issues">Report an issue</a></li>
+          <li class="mb-1"><a class="link-light text-decoration-none" href="https://github.com/krasninja/catomania#readme">Documentation</a></li>
+          <li class="mb-0"><a class="link-light text-decoration-none" href="https://github.com/krasninja/catomania/blob/main/LICENSE">MIT License</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2">
+        <p class="h6 text-uppercase small fw-bold mb-2 opacity-75">Built with</p>
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-1"><a class="link-light text-decoration-none" href="https://dotnet.microsoft.com/">.NET 10</a></li>
+          <li class="mb-1"><a class="link-light text-decoration-none" href="https://avaloniaui.net/">Avalonia</a></li>
+          <li class="mb-1"><a class="link-light text-decoration-none" href="https://velopack.io/">Velopack</a></li>
+          <li class="mb-0"><a class="link-light text-decoration-none" href="https://getbootstrap.com/">Bootstrap 5</a></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+<script>
+  (function () {
+    'use strict';
+
+    var LATEST = 'https://github.com/krasninja/catomania/releases/latest';
+    var LATEST_DOWNLOAD = LATEST + '/download/';
+
+    var links = {
+      linux: document.getElementById('dl-linux'),
+      windows: document.getElementById('dl-windows'),
+      macos: document.getElementById('dl-macos'),
+      macosIntel: document.getElementById('dl-macos-intel')
+    };
+
+    // Highlights the platform card of the operating system the page is opened on, using nothing
+    // but Bootstrap utility classes.
+    function markOwnPlatform() {
+      var ua = navigator.userAgent || '';
+      var platform = /Windows NT/i.test(ua) ? 'windows'
+                   : /Mac OS X|Macintosh|iPhone|iPad/i.test(ua) ? 'macos'
+                   : /Linux|X11|Android/i.test(ua) ? 'linux'
+                   : null;
+      if (!platform) { return; }
+
+      var card = document.getElementById('card-' + platform);
+      var badge = document.getElementById('badge-' + platform);
+      if (card) { card.classList.add('border-primary', 'border-2', 'shadow'); }
+      if (badge) { badge.classList.remove('d-none'); }
+    }
+
+    // The Linux and Windows assets have stable file names, so GitHub's "latest" redirect is
+    // enough. The macOS images carry the version in their name
+    // (catomania-<version>-osx[-arm64].dmg), so they are resolved through the API below and fall
+    // back to the release page when it is unreachable.
+    function staticLinks() {
+      links.linux.href = LATEST_DOWNLOAD + 'catomania.AppImage';
+      links.windows.href = LATEST_DOWNLOAD + 'catomania-win-Setup.exe';
+      links.macos.href = LATEST;
+      links.macosIntel.href = LATEST;
+    }
+
+    function findAsset(assets, matcher) {
+      for (var i = 0; i < assets.length; i++) {
+        if (matcher(assets[i].name)) { return assets[i]; }
+      }
+      return null;
+    }
+
+    function resolveFromApi() {
+      return fetch('https://api.github.com/repos/krasninja/catomania/releases/latest', {
+        headers: { Accept: 'application/vnd.github+json' }
+      })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (release) {
+          if (!release || !release.assets) { return; }
+
+          var linux = findAsset(release.assets, function (n) { return /\.appimage$/i.test(n); });
+          var windows = findAsset(release.assets, function (n) { return /-setup\.exe$/i.test(n); });
+          var silicon = findAsset(release.assets, function (n) { return /osx-arm64\.dmg$/i.test(n); });
+          var intel = findAsset(release.assets, function (n) { return /osx\.dmg$/i.test(n); });
+
+          if (linux) { links.linux.href = linux.browser_download_url; }
+          if (windows) { links.windows.href = windows.browser_download_url; }
+          if (intel) { links.macosIntel.href = intel.browser_download_url; }
+          // Apple Silicon is the common case; an x64-only release still deserves a working button.
+          links.macos.href = (silicon || intel || { browser_download_url: LATEST }).browser_download_url;
+
+          if (release.tag_name) {
+            var badge = document.getElementById('latest-badge');
+            badge.textContent = 'Latest release ' + String(release.tag_name).replace(/^v/, '');
+            badge.classList.remove('d-none');
+          }
+        });
+    }
+
+    // Tooltips and the scrollspy of the navbar are Bootstrap plugins: the scrollspy runs from its
+    // data attributes, tooltips have to be created in JavaScript.
+    function initTooltips() {
+      if (!window.bootstrap || !window.bootstrap.Tooltip) { return; }
+      document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
+        new window.bootstrap.Tooltip(element);
+      });
+    }
+
+    markOwnPlatform();
+    staticLinks();
+    initTooltips();
+    resolveFromApi().catch(function () { /* Offline or private repository: keep the fallbacks. */ });
+  })();
+</script>
+
+</body>
+</html>
