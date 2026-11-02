@@ -13,6 +13,7 @@
   <data name="Parrot" xml:space="preserve"><value>オウム</value></data>
   <data name="Pig" xml:space="preserve"><value>豚</value></data>
   <data name="Frog" xml:space="preserve"><value>カエル</value></data>
+  <data name="Capybara" xml:space="preserve"><value>カピバラ</value></data>
   <data name="Speed" xml:space="preserve"><value>速度</value></data>
   <data name="Slow" xml:space="preserve"><value>遅い</value></data>
   <data name="Normal" xml:space="preserve"><value>標準</value></data>

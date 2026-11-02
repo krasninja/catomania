@@ -13,6 +13,7 @@
   <data name="Parrot" xml:space="preserve"><value>Pappagallo</value></data>
   <data name="Pig" xml:space="preserve"><value>Maiale</value></data>
   <data name="Frog" xml:space="preserve"><value>Rana</value></data>
+  <data name="Capybara" xml:space="preserve"><value>Capibara</value></data>
   <data name="Speed" xml:space="preserve"><value>Velocità</value></data>
   <data name="Slow" xml:space="preserve"><value>Lenta</value></data>
   <data name="Normal" xml:space="preserve"><value>Normale</value></data>

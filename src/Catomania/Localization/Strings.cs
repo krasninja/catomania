@@ -24,6 +24,8 @@ public static partial class Strings
 
     public static string Frog => Get();
 
+    public static string Capybara => Get();
+
     public static string Speed => Get();
 
     public static string Slow => Get();

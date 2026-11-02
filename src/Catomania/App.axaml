@@ -56,6 +56,10 @@
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Frog}"
                                                 Click="OnAnimalClick" />
+                                <NativeMenuItem Header="{x:Static localization:Strings.Capybara}"
+                                                ToggleType="Radio"
+                                                CommandParameter="{x:Static models:AnimalKind.Capybara}"
+                                                Click="OnAnimalClick" />
                             </NativeMenu>
                         </NativeMenuItem>
                         <NativeMenuItem Header="{x:Static localization:Strings.Speed}">

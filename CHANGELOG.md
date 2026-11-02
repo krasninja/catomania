@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pig: a rosy piglet with folded ears and a curled tail.
 - Frog: a green frog that hops after the cursor and catches flies with its tongue.
+- Capybara: a calm capybara with a sprout on its head, it waddles sideways and sleeps lying on its belly.
 - Animal does not overlap the cursor. It goes nearyb.
 
 ## [0.3.0]

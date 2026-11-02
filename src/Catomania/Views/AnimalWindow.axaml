@@ -82,6 +82,11 @@
                           Tag="{x:Static models:AnimalKind.Frog}"
                           ToggleType="Radio"
                           Click="OnAnimalClick" />
+                <MenuItem Header="{x:Static localization:Strings.Capybara}"
+                          GroupName="Animal"
+                          Tag="{x:Static models:AnimalKind.Capybara}"
+                          ToggleType="Radio"
+                          Click="OnAnimalClick" />
             </MenuItem>
             <MenuItem Header="{x:Static localization:Strings.Speed}">
                 <MenuItem Header="{x:Static localization:Strings.Slow}"

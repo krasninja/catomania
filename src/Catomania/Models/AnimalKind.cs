@@ -42,4 +42,9 @@ public enum AnimalKind
     /// A green tree frog.
     /// </summary>
     Frog,
+
+    /// <summary>
+    /// A capybara with a sprout on its head.
+    /// </summary>
+    Capybara,
 }
