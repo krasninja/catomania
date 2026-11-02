@@ -8,7 +8,10 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/Icon.ico</ApplicationIcon>
     <Product>Catomania</Product>
+    <Authors>Ivan Kozhin</Authors>
+    <RepositoryUrl>https://github.com/krasninja/catomania</RepositoryUrl>
     <Description>A kitty that chases the mouse cursor across the screen.</Description>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <!-- The application ships as a Native AOT binary: no JIT, faster startup and a smaller footprint.
