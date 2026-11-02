@@ -32,7 +32,8 @@ public sealed class AnimalSimulatorOptions
     public double RunDistance { get; set; } = 260;
 
     /// <summary>
-    /// Gets or sets the distance to the cursor at which the animal stops chasing it.
+    /// Gets or sets the minimum distance to the cursor at which the animal stops chasing it.
+    /// The animal keeps at least one sprite size away so its window does not cover the cursor.
     /// </summary>
     public double CatchRadius { get; set; } = 48;
 

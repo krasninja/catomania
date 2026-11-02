@@ -197,26 +197,39 @@ public sealed class AnimalSimulator
             return;
         }
 
-        // The cursor may be outside of the bounds (the taskbar, the screen edge), chase the closest
-        // reachable point, otherwise the animal would keep walking in place at the edge.
-        var target = input.Bounds.Clamp(input.CursorPosition);
-        var toCursor = target - Position;
-        var distance = toCursor.Length;
-        var (state, targetSpeed) = GetTargetMotion(distance, input);
+        // Stop a full sprite away from the cursor so even the transparent corners of its window
+        // cannot cover the cursor. The cursor may be outside of the bounds (the taskbar, the screen
+        // edge), so chase the closest reachable point instead of walking in place at the edge.
+        var catchRadius = Math.Max(_options.CatchRadius, input.SpriteSize - 48);
+        var toCursor = input.CursorPosition - Position;
+        var cursorDistance = toCursor.Length;
+        var target = input.IsPaused || cursorDistance <= catchRadius
+            ? Position
+            : input.Bounds.Clamp(input.CursorPosition - (toCursor.Normalized() * catchRadius));
+        var toTarget = target - Position;
+        var distance = toTarget.Length;
+        var (state, targetSpeed) = GetTargetMotion(cursorDistance, distance, catchRadius, input);
 
-        // Do not move faster than needed to reach the cursor, it prevents jumping over it.
+        // Do not move faster than needed to reach the target, it prevents jumping over it.
         var speed = Math.Min(targetSpeed, distance / deltaSeconds);
-        var desired = distance < 1e-6 ? ScreenPoint.Zero : toCursor.Normalized() * speed;
+        var desired = distance < 1e-6 ? ScreenPoint.Zero : toTarget.Normalized() * speed;
         var smoothing = 1 - Math.Exp(-_options.Responsiveness * deltaSeconds);
         Velocity += (desired - Velocity) * smoothing;
-        if (targetSpeed <= 0 && Velocity.Length < _options.StopSpeed)
+        if (targetSpeed <= 0 && (Velocity.Length < _options.StopSpeed || distance < 1e-6))
         {
             Velocity = ScreenPoint.Zero;
         }
 
         var previousPosition = Position;
-        Position += Velocity * deltaSeconds;
+        var movement = Velocity * deltaSeconds;
+        var passedTarget = distance >= 1e-6
+            && (movement.X * toTarget.X) + (movement.Y * toTarget.Y) >= distance * distance;
+        Position = passedTarget ? target : Position + movement;
         Position = input.Bounds.Clamp(Position);
+        if (passedTarget)
+        {
+            Velocity = ScreenPoint.Zero;
+        }
         if (input.IsPaused && state == AnimalAnimationState.Idle)
         {
             FacingRight = input.CursorPosition.X >= Position.X;
@@ -456,16 +469,20 @@ public sealed class AnimalSimulator
         return _options.TrickMinIntervalSeconds + (_random.NextDouble() * Math.Max(0, range));
     }
 
-    private (AnimalAnimationState State, double Speed) GetTargetMotion(double distance, in AnimalInput input)
+    private (AnimalAnimationState State, double Speed) GetTargetMotion(
+        double cursorDistance,
+        double targetDistance,
+        double catchRadius,
+        in AnimalInput input)
     {
-        if (input.IsPaused || distance <= _options.CatchRadius)
+        if (input.IsPaused || targetDistance < 1e-6 || cursorDistance <= catchRadius)
         {
             return _cursorIdleTime >= _options.SleepAfterSeconds
                 ? (AnimalAnimationState.Sleep, 0)
                 : (AnimalAnimationState.Idle, 0);
         }
 
-        var isRunning = distance >= _options.RunDistance;
+        var isRunning = cursorDistance >= _options.RunDistance;
         var baseSpeed = isRunning ? _options.RunSpeed : _options.WalkSpeed;
         return isRunning
             ? (AnimalAnimationState.Run, baseSpeed * Math.Max(0, input.SpeedMultiplier))

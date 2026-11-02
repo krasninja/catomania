@@ -15,7 +15,7 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
 ## Features
 
 1. Runs locally on Windows, macOS and Linux (X11, KDE Plasma and GNOME on Wayland, see [Linux and Wayland](#linux-and-wayland)).
-2. The kitty walks and runs towards the cursor, stops nearby, looks around and falls asleep when the cursor does not move for a while.
+2. The kitty walks and runs towards the cursor, stops nearby without covering it, looks around and falls asleep when the cursor does not move for a while.
 3. The cat is drawn with vector shapes, so there are no image assets and it stays sharp at any size.
 4. Six animals:
    - a cat with four fur colors (ginger, gray, black and cream)

@@ -9,7 +9,7 @@ namespace Catomania.Simulation;
 /// <param name="IsDragging">Whether the user is dragging the animal.</param>
 /// <param name="IsPaused">Whether chasing is paused.</param>
 /// <param name="SpriteSize">Size of the animal design space in physical screen pixels, used to match the gait
-/// to the distance travelled. The gait is driven by time when it is not set.</param>
+/// to the distance travelled and keep the animal window off the cursor. The gait is driven by time when it is not set.</param>
 public readonly record struct AnimalInput(
     ScreenPoint CursorPosition,
     SimulationRect Bounds,
