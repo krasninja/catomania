@@ -57,6 +57,7 @@ public sealed class SettingsStorageTests : IDisposable
         var storage = new SettingsStorage(_directoryPath);
         var settings = new AppSettings
         {
+            Animal = AnimalKind.Pig,
             Speed = AnimalSpeed.Fast,
             ColorScheme = CatColorScheme.Black,
             DogCoat = DogCoat.Lemon,
@@ -72,6 +73,7 @@ public sealed class SettingsStorageTests : IDisposable
         var loaded = storage.Load();
 
         // Assert.
+        Assert.Equal(AnimalKind.Pig, loaded.Animal);
         Assert.Equal(AnimalSpeed.Fast, loaded.Speed);
         Assert.Equal(CatColorScheme.Black, loaded.ColorScheme);
         Assert.Equal(DogCoat.Lemon, loaded.DogCoat);

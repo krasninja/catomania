@@ -32,4 +32,9 @@ public enum AnimalKind
     /// A scarlet macaw.
     /// </summary>
     Parrot,
+
+    /// <summary>
+    /// A rosy piglet.
+    /// </summary>
+    Pig,
 }

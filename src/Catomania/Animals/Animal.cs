@@ -73,6 +73,7 @@ public abstract class Animal
             AnimalKind.Dog => new Dog(settings.DogCoat),
             AnimalKind.Snake => new Snake(),
             AnimalKind.Parrot => new Parrot(settings.ParrotPlumage),
+            AnimalKind.Pig => new Pig(),
             _ => new Cat(settings.ColorScheme),
         };
     }

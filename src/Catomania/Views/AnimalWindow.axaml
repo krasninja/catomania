@@ -71,6 +71,11 @@
                           Tag="{x:Static models:AnimalKind.Parrot}"
                           ToggleType="Radio"
                           Click="OnAnimalClick" />
+                <MenuItem Header="Pig"
+                          GroupName="Animal"
+                          Tag="{x:Static models:AnimalKind.Pig}"
+                          ToggleType="Radio"
+                          Click="OnAnimalClick" />
             </MenuItem>
             <MenuItem Header="Speed">
                 <MenuItem Header="Slow"
