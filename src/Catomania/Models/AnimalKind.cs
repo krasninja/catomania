@@ -37,4 +37,9 @@ public enum AnimalKind
     /// A rosy piglet.
     /// </summary>
     Pig,
+
+    /// <summary>
+    /// A green tree frog.
+    /// </summary>
+    Frog,
 }

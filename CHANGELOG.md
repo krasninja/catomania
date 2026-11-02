@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Pig: a rosy piglet with folded ears and a curled tail.
+- Frog: a green frog that hops after the cursor and catches flies with its tongue.
 - Animal does not overlap the cursor. It goes nearyb.
 
 ## [0.3.0]
