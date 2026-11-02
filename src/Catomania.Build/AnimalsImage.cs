@@ -17,7 +17,7 @@ public static class AnimalsImage
     /// <summary>
     /// Number of rows the animals are arranged in.
     /// </summary>
-    private const int Rows = 2;
+    private const int Rows = 3;
 
     /// <summary>
     /// Horizontal gap between the animals and around them, in pixels.
