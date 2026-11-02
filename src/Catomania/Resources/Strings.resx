@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Animal" xml:space="preserve"><value>Animal</value></data>
+  <data name="Cat" xml:space="preserve"><value>Cat</value></data>
+  <data name="Panda" xml:space="preserve"><value>Panda</value></data>
+  <data name="Dog" xml:space="preserve"><value>Dog</value></data>
+  <data name="Snake" xml:space="preserve"><value>Snake</value></data>
+  <data name="Parrot" xml:space="preserve"><value>Parrot</value></data>
+  <data name="Pig" xml:space="preserve"><value>Pig</value></data>
+  <data name="Frog" xml:space="preserve"><value>Frog</value></data>
+  <data name="Speed" xml:space="preserve"><value>Speed</value></data>
+  <data name="Slow" xml:space="preserve"><value>Slow</value></data>
+  <data name="Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Fast" xml:space="preserve"><value>Fast</value></data>
+  <data name="Fur" xml:space="preserve"><value>Fur</value></data>
+  <data name="Feathers" xml:space="preserve"><value>Feathers</value></data>
+  <data name="Ginger" xml:space="preserve"><value>Ginger</value></data>
+  <data name="Gray" xml:space="preserve"><value>Gray</value></data>
+  <data name="Black" xml:space="preserve"><value>Black</value></data>
+  <data name="Cream" xml:space="preserve"><value>Cream</value></data>
+  <data name="LiverAndWhite" xml:space="preserve"><value>Liver and white</value></data>
+  <data name="BlackAndWhite" xml:space="preserve"><value>Black and white</value></data>
+  <data name="RedAndWhite" xml:space="preserve"><value>Red and white</value></data>
+  <data name="LemonAndWhite" xml:space="preserve"><value>Lemon and white</value></data>
+  <data name="Scarlet" xml:space="preserve"><value>Scarlet</value></data>
+  <data name="BlueAndGold" xml:space="preserve"><value>Blue and gold</value></data>
+  <data name="Green" xml:space="preserve"><value>Green</value></data>
+  <data name="Hyacinth" xml:space="preserve"><value>Hyacinth</value></data>
+  <data name="Size" xml:space="preserve"><value>Size</value></data>
+  <data name="Small" xml:space="preserve"><value>Small</value></data>
+  <data name="Medium" xml:space="preserve"><value>Medium</value></data>
+  <data name="Large" xml:space="preserve"><value>Large</value></data>
+  <data name="Configuration" xml:space="preserve"><value>Configuration</value></data>
+  <data name="LaunchAtStartup" xml:space="preserve"><value>Launch at system startup</value></data>
+  <data name="AlwaysOnTop" xml:space="preserve"><value>Always on Top</value></data>
+  <data name="Recenter" xml:space="preserve"><value>Recenter</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Check for Updates</value></data>
+  <data name="Help" xml:space="preserve"><value>Help</value></data>
+  <data name="Website" xml:space="preserve"><value>Website</value></data>
+  <data name="About" xml:space="preserve"><value>About</value></data>
+  <data name="Quit" xml:space="preserve"><value>Quit</value></data>
+  <data name="QuitCatomania" xml:space="preserve"><value>Quit Catomania</value></data>
+  <data name="Tricks" xml:space="preserve"><value>Tricks</value></data>
+  <data name="Walk" xml:space="preserve"><value>Walk</value></data>
+  <data name="LookAround" xml:space="preserve"><value>Look around</value></data>
+  <data name="Hop" xml:space="preserve"><value>Hop</value></data>
+  <data name="Speak" xml:space="preserve"><value>Speak</value></data>
+  <data name="Emote" xml:space="preserve"><value>Emote</value></data>
+  <data name="Wiggle" xml:space="preserve"><value>Wiggle</value></data>
+  <data name="Shake" xml:space="preserve"><value>Shake</value></data>
+  <data name="BunnyHops" xml:space="preserve"><value>Bunny hops</value></data>
+  <data name="Spin" xml:space="preserve"><value>Spin</value></data>
+  <data name="Zoomies" xml:space="preserve"><value>Zoomies</value></data>
+  <data name="AboutCatomania" xml:space="preserve"><value>About Catomania</value></data>
+  <data name="Version" xml:space="preserve"><value>Version: {0}</value></data>
+  <data name="Platform" xml:space="preserve"><value>Platform: {0} ({1})</value></data>
+  <data name="CatomaniaUpdates" xml:space="preserve"><value>Catomania Updates</value></data>
+  <data name="UpdateCheckFailedAt" xml:space="preserve"><value>Failed to check updates at {0}: {1}</value></data>
+  <data name="NoReleases" xml:space="preserve"><value>No releases are published at {0} yet. Current version: {1}.</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Catomania {0} is up to date.</value></data>
+  <data name="UpdateAvailableNotInstalled" xml:space="preserve"><value>Version {0} is available, but this build is not installed by Velopack and cannot update itself. Current version: {1}.</value></data>
+  <data name="Updating" xml:space="preserve"><value>Updating Catomania to {0}.</value></data>
+  <data name="UpdateApplyFailed" xml:space="preserve"><value>Failed to apply update {0}: {1}</value></data>
+  <data name="FailedToCheckUpdates" xml:space="preserve"><value>Failed to check updates: {0}</value></data>
+  <data name="Information" xml:space="preserve"><value>Information</value></data>
+  <data name="Error" xml:space="preserve"><value>Error</value></data>
+  <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="No" xml:space="preserve"><value>No</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Abort" xml:space="preserve"><value>Abort</value></data>
+  <data name="Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Ignore" xml:space="preserve"><value>Ignore</value></data>
+</root>

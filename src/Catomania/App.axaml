@@ -1,6 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:Catomania"
+             xmlns:localization="using:Catomania.Localization"
              xmlns:models="using:Catomania.Models"
              x:Class="Catomania.App"
              RequestedThemeVariant="Default">
@@ -20,155 +21,155 @@
                       IsVisible="False">
                 <TrayIcon.Menu>
                     <NativeMenu Opening="OnTrayMenuOpening">
-                        <NativeMenuItem Header="Pause"
+                        <NativeMenuItem Header="{x:Static localization:Strings.Pause}"
                                         ToggleType="CheckBox"
                                         CommandParameter="{x:Static local:App.PauseSetting}"
                                         Click="OnPauseClick" />
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Animal">
+                        <NativeMenuItem Header="{x:Static localization:Strings.Animal}">
                             <NativeMenu>
-                                <NativeMenuItem Header="Cat"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Cat}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Cat}"
                                                 Click="OnAnimalClick" />
-                                <NativeMenuItem Header="Panda"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Panda}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Panda}"
                                                 Click="OnAnimalClick" />
-                                <NativeMenuItem Header="Dog"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Dog}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Dog}"
                                                 Click="OnAnimalClick" />
-                                <NativeMenuItem Header="Snake"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Snake}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Snake}"
                                                 Click="OnAnimalClick" />
-                                <NativeMenuItem Header="Parrot"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Parrot}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Parrot}"
                                                 Click="OnAnimalClick" />
-                                <NativeMenuItem Header="Pig"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Pig}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Pig}"
                                                 Click="OnAnimalClick" />
-                                <NativeMenuItem Header="Frog"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Frog}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalKind.Frog}"
                                                 Click="OnAnimalClick" />
                             </NativeMenu>
                         </NativeMenuItem>
-                        <NativeMenuItem Header="Speed">
+                        <NativeMenuItem Header="{x:Static localization:Strings.Speed}">
                             <NativeMenu>
-                                <NativeMenuItem Header="Slow"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Slow}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalSpeed.Slow}"
                                                 Click="OnSpeedClick" />
-                                <NativeMenuItem Header="Normal"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Normal}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalSpeed.Normal}"
                                                 Click="OnSpeedClick" />
-                                <NativeMenuItem Header="Fast"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Fast}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalSpeed.Fast}"
                                                 Click="OnSpeedClick" />
                             </NativeMenu>
                         </NativeMenuItem>
-                        <NativeMenuItem Header="Fur"
+                        <NativeMenuItem Header="{x:Static localization:Strings.Fur}"
                                         CommandParameter="{x:Static local:App.FurSetting}">
                             <NativeMenu>
-                                <NativeMenuItem Header="Ginger"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Ginger}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:CatColorScheme.Ginger}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Gray"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Gray}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:CatColorScheme.Gray}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Black"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Black}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:CatColorScheme.Black}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Cream"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Cream}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:CatColorScheme.Cream}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Liver and white"
+                                <NativeMenuItem Header="{x:Static localization:Strings.LiverAndWhite}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:DogCoat.Liver}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Black and white"
+                                <NativeMenuItem Header="{x:Static localization:Strings.BlackAndWhite}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:DogCoat.Black}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Red and white"
+                                <NativeMenuItem Header="{x:Static localization:Strings.RedAndWhite}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:DogCoat.Red}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Lemon and white"
+                                <NativeMenuItem Header="{x:Static localization:Strings.LemonAndWhite}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:DogCoat.Lemon}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Scarlet"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Scarlet}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:ParrotPlumage.Scarlet}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Blue and gold"
+                                <NativeMenuItem Header="{x:Static localization:Strings.BlueAndGold}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:ParrotPlumage.BlueAndGold}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Green"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Green}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:ParrotPlumage.Green}"
                                                 Click="OnColorSchemeClick" />
-                                <NativeMenuItem Header="Hyacinth"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Hyacinth}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:ParrotPlumage.Hyacinth}"
                                                 Click="OnColorSchemeClick" />
                             </NativeMenu>
                         </NativeMenuItem>
-                        <NativeMenuItem Header="Size">
+                        <NativeMenuItem Header="{x:Static localization:Strings.Size}">
                             <NativeMenu>
-                                <NativeMenuItem Header="Small"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Small}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalSize.Small}"
                                                 Click="OnSizeClick" />
-                                <NativeMenuItem Header="Medium"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Medium}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalSize.Medium}"
                                                 Click="OnSizeClick" />
-                                <NativeMenuItem Header="Large"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Large}"
                                                 ToggleType="Radio"
                                                 CommandParameter="{x:Static models:AnimalSize.Large}"
                                                 Click="OnSizeClick" />
                             </NativeMenu>
                         </NativeMenuItem>
-                        <NativeMenuItem Header="Configuration">
+                        <NativeMenuItem Header="{x:Static localization:Strings.Configuration}">
                             <NativeMenu>
-                                <NativeMenuItem Header="Launch at system startup"
+                                <NativeMenuItem Header="{x:Static localization:Strings.LaunchAtStartup}"
                                                 ToggleType="CheckBox"
                                                 CommandParameter="{x:Static local:App.LaunchAtStartupSetting}"
                                                 Click="OnLaunchAtStartupClick" />
-                                <NativeMenuItem Header="Always on Top"
+                                <NativeMenuItem Header="{x:Static localization:Strings.AlwaysOnTop}"
                                                 ToggleType="CheckBox"
                                                 CommandParameter="{x:Static local:App.AlwaysOnTopSetting}"
                                                 Click="OnTopmostClick" />
                             </NativeMenu>
                         </NativeMenuItem>
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Recenter"
+                        <NativeMenuItem Header="{x:Static localization:Strings.Recenter}"
                                         Click="OnRecenterClick" />
-                        <NativeMenuItem Header="Check for Updates"
+                        <NativeMenuItem Header="{x:Static localization:Strings.CheckForUpdates}"
                                         Click="OnCheckUpdatesClick" />
-                        <NativeMenuItem Header="Help">
+                        <NativeMenuItem Header="{x:Static localization:Strings.Help}">
                             <NativeMenu>
-                                <NativeMenuItem Header="Website"
+                                <NativeMenuItem Header="{x:Static localization:Strings.Website}"
                                                 Click="OnWebsiteClick" />
-                                <NativeMenuItem Header="About"
+                                <NativeMenuItem Header="{x:Static localization:Strings.About}"
                                                 Click="OnAboutClick" />
                             </NativeMenu>
                         </NativeMenuItem>
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Header="Quit Catomania"
+                        <NativeMenuItem Header="{x:Static localization:Strings.QuitCatomania}"
                                         Click="OnQuitClick" />
                     </NativeMenu>
                 </TrayIcon.Menu>

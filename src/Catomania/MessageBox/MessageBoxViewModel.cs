@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input.Platform;
 using Catomania.Abstractions;
+using Catomania.Localization;
 
 namespace Catomania.MessageBox;
 
@@ -12,7 +13,7 @@ namespace Catomania.MessageBox;
 /// </summary>
 public sealed class MessageBoxViewModel : INotifyPropertyChanged, ICloseableViewModel, IDialogViewModel<DialogResult>
 {
-    private string _caption = "Information";
+    private string _caption = Strings.Information;
     private MessageBoxIcon _icon = MessageBoxIcon.Info;
     private bool _showOkButton = true;
     private bool _showYesButton;
@@ -159,7 +160,7 @@ public sealed class MessageBoxViewModel : INotifyPropertyChanged, ICloseableView
     /// </summary>
     /// <param name="exception">Exception.</param>
     public MessageBoxViewModel(Exception exception)
-        : this(GetMessageFromException(exception), "Error")
+        : this(GetMessageFromException(exception), Strings.Error)
     {
         SetErrorMode();
     }

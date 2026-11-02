@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Pause" xml:space="preserve"><value>一時停止</value></data>
+  <data name="Animal" xml:space="preserve"><value>動物</value></data>
+  <data name="Cat" xml:space="preserve"><value>猫</value></data>
+  <data name="Panda" xml:space="preserve"><value>パンダ</value></data>
+  <data name="Dog" xml:space="preserve"><value>犬</value></data>
+  <data name="Snake" xml:space="preserve"><value>ヘビ</value></data>
+  <data name="Parrot" xml:space="preserve"><value>オウム</value></data>
+  <data name="Pig" xml:space="preserve"><value>豚</value></data>
+  <data name="Frog" xml:space="preserve"><value>カエル</value></data>
+  <data name="Speed" xml:space="preserve"><value>速度</value></data>
+  <data name="Slow" xml:space="preserve"><value>遅い</value></data>
+  <data name="Normal" xml:space="preserve"><value>標準</value></data>
+  <data name="Fast" xml:space="preserve"><value>速い</value></data>
+  <data name="Fur" xml:space="preserve"><value>毛色</value></data>
+  <data name="Feathers" xml:space="preserve"><value>羽色</value></data>
+  <data name="Ginger" xml:space="preserve"><value>茶トラ</value></data>
+  <data name="Gray" xml:space="preserve"><value>グレー</value></data>
+  <data name="Black" xml:space="preserve"><value>黒</value></data>
+  <data name="Cream" xml:space="preserve"><value>クリーム</value></data>
+  <data name="LiverAndWhite" xml:space="preserve"><value>茶色と白</value></data>
+  <data name="BlackAndWhite" xml:space="preserve"><value>黒と白</value></data>
+  <data name="RedAndWhite" xml:space="preserve"><value>赤と白</value></data>
+  <data name="LemonAndWhite" xml:space="preserve"><value>レモンと白</value></data>
+  <data name="Scarlet" xml:space="preserve"><value>スカーレット</value></data>
+  <data name="BlueAndGold" xml:space="preserve"><value>青と金色</value></data>
+  <data name="Green" xml:space="preserve"><value>緑</value></data>
+  <data name="Hyacinth" xml:space="preserve"><value>ヒヤシンス</value></data>
+  <data name="Size" xml:space="preserve"><value>サイズ</value></data>
+  <data name="Small" xml:space="preserve"><value>小</value></data>
+  <data name="Medium" xml:space="preserve"><value>中</value></data>
+  <data name="Large" xml:space="preserve"><value>大</value></data>
+  <data name="Configuration" xml:space="preserve"><value>設定</value></data>
+  <data name="LaunchAtStartup" xml:space="preserve"><value>システム起動時に起動</value></data>
+  <data name="AlwaysOnTop" xml:space="preserve"><value>常に最前面に表示</value></data>
+  <data name="Recenter" xml:space="preserve"><value>中央に戻す</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>更新を確認</value></data>
+  <data name="Help" xml:space="preserve"><value>ヘルプ</value></data>
+  <data name="Website" xml:space="preserve"><value>ウェブサイト</value></data>
+  <data name="About" xml:space="preserve"><value>情報</value></data>
+  <data name="Quit" xml:space="preserve"><value>終了</value></data>
+  <data name="QuitCatomania" xml:space="preserve"><value>Catomania を終了</value></data>
+  <data name="Tricks" xml:space="preserve"><value>芸</value></data>
+  <data name="Walk" xml:space="preserve"><value>歩く</value></data>
+  <data name="LookAround" xml:space="preserve"><value>辺りを見回す</value></data>
+  <data name="Hop" xml:space="preserve"><value>跳ねる</value></data>
+  <data name="Speak" xml:space="preserve"><value>鳴く</value></data>
+  <data name="Emote" xml:space="preserve"><value>感情を表す</value></data>
+  <data name="Wiggle" xml:space="preserve"><value>揺れる</value></data>
+  <data name="Shake" xml:space="preserve"><value>体を振る</value></data>
+  <data name="BunnyHops" xml:space="preserve"><value>ウサギ跳び</value></data>
+  <data name="Spin" xml:space="preserve"><value>回転</value></data>
+  <data name="Zoomies" xml:space="preserve"><value>全力疾走</value></data>
+  <data name="AboutCatomania" xml:space="preserve"><value>Catomania について</value></data>
+  <data name="Version" xml:space="preserve"><value>バージョン: {0}</value></data>
+  <data name="Platform" xml:space="preserve"><value>プラットフォーム: {0} ({1})</value></data>
+  <data name="CatomaniaUpdates" xml:space="preserve"><value>Catomania の更新</value></data>
+  <data name="UpdateCheckFailedAt" xml:space="preserve"><value>{0} で更新を確認できませんでした: {1}</value></data>
+  <data name="NoReleases" xml:space="preserve"><value>{0} にはまだリリースが公開されていません。現在のバージョン: {1}。</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Catomania {0} は最新です。</value></data>
+  <data name="UpdateAvailableNotInstalled" xml:space="preserve"><value>バージョン {0} が利用可能ですが、このビルドは Velopack でインストールされていないため、自動更新できません。現在のバージョン: {1}。</value></data>
+  <data name="Updating" xml:space="preserve"><value>Catomania をバージョン {0} に更新しています。</value></data>
+  <data name="UpdateApplyFailed" xml:space="preserve"><value>更新 {0} を適用できませんでした: {1}</value></data>
+  <data name="FailedToCheckUpdates" xml:space="preserve"><value>更新を確認できませんでした: {0}</value></data>
+  <data name="Information" xml:space="preserve"><value>情報</value></data>
+  <data name="Error" xml:space="preserve"><value>エラー</value></data>
+  <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Yes" xml:space="preserve"><value>はい</value></data>
+  <data name="No" xml:space="preserve"><value>いいえ</value></data>
+  <data name="Cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="Abort" xml:space="preserve"><value>中止</value></data>
+  <data name="Retry" xml:space="preserve"><value>再試行</value></data>
+  <data name="Ignore" xml:space="preserve"><value>無視</value></data>
+</root>

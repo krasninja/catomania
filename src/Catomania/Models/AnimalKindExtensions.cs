@@ -1,3 +1,5 @@
+using Catomania.Localization;
+
 namespace Catomania.Models;
 
 /// <summary>
@@ -18,7 +20,8 @@ public static class AnimalKindExtensions
     /// </summary>
     /// <param name="kind">Animal kind.</param>
     /// <returns>Menu header.</returns>
-    public static string GetFurMenuHeader(this AnimalKind kind) => kind == AnimalKind.Parrot ? "Feathers" : "Fur";
+    public static string GetFurMenuHeader(this AnimalKind kind)
+        => kind == AnimalKind.Parrot ? Strings.Feathers : Strings.Fur;
 
     /// <summary>
     /// Check whether a color option of the "Fur" menu belongs to the animal.

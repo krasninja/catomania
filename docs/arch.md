@@ -30,6 +30,10 @@ Settings are stored as JSON in the user configuration directory:
 | `paused` | `true`, `false` | `false` | The cat stays in place and does not chase. |
 | `sleepAfterSeconds` | number | `30` | Cursor inactivity before the cat falls asleep. |
 
+## Localization
+
+The interface follows the operating system's current UI culture, detected from the environment at startup. English, Russian, Spanish, Japanese, Vietnamese, Chinese, French, Italian, and German are supported; other languages fall back to English. Translations are stored in `Resources/Strings*.resx`. Animal speech is not translated.
+
 ## How it works
 
 - `Views/CatWindow` is a small borderless transparent topmost window that hosts the cat.

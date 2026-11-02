@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using Catomania.Localization;
 using Catomania.Models;
 using Velopack;
 using Velopack.Locators;
@@ -151,26 +152,28 @@ public sealed class AppUpdateService
         }
         catch (Exception e) when (e is HttpRequestException or OperationCanceledException or JsonException)
         {
-            return new UpdateReport(UpdateReportKind.Error, $"Failed to check updates at {UpdateUrl}: {e.Message}");
+            return new UpdateReport(
+                UpdateReportKind.Error,
+                Strings.Format(Strings.UpdateCheckFailedAt, UpdateUrl, e.Message));
         }
 
         if (latest is null)
         {
             return new UpdateReport(
                 UpdateReportKind.NoReleases,
-                $"No releases are published at {UpdateUrl} yet. Current version: {current}.");
+                Strings.Format(Strings.NoReleases, UpdateUrl, current));
         }
 
         if (!SemanticVersion.TryParse(current, out var currentVersion) || currentVersion >= latest)
         {
-            return new UpdateReport(UpdateReportKind.UpToDate, $"Catomania {current} is up to date.");
+            return new UpdateReport(UpdateReportKind.UpToDate, Strings.Format(Strings.UpToDate, current));
         }
 
         if (!IsInstalled)
         {
             return new UpdateReport(
                 UpdateReportKind.NotInstalled,
-                $"Version {latest} is available, but this build is not installed by Velopack and cannot update itself. Current version: {current}.");
+                Strings.Format(Strings.UpdateAvailableNotInstalled, latest, current));
         }
 
         try
@@ -179,7 +182,7 @@ public sealed class AppUpdateService
             var updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
             if (updateInfo is null)
             {
-                return new UpdateReport(UpdateReportKind.UpToDate, $"Catomania {current} is up to date.");
+                return new UpdateReport(UpdateReportKind.UpToDate, Strings.Format(Strings.UpToDate, current));
             }
 
             await _updateManager.DownloadUpdatesAsync(updateInfo, cancelToken: cancellationToken).ConfigureAwait(false);
@@ -195,11 +198,13 @@ public sealed class AppUpdateService
 
             return new UpdateReport(
                 UpdateReportKind.Updating,
-                $"Updating Catomania to {updateInfo.TargetFullRelease.Version}.");
+                Strings.Format(Strings.Updating, updateInfo.TargetFullRelease.Version));
         }
         catch (Exception e)
         {
-            return new UpdateReport(UpdateReportKind.Error, $"Failed to apply update {latest}: {e.Message}");
+            return new UpdateReport(
+                UpdateReportKind.Error,
+                Strings.Format(Strings.UpdateApplyFailed, latest, e.Message));
         }
     }
 }

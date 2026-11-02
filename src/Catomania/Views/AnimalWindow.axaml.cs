@@ -10,6 +10,7 @@ using Catomania.Abstractions;
 using Catomania.Animals;
 using Catomania.Controls;
 using Catomania.Input;
+using Catomania.Localization;
 using Catomania.MessageBox;
 using Catomania.Models;
 using Catomania.Services;
@@ -218,7 +219,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     /// <inheritdoc />
     public void ShowAbout()
     {
-        var dialog = new MessageBoxWindow(new MessageBoxViewModel(GetAboutMessage(), "About Catomania"));
+        var dialog = new MessageBoxWindow(new MessageBoxViewModel(GetAboutMessage(), Strings.AboutCatomania));
         _ = dialog.ShowDialog(this);
     }
 
@@ -230,8 +231,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         => string.Join(
             Environment.NewLine,
             "Catomania",
-            $"Version: {AppUpdateService.GetAssemblyVersion()}",
-            $"Platform: {RuntimeInformation.OSDescription} ({RuntimeInformation.ProcessArchitecture})");
+            Strings.Format(Strings.Version, AppUpdateService.GetAssemblyVersion()),
+            Strings.Format(Strings.Platform, RuntimeInformation.OSDescription, RuntimeInformation.ProcessArchitecture));
 
     /// <inheritdoc />
     public void Quit()
@@ -438,7 +439,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     // Debug only: plays a trick at once instead of waiting minutes for a random one.
     private void AddTricksMenu()
     {
-        var tricksMenuItem = new MenuItem { Header = "Tricks" };
+        var tricksMenuItem = new MenuItem { Header = Strings.Tricks };
         foreach (var trick in Enum.GetValues<AnimalTrick>())
         {
             if (trick == AnimalTrick.None)
@@ -446,7 +447,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
                 continue;
             }
 
-            var trickMenuItem = new MenuItem { Header = trick.ToString() };
+            var trickMenuItem = new MenuItem { Header = GetTrickName(trick) };
             trickMenuItem.Click += (_, _) => _chaseService.StartTrick(trick);
             tricksMenuItem.Items.Add(trickMenuItem);
         }
@@ -458,6 +459,21 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         var commandsSeparator = _contextMenu.Items.OfType<Separator>().ElementAt(1);
         _contextMenu.Items.Insert(_contextMenu.Items.IndexOf(commandsSeparator), tricksMenuItem);
     }
+
+    private static string GetTrickName(AnimalTrick trick) => trick switch
+    {
+        AnimalTrick.Walk => Strings.Walk,
+        AnimalTrick.LookAround => Strings.LookAround,
+        AnimalTrick.Hop => Strings.Hop,
+        AnimalTrick.Speak => Strings.Speak,
+        AnimalTrick.Emote => Strings.Emote,
+        AnimalTrick.Wiggle => Strings.Wiggle,
+        AnimalTrick.Shake => Strings.Shake,
+        AnimalTrick.BunnyHops => Strings.BunnyHops,
+        AnimalTrick.Spin => Strings.Spin,
+        AnimalTrick.Zoomies => Strings.Zoomies,
+        _ => trick.ToString(),
+    };
 #endif
 
     private void OnAnimalClick(object? sender, RoutedEventArgs e)
@@ -578,7 +594,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
             }
             else
             {
-                ShowUpdateReport($"Failed to check updates: {exception.Message}");
+                ShowUpdateReport(Strings.Format(Strings.FailedToCheckUpdates, exception.Message));
             }
         }
         finally
@@ -589,7 +605,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
     private void ShowUpdateReport(string message)
     {
-        var dialog = new MessageBoxWindow(new MessageBoxViewModel(message, "Catomania Updates"));
+        var dialog = new MessageBoxWindow(new MessageBoxViewModel(message, Strings.CatomaniaUpdates));
         _ = dialog.ShowDialog(this);
     }
 

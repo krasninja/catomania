@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Pause" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="Animal" xml:space="preserve"><value>Động vật</value></data>
+  <data name="Cat" xml:space="preserve"><value>Mèo</value></data>
+  <data name="Panda" xml:space="preserve"><value>Gấu trúc</value></data>
+  <data name="Dog" xml:space="preserve"><value>Chó</value></data>
+  <data name="Snake" xml:space="preserve"><value>Rắn</value></data>
+  <data name="Parrot" xml:space="preserve"><value>Vẹt</value></data>
+  <data name="Pig" xml:space="preserve"><value>Lợn</value></data>
+  <data name="Frog" xml:space="preserve"><value>Ếch</value></data>
+  <data name="Speed" xml:space="preserve"><value>Tốc độ</value></data>
+  <data name="Slow" xml:space="preserve"><value>Chậm</value></data>
+  <data name="Normal" xml:space="preserve"><value>Bình thường</value></data>
+  <data name="Fast" xml:space="preserve"><value>Nhanh</value></data>
+  <data name="Fur" xml:space="preserve"><value>Bộ lông</value></data>
+  <data name="Feathers" xml:space="preserve"><value>Bộ lông vũ</value></data>
+  <data name="Ginger" xml:space="preserve"><value>Vàng hung</value></data>
+  <data name="Gray" xml:space="preserve"><value>Xám</value></data>
+  <data name="Black" xml:space="preserve"><value>Đen</value></data>
+  <data name="Cream" xml:space="preserve"><value>Kem</value></data>
+  <data name="LiverAndWhite" xml:space="preserve"><value>Nâu và trắng</value></data>
+  <data name="BlackAndWhite" xml:space="preserve"><value>Đen và trắng</value></data>
+  <data name="RedAndWhite" xml:space="preserve"><value>Đỏ và trắng</value></data>
+  <data name="LemonAndWhite" xml:space="preserve"><value>Vàng chanh và trắng</value></data>
+  <data name="Scarlet" xml:space="preserve"><value>Đỏ tươi</value></data>
+  <data name="BlueAndGold" xml:space="preserve"><value>Xanh lam và vàng</value></data>
+  <data name="Green" xml:space="preserve"><value>Xanh lá</value></data>
+  <data name="Hyacinth" xml:space="preserve"><value>Xanh hyacinth</value></data>
+  <data name="Size" xml:space="preserve"><value>Kích thước</value></data>
+  <data name="Small" xml:space="preserve"><value>Nhỏ</value></data>
+  <data name="Medium" xml:space="preserve"><value>Vừa</value></data>
+  <data name="Large" xml:space="preserve"><value>Lớn</value></data>
+  <data name="Configuration" xml:space="preserve"><value>Cấu hình</value></data>
+  <data name="LaunchAtStartup" xml:space="preserve"><value>Khởi chạy khi hệ thống khởi động</value></data>
+  <data name="AlwaysOnTop" xml:space="preserve"><value>Luôn ở trên cùng</value></data>
+  <data name="Recenter" xml:space="preserve"><value>Đưa về giữa</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Kiểm tra cập nhật</value></data>
+  <data name="Help" xml:space="preserve"><value>Trợ giúp</value></data>
+  <data name="Website" xml:space="preserve"><value>Trang web</value></data>
+  <data name="About" xml:space="preserve"><value>Giới thiệu</value></data>
+  <data name="Quit" xml:space="preserve"><value>Thoát</value></data>
+  <data name="QuitCatomania" xml:space="preserve"><value>Thoát Catomania</value></data>
+  <data name="Tricks" xml:space="preserve"><value>Trò biểu diễn</value></data>
+  <data name="Walk" xml:space="preserve"><value>Đi dạo</value></data>
+  <data name="LookAround" xml:space="preserve"><value>Nhìn quanh</value></data>
+  <data name="Hop" xml:space="preserve"><value>Nhảy</value></data>
+  <data name="Speak" xml:space="preserve"><value>Kêu</value></data>
+  <data name="Emote" xml:space="preserve"><value>Thể hiện cảm xúc</value></data>
+  <data name="Wiggle" xml:space="preserve"><value>Đung đưa</value></data>
+  <data name="Shake" xml:space="preserve"><value>Rung mình</value></data>
+  <data name="BunnyHops" xml:space="preserve"><value>Nhảy như thỏ</value></data>
+  <data name="Spin" xml:space="preserve"><value>Xoay vòng</value></data>
+  <data name="Zoomies" xml:space="preserve"><value>Chạy cuồng nhiệt</value></data>
+  <data name="AboutCatomania" xml:space="preserve"><value>Giới thiệu Catomania</value></data>
+  <data name="Version" xml:space="preserve"><value>Phiên bản: {0}</value></data>
+  <data name="Platform" xml:space="preserve"><value>Nền tảng: {0} ({1})</value></data>
+  <data name="CatomaniaUpdates" xml:space="preserve"><value>Cập nhật Catomania</value></data>
+  <data name="UpdateCheckFailedAt" xml:space="preserve"><value>Không thể kiểm tra cập nhật tại {0}: {1}</value></data>
+  <data name="NoReleases" xml:space="preserve"><value>Chưa có bản phát hành nào tại {0}. Phiên bản hiện tại: {1}.</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Catomania {0} đã được cập nhật.</value></data>
+  <data name="UpdateAvailableNotInstalled" xml:space="preserve"><value>Đã có phiên bản {0}, nhưng bản dựng này không được cài đặt bằng Velopack và không thể tự cập nhật. Phiên bản hiện tại: {1}.</value></data>
+  <data name="Updating" xml:space="preserve"><value>Đang cập nhật Catomania lên phiên bản {0}.</value></data>
+  <data name="UpdateApplyFailed" xml:space="preserve"><value>Không thể áp dụng bản cập nhật {0}: {1}</value></data>
+  <data name="FailedToCheckUpdates" xml:space="preserve"><value>Không thể kiểm tra cập nhật: {0}</value></data>
+  <data name="Information" xml:space="preserve"><value>Thông tin</value></data>
+  <data name="Error" xml:space="preserve"><value>Lỗi</value></data>
+  <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Yes" xml:space="preserve"><value>Có</value></data>
+  <data name="No" xml:space="preserve"><value>Không</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Hủy</value></data>
+  <data name="Abort" xml:space="preserve"><value>Hủy bỏ</value></data>
+  <data name="Retry" xml:space="preserve"><value>Thử lại</value></data>
+  <data name="Ignore" xml:space="preserve"><value>Bỏ qua</value></data>
+</root>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Pause" xml:space="preserve"><value>暂停</value></data>
+  <data name="Animal" xml:space="preserve"><value>动物</value></data>
+  <data name="Cat" xml:space="preserve"><value>猫</value></data>
+  <data name="Panda" xml:space="preserve"><value>熊猫</value></data>
+  <data name="Dog" xml:space="preserve"><value>狗</value></data>
+  <data name="Snake" xml:space="preserve"><value>蛇</value></data>
+  <data name="Parrot" xml:space="preserve"><value>鹦鹉</value></data>
+  <data name="Pig" xml:space="preserve"><value>猪</value></data>
+  <data name="Frog" xml:space="preserve"><value>青蛙</value></data>
+  <data name="Speed" xml:space="preserve"><value>速度</value></data>
+  <data name="Slow" xml:space="preserve"><value>慢</value></data>
+  <data name="Normal" xml:space="preserve"><value>正常</value></data>
+  <data name="Fast" xml:space="preserve"><value>快</value></data>
+  <data name="Fur" xml:space="preserve"><value>毛色</value></data>
+  <data name="Feathers" xml:space="preserve"><value>羽毛颜色</value></data>
+  <data name="Ginger" xml:space="preserve"><value>橘色</value></data>
+  <data name="Gray" xml:space="preserve"><value>灰色</value></data>
+  <data name="Black" xml:space="preserve"><value>黑色</value></data>
+  <data name="Cream" xml:space="preserve"><value>奶油色</value></data>
+  <data name="LiverAndWhite" xml:space="preserve"><value>棕色和白色</value></data>
+  <data name="BlackAndWhite" xml:space="preserve"><value>黑色和白色</value></data>
+  <data name="RedAndWhite" xml:space="preserve"><value>红色和白色</value></data>
+  <data name="LemonAndWhite" xml:space="preserve"><value>柠檬色和白色</value></data>
+  <data name="Scarlet" xml:space="preserve"><value>绯红色</value></data>
+  <data name="BlueAndGold" xml:space="preserve"><value>蓝色和金色</value></data>
+  <data name="Green" xml:space="preserve"><value>绿色</value></data>
+  <data name="Hyacinth" xml:space="preserve"><value>风信子蓝</value></data>
+  <data name="Size" xml:space="preserve"><value>大小</value></data>
+  <data name="Small" xml:space="preserve"><value>小</value></data>
+  <data name="Medium" xml:space="preserve"><value>中</value></data>
+  <data name="Large" xml:space="preserve"><value>大</value></data>
+  <data name="Configuration" xml:space="preserve"><value>配置</value></data>
+  <data name="LaunchAtStartup" xml:space="preserve"><value>系统启动时运行</value></data>
+  <data name="AlwaysOnTop" xml:space="preserve"><value>始终置顶</value></data>
+  <data name="Recenter" xml:space="preserve"><value>重新居中</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>检查更新</value></data>
+  <data name="Help" xml:space="preserve"><value>帮助</value></data>
+  <data name="Website" xml:space="preserve"><value>网站</value></data>
+  <data name="About" xml:space="preserve"><value>关于</value></data>
+  <data name="Quit" xml:space="preserve"><value>退出</value></data>
+  <data name="QuitCatomania" xml:space="preserve"><value>退出 Catomania</value></data>
+  <data name="Tricks" xml:space="preserve"><value>特技</value></data>
+  <data name="Walk" xml:space="preserve"><value>散步</value></data>
+  <data name="LookAround" xml:space="preserve"><value>环顾四周</value></data>
+  <data name="Hop" xml:space="preserve"><value>跳跃</value></data>
+  <data name="Speak" xml:space="preserve"><value>鸣叫</value></data>
+  <data name="Emote" xml:space="preserve"><value>表达情绪</value></data>
+  <data name="Wiggle" xml:space="preserve"><value>摇摆</value></data>
+  <data name="Shake" xml:space="preserve"><value>抖动身体</value></data>
+  <data name="BunnyHops" xml:space="preserve"><value>兔子跳</value></data>
+  <data name="Spin" xml:space="preserve"><value>旋转</value></data>
+  <data name="Zoomies" xml:space="preserve"><value>疯狂奔跑</value></data>
+  <data name="AboutCatomania" xml:space="preserve"><value>关于 Catomania</value></data>
+  <data name="Version" xml:space="preserve"><value>版本：{0}</value></data>
+  <data name="Platform" xml:space="preserve"><value>平台：{0} ({1})</value></data>
+  <data name="CatomaniaUpdates" xml:space="preserve"><value>Catomania 更新</value></data>
+  <data name="UpdateCheckFailedAt" xml:space="preserve"><value>无法在 {0} 检查更新：{1}</value></data>
+  <data name="NoReleases" xml:space="preserve"><value>{0} 尚未发布任何版本。当前版本：{1}。</value></data>
+  <data name="UpToDate" xml:space="preserve"><value>Catomania {0} 已是最新版本。</value></data>
+  <data name="UpdateAvailableNotInstalled" xml:space="preserve"><value>版本 {0} 已可用，但此版本并非通过 Velopack 安装，无法自动更新。当前版本：{1}。</value></data>
+  <data name="Updating" xml:space="preserve"><value>正在将 Catomania 更新到版本 {0}。</value></data>
+  <data name="UpdateApplyFailed" xml:space="preserve"><value>无法应用更新 {0}：{1}</value></data>
+  <data name="FailedToCheckUpdates" xml:space="preserve"><value>无法检查更新：{0}</value></data>
+  <data name="Information" xml:space="preserve"><value>信息</value></data>
+  <data name="Error" xml:space="preserve"><value>错误</value></data>
+  <data name="Ok" xml:space="preserve"><value>确定</value></data>
+  <data name="Yes" xml:space="preserve"><value>是</value></data>
+  <data name="No" xml:space="preserve"><value>否</value></data>
+  <data name="Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="Abort" xml:space="preserve"><value>中止</value></data>
+  <data name="Retry" xml:space="preserve"><value>重试</value></data>
+  <data name="Ignore" xml:space="preserve"><value>忽略</value></data>
+</root>

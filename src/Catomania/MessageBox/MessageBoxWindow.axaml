@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:abstractions="using:Catomania.Abstractions"
+        xmlns:localization="using:Catomania.Localization"
         xmlns:messageBox="using:Catomania.MessageBox"
         mc:Ignorable="d"
         d:DesignWidth="300"
@@ -55,40 +56,40 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button
-                Content="OK"
+                Content="{x:Static localization:Strings.Ok}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.OK}"
                 IsDefault="True"
                 IsVisible="{Binding ShowOkButton}" />
             <Button
-                Content="Yes"
+                Content="{x:Static localization:Strings.Yes}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.Yes}"
                 IsVisible="{Binding ShowYesButton}" />
             <Button
-                Content="No"
+                Content="{x:Static localization:Strings.No}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.No}"
                 IsCancel="True"
                 IsVisible="{Binding ShowNoButton}" />
             <Button
-                Content="Cancel"
+                Content="{x:Static localization:Strings.Cancel}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.Cancel}"
                 IsCancel="True"
                 IsVisible="{Binding ShowCancelButton}" />
             <Button
-                Content="Abort"
+                Content="{x:Static localization:Strings.Abort}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.Abort}"
                 IsVisible="{Binding ShowAbortButton}" />
             <Button
-                Content="Retry"
+                Content="{x:Static localization:Strings.Retry}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.Retry}"
                 IsVisible="{Binding ShowRetryButton}" />
             <Button
-                Content="Ignore"
+                Content="{x:Static localization:Strings.Ignore}"
                 Command="{Binding ActionSelectCommand}"
                 CommandParameter="{x:Static abstractions:DialogResult.Ignore}"
                 IsVisible="{Binding ShowIgnoreButton}" />
