@@ -5,7 +5,7 @@ using Cake.Core.IO.Arguments;
 namespace Catomania.Build.Tasks;
 
 /// <summary>
-/// Base settings for publishing the application as a Native AOT binary.
+/// Base settings for publishing the application.
 /// </summary>
 public sealed class BaseDotNetPublishSettings : DotNetPublishSettings
 {
@@ -20,10 +20,9 @@ public sealed class BaseDotNetPublishSettings : DotNetPublishSettings
 
         Force = true;
 
-        // The application ships as a Native AOT binary (see Catomania.csproj). AOT output is a
-        // single native executable by definition, so the single file bundler and its compression
-        // have to stay off. PublishTrimmed must not be set at all here: AOT implies it and the SDK
-        // rejects an explicit false with "PublishTrimmed is implied by native compilation".
+        // AOT output is a single native executable by definition, so the single file bundler and
+        // its compression have to stay off. PublishTrimmed must not be set at all here: AOT implies
+        // it and the SDK rejects an explicit false with "PublishTrimmed is implied by native compilation".
         PublishSingleFile = false;
         EnableCompressionInSingleFile = false;
         SelfContained = true;
@@ -34,8 +33,9 @@ public sealed class BaseDotNetPublishSettings : DotNetPublishSettings
         ArgumentCustomization = pag =>
         {
             // Cake's DotNetPublishSettings has no PublishAot property, so the AOT switch is passed
-            // as an MSBuild property. The csproj sets it for Release too, this keeps it explicit.
-            pag.Append(new TextArgument("-p:PublishAot=true"));
+            // as an MSBuild property. The csproj enables it for Release too, this makes the command
+            // line value authoritative in both directions.
+            pag.Append(new TextArgument($"-p:PublishAot={context.PublishAot}"));
 
             // For reference: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/.
             pag.Append(new TextArgument($"-p:InformationalVersion={context.Version}"));

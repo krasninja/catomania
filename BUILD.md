@@ -22,6 +22,8 @@ The repository contains a Cake Frosting build script (`./build.sh`) that publish
 
 Published binaries are placed to `./output/publish`, Velopack releases (setup, portable package and the update feed) to `./output/releases/<channel>`. The version is calculated by GitVersion and can be overridden with the `CATOMANIA_VERSION` environment variable (for example, `CATOMANIA_VERSION=1.2.3 ./build.sh --target=Publish-Linux`).
 
+Native AOT is enabled by default. To publish a regular self-contained binary instead, pass `--PublishAot=false`, for example `./build.sh --target=Publish-Linux --PublishAot=false`.
+
 The architecture defaults to `x64` and is set with the `CATOMANIA_ARCH` environment variable or the `--arch` argument, for example `CATOMANIA_ARCH=arm64 ./build.sh --target=Publish-Mac`. x64 publishes to the plain channel (`win`, `linux`, `osx`), any other architecture to a channel of its own (`osx-arm64`), which is also the feed path the application reads.
 
 Prerequisites:

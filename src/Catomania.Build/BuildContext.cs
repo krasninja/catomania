@@ -60,6 +60,12 @@ public class BuildContext : FrostingContext
     /// </summary>
     public string Architecture { get; }
 
+    /// <summary>
+    /// Whether to publish a Native AOT binary. Enabled by default and controlled with the
+    /// <c>--PublishAot</c> argument.
+    /// </summary>
+    public bool PublishAot { get; }
+
     /// <inheritdoc />
     public BuildContext(ICakeContext context)
         : base(context)
@@ -78,6 +84,7 @@ public class BuildContext : FrostingContext
                            context.Arguments.GetArgument("arch"),
                            Environment.GetEnvironmentVariable("CATOMANIA_ARCH"))
                        ?? ApplicationConstants.ArchitectureX64;
+        PublishAot = context.Argument("PublishAot", true);
     }
 
     /// <summary>
