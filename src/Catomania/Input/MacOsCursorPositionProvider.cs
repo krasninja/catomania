@@ -63,7 +63,7 @@ public sealed class MacOsCursorPositionProvider : ICursorPositionProvider
         {
             if (pointer != IntPtr.Zero)
             {
-                NativeMethods.CGEventRelease(pointer);
+                NativeMethods.CFRelease(pointer);
             }
         }
     }

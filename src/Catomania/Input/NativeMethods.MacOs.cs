@@ -7,6 +7,7 @@ namespace Catomania.Input;
 /// </summary>
 internal static partial class NativeMethods
 {
+    private const string CoreFoundationLibraryName = "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation";
     private const string CoreGraphicsLibraryName = "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics";
 
     [StructLayout(LayoutKind.Sequential)]
@@ -23,6 +24,6 @@ internal static partial class NativeMethods
     [DllImport(CoreGraphicsLibraryName)]
     internal static extern CGPoint CGEventGetLocation(IntPtr pointer);
 
-    [DllImport(CoreGraphicsLibraryName)]
-    internal static extern void CGEventRelease(IntPtr pointer);
+    [DllImport(CoreFoundationLibraryName)]
+    internal static extern void CFRelease(IntPtr pointer);
 }
