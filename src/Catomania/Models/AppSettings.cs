@@ -26,6 +26,11 @@ public sealed class AppSettings
     public DogCoat DogCoat { get; set; } = DogCoat.Liver;
 
     /// <summary>
+    /// Gets or sets the snake skin color.
+    /// </summary>
+    public SnakeSkin SnakeSkin { get; set; } = SnakeSkin.Mint;
+
+    /// <summary>
     /// Gets or sets the parrot plumage.
     /// </summary>
     public ParrotPlumage ParrotPlumage { get; set; } = ParrotPlumage.Scarlet;

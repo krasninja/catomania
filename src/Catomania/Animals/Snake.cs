@@ -29,30 +29,19 @@ public sealed class Snake : Animal
     private const int NeckSegments = 7;
     private const int DanglingSegments = 20;
 
-    private static readonly Color SkinColor = Color.FromUInt32(0xFF6DD3A0);
     private static readonly Color IrisColor = Color.FromUInt32(0xFF5C3A21);
 
-    private static readonly IBrush Skin = new SolidColorBrush(SkinColor);
-    private static readonly IBrush Spot = new SolidColorBrush(Color.FromUInt32(0xFF4DB487));
-    private static readonly IBrush Belly = new SolidColorBrush(Color.FromUInt32(0xFFFFF0C2));
     private static readonly IBrush Leaf = new SolidColorBrush(Color.FromUInt32(0xFF9BE15D));
     private static readonly IBrush Iris = new SolidColorBrush(IrisColor);
     private static readonly IBrush Blush = new SolidColorBrush(Color.FromUInt32(0xCCF48CA0));
     private static readonly IBrush OpenMouth = new SolidColorBrush(Color.FromUInt32(0xFF3B1F24));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
-    private static readonly IBrush OutlineBrush = new SolidColorBrush(Color.FromUInt32(0xFF1E4D3A));
     private static readonly IBrush LeafDark = new SolidColorBrush(Color.FromUInt32(0xFF2E5C1E));
     private static readonly IBrush TongueBrush = new SolidColorBrush(Color.FromUInt32(0xFFE5484D));
-    private static readonly IPen OutlinePen = new Pen(OutlineBrush, OutlineWidth, null, PenLineCap.Round, PenLineJoin.Round);
-    private static readonly IPen EyeOutlinePen = new Pen(OutlineBrush, 0.8);
-    private static readonly IPen ClosedEyePen = new Pen(OutlineBrush, 1.3, null, PenLineCap.Round);
-    private static readonly IPen MouthPen = new Pen(OutlineBrush, 1.1, null, PenLineCap.Round);
     private static readonly IPen TonguePen = new Pen(TongueBrush, 1.3, null, PenLineCap.Round, PenLineJoin.Round);
     private static readonly IPen StemPen = new Pen(LeafDark, 1.4, null, PenLineCap.Round);
     private static readonly IPen LeafPen = new Pen(LeafDark, 1.2, null, PenLineCap.Round, PenLineJoin.Round);
     private static readonly IPen VeinPen = new Pen(LeafDark, 0.8, null, PenLineCap.Round);
-    private static readonly IPen RingOutlinePen = new Pen(OutlineBrush, RingWidth + (OutlineWidth * 2));
-    private static readonly IPen RingPen = new Pen(Skin, RingWidth);
     private static readonly IPen ZzzPen = new Pen(
         new SolidColorBrush(Color.FromUInt32(0xFFC9D6E3)), 1.8, null, PenLineCap.Round, PenLineJoin.Round);
 
@@ -69,11 +58,31 @@ public sealed class Snake : Animal
     // Spots on the sleeping ring, as angles in radians.
     private static readonly double[] RingSpotAngles = [3.7, 4.7, 5.6];
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Snake" /> class.
+    /// </summary>
+    /// <param name="skin">Skin color.</param>
+    public Snake(SnakeSkin skin = SnakeSkin.Mint)
+    {
+        Skin = skin;
+        Palette = SnakePalette.FromSkin(skin);
+    }
+
+    /// <summary>
+    /// Gets the skin color.
+    /// </summary>
+    public SnakeSkin Skin { get; }
+
+    /// <summary>
+    /// Gets the palette used to draw the snake.
+    /// </summary>
+    public SnakePalette Palette { get; }
+
     /// <inheritdoc />
     public override AnimalKind Kind => AnimalKind.Snake;
 
     /// <inheritdoc />
-    public override Color BodyColor => SkinColor;
+    public override Color BodyColor => Palette.SkinColor;
 
     /// <inheritdoc />
     public override Color EyeColor => IrisColor;
@@ -87,6 +96,26 @@ public sealed class Snake : Animal
         WalkStrideLength = WalkStride / DesignSize,
         RunStrideLength = RunStride / DesignSize,
     };
+
+    private IBrush SkinBrush => Palette.Skin;
+
+    private IBrush Spot => Palette.Spot;
+
+    private IBrush Belly => Palette.Belly;
+
+    private IBrush OutlineBrush => Palette.OutlineBrush;
+
+    private IPen OutlinePen => Palette.OutlinePen;
+
+    private IPen EyeOutlinePen => Palette.EyeOutlinePen;
+
+    private IPen ClosedEyePen => Palette.ClosedEyePen;
+
+    private IPen MouthPen => Palette.MouthPen;
+
+    private IPen RingOutlinePen => Palette.RingOutlinePen;
+
+    private IPen RingPen => Palette.RingPen;
 
     /// <inheritdoc />
     protected override void Draw(DrawingContext context, AnimalRenderState state)
@@ -105,7 +134,7 @@ public sealed class Snake : Animal
         }
     }
 
-    private static void DrawCrawling(DrawingContext context, AnimalRenderState state)
+    private void DrawCrawling(DrawingContext context, AnimalRenderState state)
     {
         var phase = state.Phase;
         var isIdle = state.State == AnimalAnimationState.Idle;
@@ -167,7 +196,7 @@ public sealed class Snake : Animal
             tongue);
     }
 
-    private static void DrawSleeping(DrawingContext context, double phase)
+    private void DrawSleeping(DrawingContext context, double phase)
     {
         var breathe = Math.Sin(phase);
 
@@ -198,7 +227,7 @@ public sealed class Snake : Animal
                 tailWidths[i] = 13 - (8 * t);
             }
 
-            DrawTube(context, tail, tailWidths, Skin, true);
+            DrawTube(context, tail, tailWidths, SkinBrush, true);
 
             var neck = new Point[6];
             var neckWidths = new double[neck.Length];
@@ -209,7 +238,7 @@ public sealed class Snake : Animal
                 neckWidths[i] = RingWidth;
             }
 
-            DrawTube(context, neck, neckWidths, Skin, true);
+            DrawTube(context, neck, neckWidths, SkinBrush, true);
         }
 
         // The head rests on the ring, the leaf droops over it.
@@ -226,7 +255,7 @@ public sealed class Snake : Animal
         DrawZzz(context, ZzzPen, new Point(76, 52), phase);
     }
 
-    private static void DrawDangling(DrawingContext context, double phase)
+    private void DrawDangling(DrawingContext context, double phase)
     {
         // Held by the head, the body hangs down and swings, the tail tip kicks forward.
         var points = new Point[DanglingSegments + 1];
@@ -256,9 +285,9 @@ public sealed class Snake : Animal
             0);
     }
 
-    private static void DrawBody(DrawingContext context, Point[] points, double[] widths, int bellyStart)
+    private void DrawBody(DrawingContext context, Point[] points, double[] widths, int bellyStart)
     {
-        DrawTube(context, points, widths, Skin, true);
+        DrawTube(context, points, widths, SkinBrush, true);
 
         // A pale belly stripe on the underside and spots along the back.
         var bellyPoints = new Point[points.Length - bellyStart];
@@ -278,7 +307,7 @@ public sealed class Snake : Animal
         }
     }
 
-    private static void DrawLeaf(DrawingContext context, Point stemBase, double angle, bool isMirrored = false)
+    private void DrawLeaf(DrawingContext context, Point stemBase, double angle, bool isMirrored = false)
     {
         var mirror = isMirrored ? Matrix.CreateScale(-1, 1) : Matrix.Identity;
         using (context.PushTransform(mirror * Matrix.CreateRotation(angle) * Matrix.CreateTranslation(stemBase.X, stemBase.Y)))
@@ -289,7 +318,7 @@ public sealed class Snake : Animal
         }
     }
 
-    private static void DrawHead(
+    private void DrawHead(
         DrawingContext context,
         Point center,
         double radiusX,
@@ -300,7 +329,7 @@ public sealed class Snake : Animal
     {
         using (context.PushTransform(Matrix.CreateRotation(angle) * Matrix.CreateTranslation(center.X, center.Y)))
         {
-            context.DrawEllipse(Skin, null, default, radiusX, radiusY);
+            context.DrawEllipse(SkinBrush, null, default, radiusX, radiusY);
             using (context.PushGeometryClip(new EllipseGeometry(new Rect(-radiusX, -radiusY, radiusX * 2, radiusY * 2))))
             {
                 // Pale chin.
@@ -348,7 +377,7 @@ public sealed class Snake : Animal
         }
     }
 
-    private static void DrawEye(DrawingContext context, Point center, double radius, HeadPose pose)
+    private void DrawEye(DrawingContext context, Point center, double radius, HeadPose pose)
     {
         if (pose is HeadPose.Blinking or HeadPose.Asleep)
         {
@@ -386,7 +415,7 @@ public sealed class Snake : Animal
             eyeRadius * 0.13);
     }
 
-    private static void DrawTongue(DrawingContext context, Point root, double extension)
+    private void DrawTongue(DrawingContext context, Point root, double extension)
     {
         // A forked tongue sticking out of the mouth corner.
         var length = 7 * extension;
@@ -415,7 +444,7 @@ public sealed class Snake : Animal
     /// <param name="widths">Width of the tube at every point.</param>
     /// <param name="brush">Fill of the tube.</param>
     /// <param name="isOutlined">Whether to outline the tube.</param>
-    private static void DrawTube(DrawingContext context, Point[] points, double[] widths, IBrush brush, bool isOutlined)
+    private void DrawTube(DrawingContext context, Point[] points, double[] widths, IBrush brush, bool isOutlined)
     {
         // The whole outline goes first, so the fill covers it at the joints.
         if (isOutlined)

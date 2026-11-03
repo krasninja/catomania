@@ -20,6 +20,7 @@
   <data name="Fast" xml:space="preserve"><value>Быстро</value></data>
   <data name="Fur" xml:space="preserve"><value>Шерсть</value></data>
   <data name="Feathers" xml:space="preserve"><value>Оперение</value></data>
+  <data name="Skin" xml:space="preserve"><value>Окрас</value></data>
   <data name="Ginger" xml:space="preserve"><value>Рыжий</value></data>
   <data name="Gray" xml:space="preserve"><value>Серый</value></data>
   <data name="Black" xml:space="preserve"><value>Чёрный</value></data>
@@ -28,6 +29,11 @@
   <data name="BlackAndWhite" xml:space="preserve"><value>Чёрный и белый</value></data>
   <data name="RedAndWhite" xml:space="preserve"><value>Рыжий и белый</value></data>
   <data name="LemonAndWhite" xml:space="preserve"><value>Палевый и белый</value></data>
+  <data name="Mint" xml:space="preserve"><value>Мятный</value></data>
+  <data name="DarkGreen" xml:space="preserve"><value>Тёмно-зелёный</value></data>
+  <data name="Blue" xml:space="preserve"><value>Голубой</value></data>
+  <data name="Pink" xml:space="preserve"><value>Розовый</value></data>
+  <data name="Yellow" xml:space="preserve"><value>Жёлтый</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Алый</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Синий и золотой</value></data>
   <data name="Green" xml:space="preserve"><value>Зелёный</value></data>

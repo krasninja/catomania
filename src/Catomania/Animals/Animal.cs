@@ -71,7 +71,7 @@ public abstract class Animal
         {
             AnimalKind.Panda => new Panda(),
             AnimalKind.Dog => new Dog(settings.DogCoat),
-            AnimalKind.Snake => new Snake(),
+            AnimalKind.Snake => new Snake(settings.SnakeSkin),
             AnimalKind.Parrot => new Parrot(settings.ParrotPlumage),
             AnimalKind.Pig => new Pig(),
             AnimalKind.Frog => new Frog(),

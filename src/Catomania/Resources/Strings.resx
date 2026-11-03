@@ -28,6 +28,7 @@
   <data name="Fast" xml:space="preserve"><value>Fast</value></data>
   <data name="Fur" xml:space="preserve"><value>Fur</value></data>
   <data name="Feathers" xml:space="preserve"><value>Feathers</value></data>
+  <data name="Skin" xml:space="preserve"><value>Skin</value></data>
   <data name="Ginger" xml:space="preserve"><value>Ginger</value></data>
   <data name="Gray" xml:space="preserve"><value>Gray</value></data>
   <data name="Black" xml:space="preserve"><value>Black</value></data>
@@ -36,6 +37,11 @@
   <data name="BlackAndWhite" xml:space="preserve"><value>Black and white</value></data>
   <data name="RedAndWhite" xml:space="preserve"><value>Red and white</value></data>
   <data name="LemonAndWhite" xml:space="preserve"><value>Lemon and white</value></data>
+  <data name="Mint" xml:space="preserve"><value>Mint</value></data>
+  <data name="DarkGreen" xml:space="preserve"><value>Dark green</value></data>
+  <data name="Blue" xml:space="preserve"><value>Blue</value></data>
+  <data name="Pink" xml:space="preserve"><value>Pink</value></data>
+  <data name="Yellow" xml:space="preserve"><value>Yellow</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Scarlet</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Blue and gold</value></data>
   <data name="Green" xml:space="preserve"><value>Green</value></data>

@@ -20,6 +20,7 @@
   <data name="Fast" xml:space="preserve"><value>Rapide</value></data>
   <data name="Fur" xml:space="preserve"><value>Pelage</value></data>
   <data name="Feathers" xml:space="preserve"><value>Plumage</value></data>
+  <data name="Skin" xml:space="preserve"><value>Peau</value></data>
   <data name="Ginger" xml:space="preserve"><value>Roux</value></data>
   <data name="Gray" xml:space="preserve"><value>Gris</value></data>
   <data name="Black" xml:space="preserve"><value>Noir</value></data>
@@ -28,6 +29,11 @@
   <data name="BlackAndWhite" xml:space="preserve"><value>Noir et blanc</value></data>
   <data name="RedAndWhite" xml:space="preserve"><value>Rouge et blanc</value></data>
   <data name="LemonAndWhite" xml:space="preserve"><value>Citron et blanc</value></data>
+  <data name="Mint" xml:space="preserve"><value>Menthe</value></data>
+  <data name="DarkGreen" xml:space="preserve"><value>Vert foncé</value></data>
+  <data name="Blue" xml:space="preserve"><value>Bleu</value></data>
+  <data name="Pink" xml:space="preserve"><value>Rose</value></data>
+  <data name="Yellow" xml:space="preserve"><value>Jaune</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Écarlate</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Bleu et or</value></data>
   <data name="Green" xml:space="preserve"><value>Vert</value></data>

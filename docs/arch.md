@@ -24,6 +24,7 @@ Settings are stored as JSON in the user configuration directory:
 | `speed` | `Slow`, `Normal`, `Fast` | `Normal` | How fast the cat chases the cursor. |
 | `colorScheme` | `Ginger`, `Gray`, `Black`, `Cream` | `Ginger` | Cat fur color. |
 | `dogCoat` | `Liver`, `Black`, `Red`, `Lemon` | `Liver` | Color of the dog's patches on the white coat. |
+| `snakeSkin` | `Mint`, `DarkGreen`, `Blue`, `Pink`, `Yellow` | `Mint` | Snake skin color. |
 | `parrotPlumage` | `Scarlet`, `BlueAndGold`, `Green`, `Hyacinth` | `Scarlet` | Parrot plumage, a macaw species. |
 | `size` | `Small`, `Medium`, `Large` | `Medium` | Cat size. |
 | `alwaysOnTop` | `true`, `false` | `true` | Keep the cat above other windows. |

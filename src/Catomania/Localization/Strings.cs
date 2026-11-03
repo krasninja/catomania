@@ -38,6 +38,8 @@ public static partial class Strings
 
     public static string Feathers => Get();
 
+    public static string Skin => Get();
+
     public static string Ginger => Get();
 
     public static string Gray => Get();
@@ -53,6 +55,16 @@ public static partial class Strings
     public static string RedAndWhite => Get();
 
     public static string LemonAndWhite => Get();
+
+    public static string Mint => Get();
+
+    public static string DarkGreen => Get();
+
+    public static string Blue => Get();
+
+    public static string Pink => Get();
+
+    public static string Yellow => Get();
 
     public static string Scarlet => Get();
 

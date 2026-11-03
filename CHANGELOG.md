@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Update Capybara.
+- Add snake colors.
+- Fix build for MacOS.
 
 ## [0.3.4]
 

@@ -20,6 +20,7 @@
   <data name="Fast" xml:space="preserve"><value>Nhanh</value></data>
   <data name="Fur" xml:space="preserve"><value>Bộ lông</value></data>
   <data name="Feathers" xml:space="preserve"><value>Bộ lông vũ</value></data>
+  <data name="Skin" xml:space="preserve"><value>Màu da</value></data>
   <data name="Ginger" xml:space="preserve"><value>Vàng hung</value></data>
   <data name="Gray" xml:space="preserve"><value>Xám</value></data>
   <data name="Black" xml:space="preserve"><value>Đen</value></data>
@@ -28,6 +29,11 @@
   <data name="BlackAndWhite" xml:space="preserve"><value>Đen và trắng</value></data>
   <data name="RedAndWhite" xml:space="preserve"><value>Đỏ và trắng</value></data>
   <data name="LemonAndWhite" xml:space="preserve"><value>Vàng chanh và trắng</value></data>
+  <data name="Mint" xml:space="preserve"><value>Xanh bạc hà</value></data>
+  <data name="DarkGreen" xml:space="preserve"><value>Xanh lá đậm</value></data>
+  <data name="Blue" xml:space="preserve"><value>Xanh lam</value></data>
+  <data name="Pink" xml:space="preserve"><value>Hồng</value></data>
+  <data name="Yellow" xml:space="preserve"><value>Vàng</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Đỏ tươi</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Xanh lam và vàng</value></data>
   <data name="Green" xml:space="preserve"><value>Xanh lá</value></data>

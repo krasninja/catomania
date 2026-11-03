@@ -32,6 +32,12 @@ public interface IAnimalCommands
     void SetDogCoat(DogCoat coat);
 
     /// <summary>
+    /// Set the snake skin color.
+    /// </summary>
+    /// <param name="skin">Snake skin.</param>
+    void SetSnakeSkin(SnakeSkin skin);
+
+    /// <summary>
     /// Set the parrot plumage.
     /// </summary>
     /// <param name="plumage">Plumage.</param>

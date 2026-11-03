@@ -20,6 +20,7 @@
   <data name="Fast" xml:space="preserve"><value>快</value></data>
   <data name="Fur" xml:space="preserve"><value>毛色</value></data>
   <data name="Feathers" xml:space="preserve"><value>羽毛颜色</value></data>
+  <data name="Skin" xml:space="preserve"><value>皮肤颜色</value></data>
   <data name="Ginger" xml:space="preserve"><value>橘色</value></data>
   <data name="Gray" xml:space="preserve"><value>灰色</value></data>
   <data name="Black" xml:space="preserve"><value>黑色</value></data>
@@ -28,6 +29,11 @@
   <data name="BlackAndWhite" xml:space="preserve"><value>黑色和白色</value></data>
   <data name="RedAndWhite" xml:space="preserve"><value>红色和白色</value></data>
   <data name="LemonAndWhite" xml:space="preserve"><value>柠檬色和白色</value></data>
+  <data name="Mint" xml:space="preserve"><value>薄荷绿</value></data>
+  <data name="DarkGreen" xml:space="preserve"><value>深绿色</value></data>
+  <data name="Blue" xml:space="preserve"><value>蓝色</value></data>
+  <data name="Pink" xml:space="preserve"><value>粉色</value></data>
+  <data name="Yellow" xml:space="preserve"><value>黄色</value></data>
   <data name="Scarlet" xml:space="preserve"><value>绯红色</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>蓝色和金色</value></data>
   <data name="Green" xml:space="preserve"><value>绿色</value></data>

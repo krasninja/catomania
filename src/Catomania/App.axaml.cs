@@ -88,7 +88,7 @@ public sealed partial class App : Application
                 continue;
             }
 
-            if (item.CommandParameter is CatColorScheme or DogCoat or ParrotPlumage)
+            if (item.CommandParameter is CatColorScheme or DogCoat or SnakeSkin or ParrotPlumage)
             {
                 item.IsVisible = _settings.Animal.HasFurOption(item.CommandParameter);
             }
@@ -99,6 +99,7 @@ public sealed partial class App : Application
                 AnimalSpeed speed => speed == _settings.Speed,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
                 DogCoat coat => coat == _settings.DogCoat,
+                SnakeSkin skin => skin == _settings.SnakeSkin,
                 ParrotPlumage plumage => plumage == _settings.ParrotPlumage,
                 AnimalSize size => size == _settings.Size,
                 PauseSetting => _settings.Paused,
@@ -192,6 +193,9 @@ public sealed partial class App : Application
                 break;
             case DogCoat coat:
                 _commands?.SetDogCoat(coat);
+                break;
+            case SnakeSkin skin:
+                _commands?.SetSnakeSkin(skin);
                 break;
             case ParrotPlumage plumage:
                 _commands?.SetParrotPlumage(plumage);

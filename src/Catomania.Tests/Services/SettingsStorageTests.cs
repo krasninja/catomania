@@ -29,6 +29,7 @@ public sealed class SettingsStorageTests : IDisposable
         Assert.Equal(AnimalSpeed.Normal, settings.Speed);
         Assert.Equal(CatColorScheme.Ginger, settings.ColorScheme);
         Assert.Equal(DogCoat.Liver, settings.DogCoat);
+        Assert.Equal(SnakeSkin.Mint, settings.SnakeSkin);
         Assert.Equal(ParrotPlumage.Scarlet, settings.ParrotPlumage);
         Assert.Equal(AnimalSize.Medium, settings.Size);
         Assert.True(settings.AlwaysOnTop);
@@ -61,6 +62,7 @@ public sealed class SettingsStorageTests : IDisposable
             Speed = AnimalSpeed.Fast,
             ColorScheme = CatColorScheme.Black,
             DogCoat = DogCoat.Lemon,
+            SnakeSkin = SnakeSkin.Yellow,
             ParrotPlumage = ParrotPlumage.Hyacinth,
             Size = AnimalSize.Large,
             AlwaysOnTop = false,
@@ -77,6 +79,7 @@ public sealed class SettingsStorageTests : IDisposable
         Assert.Equal(AnimalSpeed.Fast, loaded.Speed);
         Assert.Equal(CatColorScheme.Black, loaded.ColorScheme);
         Assert.Equal(DogCoat.Lemon, loaded.DogCoat);
+        Assert.Equal(SnakeSkin.Yellow, loaded.SnakeSkin);
         Assert.Equal(ParrotPlumage.Hyacinth, loaded.ParrotPlumage);
         Assert.Equal(AnimalSize.Large, loaded.Size);
         Assert.False(loaded.AlwaysOnTop);
