@@ -7,7 +7,7 @@ namespace Catomania.Animals;
 
 /// <summary>
 /// A calm capybara with a sprout on its head. It sits facing the viewer, turns sideways to waddle
-/// on its short legs and sleeps lying on its belly.
+/// on its short legs, lowers its head when running, munches a watermelon and sleeps lying on its belly.
 /// </summary>
 public sealed class Capybara : Animal
 {
@@ -33,6 +33,13 @@ public sealed class Capybara : Animal
     private const double RaisedNostrilsShift = 20;
     private const double RaisedMouthShift = 40;
 
+    // How far the head drops in the poses with the splayed feet, in the art coordinates.
+    private const double PosingHeadDrop = 20;
+
+    // Where the lowered head of the sleeping capybara goes on the running one, in the art coordinates.
+    private static readonly Vector RunningHeadShift = new(14, -46);
+    private static readonly Vector RunningSproutShift = new(-9.34, 3.152);
+
     private static readonly Color FurColor = Color.FromUInt32(0xFFE4A168);
     private static readonly Color PupilColor = Color.FromUInt32(0xFF000000);
 
@@ -44,6 +51,9 @@ public sealed class Capybara : Animal
     private static readonly IBrush Leaf = new SolidColorBrush(Color.FromUInt32(0xFFBDE28F));
     private static readonly IBrush Cheek = new SolidColorBrush(Color.FromUInt32(0xFFEFA392));
     private static readonly IBrush Outline = new SolidColorBrush(PupilColor);
+    private static readonly IBrush MelonRindBrush = new SolidColorBrush(Color.FromUInt32(0xFF007C0C));
+    private static readonly IBrush MelonWhiteBrush = new SolidColorBrush(Color.FromUInt32(0xFFF6DBB7));
+    private static readonly IBrush MelonPulpBrush = new SolidColorBrush(Color.FromUInt32(0xFFD8001D));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
 
     // Drawn under the fill, so only the outer half of the stroke is visible.
@@ -71,19 +81,19 @@ public sealed class Capybara : Animal
         "M403.5 322C508.158 322 593 421.864 593 511.224C593 600.584 508.158 645.601 403.5 "
         + "645.601C298.842 645.601 214 600.584 214 511.224C214 421.864 298.842 322 403.5 322Z");
 
-    private static readonly Geometry LeftPaw = Parse(
-        "M382.746 578.652C382.538 566.284 361.965 567.655 361.965 567.655C361.965 567.655 330.814 "
-        + "465.228 280.278 511.583C225.191 562.113 326.295 603.726 326.295 603.726C326.295 603.726 325.663 "
-        + "624.485 341.024 621.924C352.916 619.943 351.361 609.363 350.441 604.907C358.528 611.02 367.13 "
-        + "612.043 371.93 604.843C376.73 597.643 367.377 587.85 367.377 587.85C367.377 587.85 382.954 "
-        + "591.019 382.746 578.652Z");
+    private static readonly Geometry FrontLeftFoot = Parse(
+        "M353.453 681.956C362.051 673.064 346.534 659.486 346.534 659.486C346.534 659.486 396.934 "
+        + "565.032 328.422 562.076C253.739 558.853 295.806 659.769 295.806 659.769C295.806 659.769 280.68 "
+        + "674.001 293.352 683.053C303.163 690.061 309.544 681.48 312.044 677.678C313.44 687.719 318.799 "
+        + "694.525 327.284 692.828C335.77 691.131 336.081 677.592 336.081 677.592C336.081 677.592 344.855 "
+        + "690.848 353.453 681.956Z");
 
-    private static readonly Geometry RightPaw = Parse(
-        "M416.424 578.652C416.632 566.284 437.205 567.655 437.205 567.655C437.205 567.655 468.357 "
-        + "465.228 518.892 511.583C573.98 562.113 472.875 603.726 472.875 603.726C472.875 603.726 473.507 "
-        + "624.485 458.146 621.924C446.254 619.943 447.81 609.363 448.73 604.907C440.643 611.02 432.041 "
-        + "612.043 427.24 604.843C422.44 597.643 431.794 587.85 431.794 587.85C431.794 587.85 416.216 "
-        + "591.019 416.424 578.652Z");
+    private static readonly Geometry FrontRightFoot = Parse(
+        "M446.945 681.956C438.347 673.064 453.864 659.486 453.864 659.486C453.864 659.486 403.464 "
+        + "565.032 471.976 562.076C546.659 558.853 504.592 659.769 504.592 659.769C504.592 659.769 519.717 "
+        + "674.001 507.046 683.053C497.235 690.061 490.854 681.48 488.354 677.678C486.958 687.719 481.599 "
+        + "694.525 473.114 692.828C464.628 691.131 464.317 677.592 464.317 677.592C464.317 677.592 455.543 "
+        + "690.848 446.945 681.956Z");
 
     private static readonly Geometry Sprout = Parse(
         "M400.5 68.9502C411.415 51.5653 442.949 47.7695 452.615 60.6482C460.782 71.5312 453.193 84.5266 "
@@ -145,32 +155,67 @@ public sealed class Capybara : Animal
         + "550.539 687.932Z");
 
     private static readonly Geometry CuteLeftPaw = Parse(
-        "M322.457 415.113C310.564 418.515 317.213 438.032 317.213 438.032C317.213 438.032 226.339 "
-        + "494.632 284.194 531.448C347.26 571.58 361.287 463.151 361.287 463.151C361.287 463.151 381.502 "
-        + "458.388 375.053 444.213C370.061 433.239 360.245 437.48 356.179 439.522C359.99 430.128 358.752 "
-        + "421.555 350.555 418.782C342.358 416.009 335.319 427.578 335.319 427.578C335.319 427.578 334.349 "
-        + "411.711 322.457 415.113Z");
+        "M368.126 633.358C371.126 621.358 350.899 617.358 350.899 617.358C350.899 617.358 347.319 "
+        + "510.358 286.508 542.054C220.22 576.604 307.109 642.967 307.109 642.967C307.109 642.967 301.126 "
+        + "662.855 316.626 664.358C328.626 665.521 329.861 654.9 330.126 650.358C336.355 658.355 344.399 "
+        + "661.57 350.899 655.858C357.399 650.145 350.899 638.265 350.899 638.265C350.899 638.265 365.126 "
+        + "645.358 368.126 633.358Z");
 
     private static readonly Geometry CuteRightPaw = Parse(
-        "M476.566 415.113C488.459 418.515 481.81 438.032 481.81 438.032C481.81 438.032 572.684 494.632 "
-        + "514.829 531.448C451.763 571.58 437.736 463.151 437.736 463.151C437.736 463.151 417.521 458.388 "
-        + "423.969 444.213C428.962 433.239 438.778 437.48 442.844 439.522C439.033 430.128 440.27 421.555 "
-        + "448.468 418.782C456.665 416.009 463.703 427.578 463.703 427.578C463.703 427.578 464.674 411.711 "
-        + "476.566 415.113Z");
+        "M434.215 633.357C431.215 621.357 451.441 617.357 451.441 617.357C451.441 617.357 455.022 "
+        + "510.358 515.833 542.053C582.121 576.604 495.232 642.967 495.232 642.967C495.232 642.967 501.215 "
+        + "662.855 485.715 664.358C473.715 665.521 472.479 654.899 472.215 650.357C465.985 658.355 457.941 "
+        + "661.57 451.441 655.857C444.941 650.145 451.441 638.265 451.441 638.265C451.441 638.265 437.215 "
+        + "645.357 434.215 633.357Z");
 
-    private static readonly Geometry RaisedLeftPaw = Parse(
-        "M210.044 419.367C207.044 431.367 227.271 435.367 227.271 435.367C227.271 435.367 230.851 "
-        + "542.367 291.662 510.671C357.951 476.12 271.062 409.758 271.062 409.758C271.062 409.758 277.044 "
-        + "389.87 261.544 388.367C249.545 387.203 248.309 397.825 248.044 402.367C241.815 394.369 233.771 "
-        + "391.155 227.271 396.867C220.771 402.579 227.271 414.46 227.271 414.46C227.271 414.46 213.044 "
-        + "407.367 210.044 419.367Z");
+    private static readonly Geometry EatLeftPaw = Parse(
+        "M310.457 415.113C298.564 418.515 305.213 438.032 305.213 438.032C305.213 438.032 214.339 "
+        + "494.632 272.194 531.448C335.26 571.58 349.287 463.151 349.287 463.151C349.287 463.151 369.502 "
+        + "458.388 363.053 444.213C358.061 433.239 348.245 437.48 344.179 439.522C347.99 430.128 346.752 "
+        + "421.555 338.555 418.782C330.358 416.009 323.319 427.578 323.319 427.578C323.319 427.578 322.349 "
+        + "411.711 310.457 415.113Z");
 
-    private static readonly Geometry RaisedRightPaw = Parse(
-        "M590.296 419.367C593.296 431.367 573.07 435.367 573.07 435.367C573.07 435.367 569.49 542.367 "
-        + "508.679 510.671C442.39 476.12 529.279 409.757 529.279 409.757C529.279 409.757 523.296 389.87 "
-        + "538.796 388.367C550.796 387.203 552.032 397.825 552.296 402.367C558.526 394.369 566.57 391.154 "
-        + "573.07 396.867C579.57 402.579 573.07 414.46 573.07 414.46C573.07 414.46 587.296 407.367 590.296 "
-        + "419.367Z");
+    private static readonly Geometry EatRightPaw = Parse(
+        "M496.884 415.113C508.777 418.515 502.127 438.032 502.127 438.032C502.127 438.032 593.002 "
+        + "494.632 535.147 531.448C472.081 571.58 458.054 463.151 458.054 463.151C458.054 463.151 437.839 "
+        + "458.388 444.287 444.213C449.28 433.239 459.096 437.48 463.162 439.522C459.351 430.128 460.588 "
+        + "421.555 468.785 418.782C476.982 416.009 484.021 427.578 484.021 427.578C484.021 427.578 484.992 "
+        + "411.711 496.884 415.113Z");
+
+    private static readonly Geometry MelonRind = Parse(
+        "M542.33 334C542.33 406.902 483.232 466 410.33 466C337.429 466 278.33 406.902 278.33 334L410.33 "
+        + "334L542.33 334Z");
+
+    private static readonly Geometry MelonWhite = Parse(
+        "M532.406 334C532.406 401.42 477.751 456.075 410.33 456.075C342.91 456.075 288.255 401.42 "
+        + "288.255 334L410.33 334L532.406 334Z");
+
+    private static readonly Geometry MelonPulp = Parse(
+        "M515.203 334C515.203 391.92 468.25 438.873 410.331 438.873C352.411 438.873 305.459 391.92 "
+        + "305.459 334L410.33 334L515.203 334Z");
+
+    private static readonly Geometry MelonSeeds = Parse(
+        "M416.616 420.727C416.616 424.171 413.802 426.963 410.331 426.963C406.859 426.963 404.045 "
+        + "424.171 404.045 420.727C404.045 417.282 410.331 407.775 410.331 407.775C410.331 407.775 416.616 "
+        + "417.282 416.616 420.727Z M464.439 397.083C466.874 399.519 466.858 403.483 464.404 "
+        + "405.938C461.949 408.392 457.985 408.408 455.549 405.973C453.114 403.537 450.836 392.37 450.836 "
+        + "392.37C450.836 392.37 462.003 394.648 464.439 397.083Z M356.223 397.083C353.788 399.519 353.803 "
+        + "403.483 356.258 405.938C358.713 408.392 362.677 408.408 365.112 405.973C367.548 403.537 369.826 "
+        + "392.37 369.826 392.37C369.826 392.37 358.658 394.648 356.223 397.083Z M489.117 356.827C492.561 "
+        + "356.827 495.353 359.642 495.353 363.113C495.353 366.585 492.561 369.399 489.117 369.399C485.673 "
+        + "369.399 476.165 363.113 476.165 363.113C476.165 363.113 485.673 356.827 489.117 356.827Z "
+        + "M331.544 356.827C328.1 356.827 325.308 359.642 325.308 363.113C325.308 366.585 328.1 369.399 "
+        + "331.544 369.399C334.988 369.399 344.496 363.113 344.496 363.113C344.496 363.113 334.988 356.827 "
+        + "331.544 356.827Z M454.961 376.837C457.944 378.559 461.769 377.518 463.504 374.512C465.24 "
+        + "371.505 464.229 367.672 461.247 365.95C458.264 364.228 446.887 364.918 446.887 364.918C446.887 "
+        + "364.918 451.978 375.115 454.961 376.837Z M365.701 376.837C362.718 378.559 358.893 377.518 "
+        + "357.157 374.512C355.421 371.505 356.432 367.672 359.415 365.95C362.398 364.228 373.774 364.918 "
+        + "373.774 364.918C373.774 364.918 368.683 375.115 365.701 376.837Z M419.969 392.441C420.86 "
+        + "395.768 424.301 397.736 427.654 396.838C431.007 395.939 433.003 392.514 432.112 389.188C431.22 "
+        + "385.861 422.688 378.304 422.688 378.304C422.688 378.304 419.077 389.114 419.969 392.441Z "
+        + "M400.693 392.441C399.801 395.768 396.361 397.736 393.007 396.838C389.654 395.939 387.658 "
+        + "392.514 388.55 389.187C389.441 385.861 397.974 378.304 397.974 378.304C397.974 378.304 401.584 "
+        + "389.114 400.693 392.441Z");
 
     private static readonly Geometry HappyEyes = Parse(
         "M479 228.176C490.967 224.038 499.172 223.746 511.403 227.023C523.633 230.301 530.593 234.656 "
@@ -342,6 +387,9 @@ public sealed class Capybara : Animal
     private static readonly Point[] CuteEyeCenters = [new(287, 236), new(512, 236)];
     private static readonly Point[] SideEyeCenters = [new(475, 302), new(663, 302)];
 
+    // The eyes of the running capybara are in the coordinates of the sleeping head.
+    private static readonly Point[] RunningEyeCenters = [new(482.891, 350.166), new(664.485, 398.824)];
+
     private enum Face
     {
         Idle,
@@ -349,6 +397,7 @@ public sealed class Capybara : Animal
         Blink,
         Happy,
         Cute,
+        Eat,
         Startled,
     }
 
@@ -394,7 +443,8 @@ public sealed class Capybara : Animal
             ? Face.Startled
             : state.Trick switch
             {
-                AnimalTrick.Speak or AnimalTrick.Wiggle => Face.Happy,
+                AnimalTrick.Speak => state.TrickProgress < 0.5 ? Face.Eat : Face.Happy,
+                AnimalTrick.Wiggle => Face.Happy,
                 AnimalTrick.Emote => Face.Cute,
                 AnimalTrick.Shake => Face.Blink,
                 AnimalTrick.LookAround => Face.LookAhead,
@@ -408,7 +458,7 @@ public sealed class Capybara : Animal
     {
         var face = GetFace(state);
         var isDragged = state.State == AnimalAnimationState.Dragged;
-        var isPosing = face is Face.Happy or Face.Cute;
+        var isPosing = face is Face.Happy or Face.Cute or Face.Eat;
         var breathe = Math.Sin(state.Phase * 0.5) * 4;
 
         if (!isDragged)
@@ -429,30 +479,37 @@ public sealed class Capybara : Animal
             }
 
             DrawOutlined(context, Fur, Body);
-            if (!isPosing)
-            {
-                using (context.PushTransform(Matrix.CreateTranslation(0, breathe * 0.5)))
-                {
-                    DrawOutlined(context, FurDark, LeftPaw);
-                    DrawOutlined(context, FurDark, RightPaw);
-                }
-            }
 
-            using (context.PushTransform(Matrix.CreateTranslation(0, breathe)))
+            // The head drops a little when the capybara poses, the happy one also tilts it aside.
+            var headShift = face switch
+            {
+                Face.Happy => new Vector(-4, PosingHeadDrop),
+                Face.Cute or Face.Eat => new Vector(0, PosingHeadDrop),
+                _ => default,
+            };
+            using (context.PushTransform(Matrix.CreateTranslation(headShift.X, headShift.Y + breathe)))
             {
                 DrawHead(context, face);
             }
 
-            // The raised paws are held in front of the chin.
-            if (face == Face.Cute)
+            switch (face)
             {
-                DrawOutlined(context, FurDark, CuteLeftPaw);
-                DrawOutlined(context, FurDark, CuteRightPaw);
-            }
-            else if (face == Face.Happy)
-            {
-                DrawOutlined(context, FurDark, RaisedLeftPaw);
-                DrawOutlined(context, FurDark, RaisedRightPaw);
+                case Face.Cute:
+                    // The paws are put together in front of the belly.
+                    DrawOutlined(context, FurDark, CuteLeftPaw);
+                    DrawOutlined(context, FurDark, CuteRightPaw);
+                    break;
+                case Face.Eat:
+                    DrawWatermelon(context, state.TrickProgress);
+                    break;
+                default:
+                    using (context.PushTransform(dangle))
+                    {
+                        DrawOutlined(context, FurDark, FrontLeftFoot);
+                        DrawOutlined(context, FurDark, FrontRightFoot);
+                    }
+
+                    break;
             }
         }
     }
@@ -465,11 +522,14 @@ public sealed class Capybara : Animal
         context.DrawEllipse(Cheek, null, new Point(551, 323), 39, 30);
         context.DrawGeometry(FurDark, null, NosePatch);
 
-        // The nose and the mouth move up as the capybara lifts its chin.
-        var isRaised = face is Face.Happy or Face.Cute or Face.Startled;
-        using (context.PushTransform(Matrix.CreateTranslation(0, isRaised ? -RaisedMouthShift : 0)))
+        // The nose and the mouth move up as the capybara lifts its chin, the watermelon hides the mouth.
+        var isRaised = face is Face.Happy or Face.Cute or Face.Eat or Face.Startled;
+        if (face != Face.Eat)
         {
-            context.DrawGeometry(null, FacePen, Mouth);
+            using (context.PushTransform(Matrix.CreateTranslation(0, isRaised ? -RaisedMouthShift : 0)))
+            {
+                context.DrawGeometry(null, FacePen, Mouth);
+            }
         }
 
         using (context.PushTransform(Matrix.CreateTranslation(0, isRaised ? -RaisedNostrilsShift : 0)))
@@ -485,7 +545,7 @@ public sealed class Capybara : Animal
             case Face.Blink:
                 foreach (var center in EyeCenters)
                 {
-                    context.DrawRectangle(Outline, null, new Rect(center.X - 33, center.Y - 12.145, 66, 24), 12, 12);
+                    DrawClosedEye(context, center);
                 }
 
                 break;
@@ -493,7 +553,10 @@ public sealed class Capybara : Animal
                 context.DrawGeometry(null, HappyEyePen, HappyEyes);
                 break;
             case Face.Cute or Face.Startled:
-                DrawCuteEyes(context);
+                DrawCuteEyes(context, 1);
+                break;
+            case Face.Eat:
+                DrawCuteEyes(context, -1);
                 break;
             case Face.LookAhead:
                 DrawEyes(context, EyeCenters, 1);
@@ -503,6 +566,24 @@ public sealed class Capybara : Animal
                 break;
         }
     }
+
+    // The capybara holds a slice of watermelon in its paws and munches on it.
+    private static void DrawWatermelon(DrawingContext context, double trickProgress)
+    {
+        var munch = Math.Abs(Math.Sin(Math.Clamp(trickProgress / 0.5, 0, 1) * Math.PI * 6)) * 10;
+        using (context.PushTransform(Matrix.CreateTranslation(0, -munch)))
+        {
+            DrawOutlined(context, MelonRindBrush, MelonRind);
+            context.DrawGeometry(MelonWhiteBrush, null, MelonWhite);
+            context.DrawGeometry(MelonPulpBrush, null, MelonPulp);
+            context.DrawGeometry(Outline, null, MelonSeeds);
+            DrawOutlined(context, FurDark, EatLeftPaw);
+            DrawOutlined(context, FurDark, EatRightPaw);
+        }
+    }
+
+    private static void DrawClosedEye(DrawingContext context, Point center) =>
+        context.DrawRectangle(Outline, null, new Rect(center.X - 33, center.Y - 12.145, 66, 24), 12, 12);
 
     // The highlight is on the side the capybara looks to: 1 is ahead, 0 is towards the nose.
     private static void DrawEyes(DrawingContext context, Point[] centers, int look)
@@ -517,14 +598,18 @@ public sealed class Capybara : Animal
         }
     }
 
-    private static void DrawCuteEyes(DrawingContext context)
+    // The small highlights are towards the middle of the face for 1 and towards the sides for -1.
+    private static void DrawCuteEyes(DrawingContext context, int look)
     {
         for (var i = 0; i < CuteEyeCenters.Length; i++)
         {
             var center = CuteEyeCenters[i];
+            var side = i == 0 ? look : -look;
             context.DrawEllipse(Outline, null, center, 34, 34);
-            context.DrawEllipse(Brushes.White, null, new Point(center.X + 10.462, center.Y - 13.077), 6.975, 6.975);
-            context.DrawEllipse(Brushes.White, null, new Point(center.X - 12.565, center.Y - 1.478), 13.304, 13.304);
+            context.DrawEllipse(
+                Brushes.White, null, new Point(center.X + (10.462 * side), center.Y - 13.077), 6.975, 6.975);
+            context.DrawEllipse(
+                Brushes.White, null, new Point(center.X - (12.565 * side), center.Y - 1.478), 13.304, 13.304);
         }
     }
 
@@ -556,7 +641,14 @@ public sealed class Capybara : Animal
 
             using (context.PushTransform(Matrix.CreateTranslation(0, bob * 0.7)))
             {
-                DrawSideHead(context, state.IsBlinking);
+                if (isRunning)
+                {
+                    DrawRunningHead(context, state.IsBlinking);
+                }
+                else
+                {
+                    DrawSideHead(context, state.IsBlinking);
+                }
             }
         }
     }
@@ -582,7 +674,7 @@ public sealed class Capybara : Animal
         {
             foreach (var center in SideEyeCenters)
             {
-                context.DrawRectangle(Outline, null, new Rect(center.X - 33, center.Y - 12.145, 66, 24), 12, 12);
+                DrawClosedEye(context, center);
             }
         }
         else
@@ -595,6 +687,46 @@ public sealed class Capybara : Animal
         context.DrawGeometry(Outline, null, SideNostrils);
         context.DrawGeometry(FurDark, null, SideNearEarInner);
         context.DrawGeometry(Outline, null, SideNearEarRim);
+    }
+
+    // The running capybara stretches its head forward and down, the same as the sleeping one.
+    private static void DrawRunningHead(DrawingContext context, bool isBlinking)
+    {
+        using (context.PushTransform(Matrix.CreateTranslation(RunningHeadShift.X, RunningHeadShift.Y)))
+        {
+            using (context.PushTransform(Matrix.CreateTranslation(RunningSproutShift.X, RunningSproutShift.Y)))
+            {
+                DrawOutlined(context, Leaf, SleepingSprout);
+            }
+
+            context.DrawGeometry(FurDark, null, SleepingFarEarInner);
+            context.DrawGeometry(Outline, null, SleepingFarEarRim);
+            DrawOutlined(context, Fur, SleepingHead);
+            DrawRotated(context, new Point(441.661, 407.446), () =>
+                context.DrawEllipse(Cheek, null, default, 39, 30));
+            DrawRotated(context, new Point(682.176, 471.892), () =>
+                context.DrawEllipse(Cheek, null, default, 39, 30));
+            DrawRunningEye(context, RunningEyeCenters[1], isBlinking);
+            context.DrawGeometry(FurDark, null, SleepingNosePatch);
+            context.DrawGeometry(null, FacePen, SleepingMouth);
+            context.DrawGeometry(Outline, null, SleepingNostrils);
+            context.DrawGeometry(FurDark, null, SleepingNearEarInner);
+            context.DrawGeometry(Outline, null, SleepingNearEarRim);
+            DrawRunningEye(context, RunningEyeCenters[0], isBlinking);
+        }
+    }
+
+    private static void DrawRunningEye(DrawingContext context, Point center, bool isBlinking)
+    {
+        if (isBlinking)
+        {
+            DrawRotated(context, center, () =>
+                context.DrawRectangle(Outline, null, new Rect(-33, -12, 66, 24), 12, 12));
+            return;
+        }
+
+        context.DrawEllipse(Outline, null, center, 23, 23);
+        context.DrawEllipse(Brushes.White, null, new Point(center.X - 4.546, center.Y - 10.376), 4.718, 4.718);
     }
 
     private static void DrawSleeping(DrawingContext context, double phase)
