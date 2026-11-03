@@ -158,10 +158,9 @@ public sealed class AppUpdateServiceTests
         => new(url, locator, new HttpClientHandler { UseProxy = false });
 
     private static string CreateFeedJson(string version)
-        => "{\"Assets\":[{\"PackageId\":\"catomania\",\"Version\":\"" + version + "\","
-           + "\"Type\":\"Full\",\"FileName\":\"catomania-" + version + "-full.nupkg\","
-           + "\"SHA1\":\"6AD64C5174E43C84739061F12F77DDEF2CE0B5E7\","
-           + "\"SHA256\":\"8F03B08A5E92A75579D64AA081222B5074C931B21BB8D989C73D83BC67E84CE3\",\"Size\":1}]}";
+        => $$"""
+           {"Assets":[{"PackageId":"catomania","Version":"{{version}}","Type":"Full","FileName":"catomania-{{version}}-full.nupkg","SHA1":"6AD64C5174E43C84739061F12F77DDEF2CE0B5E7","SHA256":"8F03B08A5E92A75579D64AA081222B5074C931B21BB8D989C73D83BC67E84CE3","Size":1}]}
+           """;
 
     private sealed class FeedServer : IAsyncDisposable
     {
