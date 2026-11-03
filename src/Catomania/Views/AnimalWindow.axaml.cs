@@ -64,6 +64,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private AnimalTrick _trick;
     private PixelPoint _dragWindowPosition;
     private PixelPoint _dragPointerPosition;
+    private string? _dragCursorProviderName;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AnimalWindow" /> class with the default settings.
@@ -331,9 +332,19 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         }
 
         Say();
+        _dragCursorProviderName = null;
+        if (TryGetGlobalCursorPosition(out var globalPosition))
+        {
+            _dragCursorProviderName = _cursorPositionProvider.ActiveProviderName;
+            _dragPointerPosition = globalPosition;
+        }
+        else
+        {
+            _dragPointerPosition = this.PointToScreen(e.GetPosition(this));
+        }
+
         _isDragging = true;
         _dragWindowPosition = Position;
-        _dragPointerPosition = this.PointToScreen(e.GetPosition(this));
         e.Pointer.Capture(this);
     }
 
@@ -347,10 +358,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
             return;
         }
 
-        var pointerPosition = this.PointToScreen(e.GetPosition(this));
-        Position = new PixelPoint(
-            _dragWindowPosition.X + (pointerPosition.X - _dragPointerPosition.X),
-            _dragWindowPosition.Y + (pointerPosition.Y - _dragPointerPosition.Y));
+        MoveDraggedWindow(e);
     }
 
     /// <inheritdoc />
@@ -362,6 +370,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
             return;
         }
 
+        MoveDraggedWindow(e);
         e.Pointer.Capture(null);
         EndDrag();
     }
@@ -395,6 +404,45 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         _settings.Size = size;
         CommitSettings();
+    }
+
+    private void MoveDraggedWindow(PointerEventArgs e)
+    {
+        PixelPoint pointerPosition;
+        if (_dragCursorProviderName == null)
+        {
+            pointerPosition = this.PointToScreen(e.GetPosition(this));
+        }
+        else if (!TryGetGlobalCursorPosition(out pointerPosition)
+                 || _cursorPositionProvider.ActiveProviderName != _dragCursorProviderName)
+        {
+            // Positions from different providers can be slightly off from each other, skip the event
+            // instead of making the window jump.
+            return;
+        }
+
+        Position = new PixelPoint(
+            _dragWindowPosition.X + (pointerPosition.X - _dragPointerPosition.X),
+            _dragWindowPosition.Y + (pointerPosition.Y - _dragPointerPosition.Y));
+    }
+
+    /// <summary>
+    /// Get the cursor position from the platform API. The drag relies on it rather than on <c>PointToScreen</c>,
+    /// because the latter adds the window position Avalonia knows, which lags behind while the window is being moved
+    /// (on X11 it is updated only by the <c>ConfigureNotify</c> that follows the move). The dragged window would
+    /// fall behind the cursor and lose it then.
+    /// </summary>
+    private bool TryGetGlobalCursorPosition(out PixelPoint position)
+    {
+        if (_cursorPositionProvider.TryGetPosition(out var screenPosition)
+            && _cursorPositionProvider.ActiveProviderName != _fallbackCursorPositionProvider.Name)
+        {
+            position = new PixelPoint((int)Math.Round(screenPosition.X), (int)Math.Round(screenPosition.Y));
+            return true;
+        }
+
+        position = default;
+        return false;
     }
 
     private void EndDrag()
