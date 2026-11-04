@@ -3,8 +3,16 @@
 // The position is in logical coordinates and sent together with the logical virtual screen geometry.
 // %SERVICE% is replaced with the D-Bus name of the running Catomania instance.
 var service = "%SERVICE%";
+const POSITION_SEND_INTERVAL_MS = 1000 / 15;
+var lastSentAt = 0;
 
 function sendPosition() {
+    var now = Date.now();
+    if (now - lastSentAt < POSITION_SEND_INTERVAL_MS) {
+        return;
+    }
+    lastSentAt = now;
+
     var position = workspace.cursorPos;
     var geometry = workspace.virtualScreenGeometry;
     callDBus(

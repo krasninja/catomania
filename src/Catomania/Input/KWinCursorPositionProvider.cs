@@ -5,7 +5,7 @@ namespace Catomania.Input;
 
 /// <summary>
 /// Gets the cursor position on KDE Plasma Wayland. A small KWin script is loaded over D-Bus,
-/// it calls back with the position every time the cursor moves.
+/// it calls back with throttled position updates while the cursor moves.
 /// </summary>
 public sealed class KWinCursorPositionProvider : CompositorCursorPositionProvider
 {
@@ -104,8 +104,7 @@ public sealed class KWinCursorPositionProvider : CompositorCursorPositionProvide
         await UnloadScriptAsync(connection).ConfigureAwait(false);
         var scriptId = await connection.CallMethodAsync(
                 CreateMethodCall(connection, KWinService, ScriptingPath, ScriptingInterface, "loadScript", _scriptPath, PluginName),
-                (message, _) => message.GetBodyReader().ReadInt32(),
-                null)
+                (message, _) => message.GetBodyReader().ReadInt32())
             .ConfigureAwait(false);
         if (scriptId < 0)
         {
@@ -149,10 +148,13 @@ public sealed class KWinCursorPositionProvider : CompositorCursorPositionProvide
             _owner = owner;
         }
 
+        /// <inheritdoc />
         public string Path => ObjectPath;
 
+        /// <inheritdoc />
         public bool HandlesChildPaths => false;
 
+        /// <inheritdoc />
         public ValueTask HandleMethodAsync(MethodContext context)
         {
             var request = context.Request;

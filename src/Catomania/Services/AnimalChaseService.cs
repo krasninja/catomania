@@ -15,6 +15,7 @@ public sealed class AnimalChaseService : IDisposable
     /// </summary>
     public static readonly TimeSpan TickInterval = TimeSpan.FromMilliseconds(16);
 
+    private const double CursorPositionRefreshSeconds = 1.0 / 15;
     private const double WorkAreasRefreshSeconds = 1;
     private const double SpawnOffsetY = 90;
 
@@ -30,6 +31,7 @@ public sealed class AnimalChaseService : IDisposable
     private ScreenPoint _lastCursorPosition;
     private bool _hasCursorPosition;
     private long _lastTickTimestamp;
+    private double _cursorPositionRefreshTime = CursorPositionRefreshSeconds;
     private double _workAreasRefreshTime = WorkAreasRefreshSeconds;
     private AnimalTrick _pendingTrick;
 
@@ -123,7 +125,14 @@ public sealed class AnimalChaseService : IDisposable
     public void Tick(double deltaSeconds)
     {
         RefreshWorkAreas(deltaSeconds);
-        TryGetCursorPosition(out var cursorPosition);
+        _cursorPositionRefreshTime += deltaSeconds;
+        if (_cursorPositionRefreshTime >= CursorPositionRefreshSeconds)
+        {
+            _cursorPositionRefreshTime = 0;
+            TryGetCursorPosition(out _);
+        }
+
+        var cursorPosition = _hasCursorPosition ? _lastCursorPosition : _host.GetCenter();
 
         if (_host.IsDragging)
         {
