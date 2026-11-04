@@ -28,6 +28,7 @@ public sealed class Snake : Animal
     private const int BodySegments = 24;
     private const int NeckSegments = 7;
     private const int DanglingSegments = 20;
+    private const int BodyPointCount = BodySegments + 1 + NeckSegments;
 
     private static readonly Color IrisColor = Color.FromUInt32(0xFF5C3A21);
 
@@ -57,6 +58,32 @@ public sealed class Snake : Animal
 
     // Spots on the sleeping ring, as angles in radians.
     private static readonly double[] RingSpotAngles = [3.7, 4.7, 5.6];
+
+    private static readonly Geometry HeadClip = new EllipseGeometry(
+        new Rect(-HeadRadiusX, -HeadRadiusY, HeadRadiusX * 2, HeadRadiusY * 2));
+
+    private static readonly Geometry SleepingHeadClip = new EllipseGeometry(
+        new Rect(-SleepingHeadRadiusX, -SleepingHeadRadiusY, SleepingHeadRadiusX * 2, SleepingHeadRadiusY * 2));
+
+    private static readonly Geometry Mouth = CreateMouth(HeadRadiusX, HeadRadiusY, 0.32, 0.26);
+    private static readonly Geometry SleepingMouth = CreateMouth(SleepingHeadRadiusX, SleepingHeadRadiusY, 0.22, 0.18);
+    private static readonly Geometry ClosedEye = CreateClosedEye(HeadRadiusY * 0.3);
+    private static readonly Geometry SleepingClosedEye = CreateClosedEye(SleepingHeadRadiusY * 0.3);
+
+    private static readonly Point[] SleepingTailPoints = CreateBezierPoints(
+        9, new Point(29, 80), new Point(31, 71), new Point(42, 68), new Point(50, 72));
+
+    private static readonly double[] SleepingTailWidths = [13, 12, 11, 10, 9, 8, 7, 6, 5];
+
+    private static readonly Point[] SleepingNeckPoints = CreateBezierPoints(
+        6, new Point(52, 84), new Point(56, 82), new Point(59, 79), new Point(62, 76));
+
+    private static readonly double[] SleepingNeckWidths = [RingWidth, RingWidth, RingWidth, RingWidth, RingWidth, RingWidth];
+
+    private readonly Point[] _bodyPoints = new Point[BodyPointCount];
+    private readonly double[] _bodyWidths = new double[BodyPointCount];
+    private readonly Point[] _bellyPoints = new Point[BodyPointCount];
+    private readonly double[] _bellyWidths = new double[BodyPointCount];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Snake" /> class.
@@ -151,8 +178,8 @@ public sealed class Snake : Animal
 
         DrawShadow(context, ShadowBrush, state, 50, 30 - (arch * 0.3), 4);
 
-        var points = new Point[BodySegments + 1 + NeckSegments];
-        var widths = new double[points.Length];
+        var points = _bodyPoints.AsSpan(0, BodyPointCount);
+        var widths = _bodyWidths.AsSpan(0, BodyPointCount);
         for (var i = 0; i <= BodySegments; i++)
         {
             var t = (double)i / BodySegments;
@@ -218,27 +245,8 @@ public sealed class Snake : Animal
             }
 
             // The tail coils on top of the ring.
-            var tail = new Point[9];
-            var tailWidths = new double[tail.Length];
-            for (var i = 0; i < tail.Length; i++)
-            {
-                var t = (double)i / (tail.Length - 1);
-                tail[i] = GetBezierPoint(new Point(29, 80), new Point(31, 71), new Point(42, 68), new Point(50, 72), t);
-                tailWidths[i] = 13 - (8 * t);
-            }
-
-            DrawTube(context, tail, tailWidths, SkinBrush, true);
-
-            var neck = new Point[6];
-            var neckWidths = new double[neck.Length];
-            for (var i = 0; i < neck.Length; i++)
-            {
-                neck[i] = GetBezierPoint(
-                    new Point(52, 84), new Point(56, 82), new Point(59, 79), new Point(62, 76), (double)i / (neck.Length - 1));
-                neckWidths[i] = RingWidth;
-            }
-
-            DrawTube(context, neck, neckWidths, SkinBrush, true);
+            DrawTube(context, SleepingTailPoints, SleepingTailWidths, SkinBrush, true);
+            DrawTube(context, SleepingNeckPoints, SleepingNeckWidths, SkinBrush, true);
         }
 
         // The head rests on the ring, the leaf droops over it.
@@ -258,8 +266,8 @@ public sealed class Snake : Animal
     private void DrawDangling(DrawingContext context, double phase)
     {
         // Held by the head, the body hangs down and swings, the tail tip kicks forward.
-        var points = new Point[DanglingSegments + 1];
-        var widths = new double[points.Length];
+        var points = _bodyPoints.AsSpan(0, DanglingSegments + 1);
+        var widths = _bodyWidths.AsSpan(0, DanglingSegments + 1);
         for (var i = 0; i <= DanglingSegments; i++)
         {
             var t = (double)i / DanglingSegments;
@@ -285,13 +293,13 @@ public sealed class Snake : Animal
             0);
     }
 
-    private void DrawBody(DrawingContext context, Point[] points, double[] widths, int bellyStart)
+    private void DrawBody(DrawingContext context, ReadOnlySpan<Point> points, ReadOnlySpan<double> widths, int bellyStart)
     {
         DrawTube(context, points, widths, SkinBrush, true);
 
         // A pale belly stripe on the underside and spots along the back.
-        var bellyPoints = new Point[points.Length - bellyStart];
-        var bellyWidths = new double[bellyPoints.Length];
+        var bellyPoints = _bellyPoints.AsSpan(0, points.Length - bellyStart);
+        var bellyWidths = _bellyWidths.AsSpan(0, points.Length - bellyStart);
         for (var i = bellyStart; i < points.Length; i++)
         {
             bellyPoints[i - bellyStart] = points[i] + (GetBellyNormal(points, i) * widths[i] * 0.24);
@@ -330,7 +338,7 @@ public sealed class Snake : Animal
         using (context.PushTransform(Matrix.CreateRotation(angle) * Matrix.CreateTranslation(center.X, center.Y)))
         {
             context.DrawEllipse(SkinBrush, null, default, radiusX, radiusY);
-            using (context.PushGeometryClip(new EllipseGeometry(new Rect(-radiusX, -radiusY, radiusX * 2, radiusY * 2))))
+            using (context.PushGeometryClip(pose == HeadPose.Asleep ? SleepingHeadClip : HeadClip))
             {
                 // Pale chin.
                 context.DrawEllipse(Belly, null, new Point(radiusX * 0.3, radiusY * 0.78), radiusX * 0.72, radiusY * 0.42);
@@ -354,20 +362,7 @@ public sealed class Snake : Animal
             }
             else
             {
-                // A narrower smile while asleep.
-                var halfWidth = pose == HeadPose.Asleep ? 0.22 : 0.32;
-                var depth = pose == HeadPose.Asleep ? 0.18 : 0.26;
-                var mouth = new StreamGeometry();
-                using (var geometryContext = mouth.Open())
-                {
-                    geometryContext.BeginFigure(new Point(radiusX * (0.48 - halfWidth), radiusY * 0.36), false);
-                    geometryContext.QuadraticBezierTo(
-                        new Point(radiusX * 0.48, radiusY * (0.36 + depth)),
-                        new Point(radiusX * (0.48 + halfWidth), radiusY * 0.32));
-                    geometryContext.EndFigure(false);
-                }
-
-                context.DrawGeometry(null, MouthPen, mouth);
+                context.DrawGeometry(null, MouthPen, pose == HeadPose.Asleep ? SleepingMouth : Mouth);
             }
 
             if (tongue > 0.02)
@@ -381,16 +376,11 @@ public sealed class Snake : Animal
     {
         if (pose is HeadPose.Blinking or HeadPose.Asleep)
         {
-            var closedEye = new StreamGeometry();
-            using (var geometryContext = closedEye.Open())
+            using (context.PushTransform(Matrix.CreateTranslation(center.X, center.Y)))
             {
-                geometryContext.BeginFigure(new Point(center.X - (radius * 0.9), center.Y), false);
-                geometryContext.QuadraticBezierTo(
-                    new Point(center.X, center.Y + (radius * 0.9)), new Point(center.X + (radius * 0.9), center.Y));
-                geometryContext.EndFigure(false);
+                context.DrawGeometry(null, ClosedEyePen, pose == HeadPose.Asleep ? SleepingClosedEye : ClosedEye);
             }
 
-            context.DrawGeometry(null, ClosedEyePen, closedEye);
             return;
         }
 
@@ -415,24 +405,16 @@ public sealed class Snake : Animal
             eyeRadius * 0.13);
     }
 
-    private void DrawTongue(DrawingContext context, Point root, double extension)
+    private static void DrawTongue(DrawingContext context, Point root, double extension)
     {
         // A forked tongue sticking out of the mouth corner.
         var length = 7 * extension;
         var tip = new Point(root.X + length, root.Y + (length * 0.15));
-        var geometry = new StreamGeometry();
-        using (var geometryContext = geometry.Open())
-        {
-            geometryContext.BeginFigure(root, false);
-            geometryContext.LineTo(tip);
-            geometryContext.EndFigure(false);
-            geometryContext.BeginFigure(new Point(tip.X + (2.2 * extension), tip.Y - (1.4 * extension)), false);
-            geometryContext.LineTo(tip);
-            geometryContext.LineTo(new Point(tip.X + (2.2 * extension), tip.Y + (1.6 * extension)));
-            geometryContext.EndFigure(false);
-        }
-
-        context.DrawGeometry(null, TonguePen, geometry);
+        var fork = new Point(tip.X + (2.2 * extension), tip.Y - (1.4 * extension));
+        context.DrawLine(TonguePen, root, tip);
+        context.DrawLine(TonguePen, fork, tip);
+        fork = new Point(fork.X, tip.Y + (1.6 * extension));
+        context.DrawLine(TonguePen, fork, tip);
     }
 
     /// <summary>
@@ -444,7 +426,8 @@ public sealed class Snake : Animal
     /// <param name="widths">Width of the tube at every point.</param>
     /// <param name="brush">Fill of the tube.</param>
     /// <param name="isOutlined">Whether to outline the tube.</param>
-    private void DrawTube(DrawingContext context, Point[] points, double[] widths, IBrush brush, bool isOutlined)
+    private void DrawTube(
+        DrawingContext context, ReadOnlySpan<Point> points, ReadOnlySpan<double> widths, IBrush brush, bool isOutlined)
     {
         // The whole outline goes first, so the fill covers it at the joints.
         if (isOutlined)
@@ -482,11 +465,44 @@ public sealed class Snake : Animal
     /// <param name="points">Points along the body, from the tail to the head.</param>
     /// <param name="index">Index of the point.</param>
     /// <returns>Unit normal.</returns>
-    private static Vector GetBellyNormal(Point[] points, int index)
+    private static Vector GetBellyNormal(ReadOnlySpan<Point> points, int index)
     {
         Vector direction = points[Math.Min(points.Length - 1, index + 1)] - points[Math.Max(0, index - 1)];
         var length = direction.Length;
         return length > 0 ? new Vector(-direction.Y / length, direction.X / length) : new Vector(0, 1);
+    }
+
+    private static Geometry CreateMouth(double radiusX, double radiusY, double halfWidth, double depth)
+    {
+        var geometry = new StreamGeometry();
+        using var context = geometry.Open();
+        context.BeginFigure(new Point(radiusX * (0.48 - halfWidth), radiusY * 0.36), false);
+        context.QuadraticBezierTo(
+            new Point(radiusX * 0.48, radiusY * (0.36 + depth)),
+            new Point(radiusX * (0.48 + halfWidth), radiusY * 0.32));
+        context.EndFigure(false);
+        return geometry;
+    }
+
+    private static Geometry CreateClosedEye(double radius)
+    {
+        var geometry = new StreamGeometry();
+        using var context = geometry.Open();
+        context.BeginFigure(new Point(-radius * 0.9, 0), false);
+        context.QuadraticBezierTo(new Point(0, radius * 0.9), new Point(radius * 0.9, 0));
+        context.EndFigure(false);
+        return geometry;
+    }
+
+    private static Point[] CreateBezierPoints(int count, Point start, Point controlPoint1, Point controlPoint2, Point end)
+    {
+        var points = new Point[count];
+        for (var i = 0; i < points.Length; i++)
+        {
+            points[i] = GetBezierPoint(start, controlPoint1, controlPoint2, end, (double)i / (points.Length - 1));
+        }
+
+        return points;
     }
 
     private static Point GetBezierPoint(Point start, Point controlPoint1, Point controlPoint2, Point end, double t)

@@ -65,6 +65,17 @@ public sealed class Parrot : Animal
     private static readonly Point NearShoulder = new(50, 51);
     private static readonly Point FarShoulder = new(46, 49);
     private static readonly Point HeadCenter = new(60, 38);
+    private static readonly Geometry StandingHead = new EllipseGeometry(new Rect(47.5, 25.5, 25, 25));
+    private static readonly Geometry SleepingHead = new EllipseGeometry(new Rect(44.5, 31.5, 25, 25));
+    private static readonly Geometry CurledToeRight = CreateCurve(
+        new Point(0, 0), new Point(3, 1), new Point(4, 3), new Point(2, 4));
+
+    private static readonly Geometry CurledToeLeft = CreateCurve(
+        new Point(0, 0), new Point(-2, 1), new Point(-3, 3), new Point(-1, 4));
+
+    private static readonly Geometry ClosedEye = CreateCurve(
+        new Point(-2.8, 0), new Point(-1.4, 2.5), new Point(1.4, 2.5), new Point(2.8, 0));
+
     private static readonly Point[] Hips = [new(43, 80), new(50, 80)];
 
     /// <summary>
@@ -200,10 +211,12 @@ public sealed class Parrot : Animal
         context.DrawLine(LegPen, hip, foot);
         if (isCurled)
         {
-            context.DrawGeometry(null, ToePen, CreateCurve(
-                foot, new Point(foot.X + 3, foot.Y + 1), new Point(foot.X + 4, foot.Y + 3), new Point(foot.X + 2, foot.Y + 4)));
-            context.DrawGeometry(null, ToePen, CreateCurve(
-                foot, new Point(foot.X - 2, foot.Y + 1), new Point(foot.X - 3, foot.Y + 3), new Point(foot.X - 1, foot.Y + 4)));
+            using (context.PushTransform(Matrix.CreateTranslation(foot.X, foot.Y)))
+            {
+                context.DrawGeometry(null, ToePen, CurledToeRight);
+                context.DrawGeometry(null, ToePen, CurledToeLeft);
+            }
+
             return;
         }
 
@@ -294,7 +307,7 @@ public sealed class Parrot : Animal
     {
         using (context.PushTransform(RotateAround(tiltDegrees, center.X, center.Y)))
         {
-            var head = new EllipseGeometry(new Rect(center.X - 12.5, center.Y - 12.5, 25, 25));
+            var head = center == HeadCenter ? StandingHead : SleepingHead;
             context.DrawGeometry(palette.Plumage, null, head);
             if (palette.Forehead != null)
             {
@@ -330,11 +343,11 @@ public sealed class Parrot : Animal
         switch (eye)
         {
             case EyePose.Closed:
-                context.DrawGeometry(null, ClosedEyePen, CreateCurve(
-                    new Point(center.X - 2.8, center.Y),
-                    new Point(center.X - 1.4, center.Y + 2.5),
-                    new Point(center.X + 1.4, center.Y + 2.5),
-                    new Point(center.X + 2.8, center.Y)));
+                using (context.PushTransform(Matrix.CreateTranslation(center.X, center.Y)))
+                {
+                    context.DrawGeometry(null, ClosedEyePen, ClosedEye);
+                }
+
                 return;
             case EyePose.Surprised:
                 // Wide open with a small pupil when the parrot is lifted.

@@ -37,11 +37,11 @@ The interface follows the operating system's current UI culture, detected from t
 
 ## How it works
 
-- `Views/CatWindow` is a small borderless transparent topmost window that hosts the cat.
-- `Services/CatChaseService` runs a ~60 FPS loop on the UI thread: it reads the cursor position, advances the simulation and moves the window.
-- `Input/ICursorPositionProvider` reads the global cursor position: `XQueryPointer` on X11, `GetCursorPos` on Windows and `CGEventGetLocation` on macOS. When the platform API is not available, the position reported by the pointer events of the cat window itself is used.
-- `Simulation/CatSimulator` is the pure movement and animation state machine (idle, walk, run, sleep, dragged), it does not know anything about windows and is covered by unit tests.
-- `Controls/CatView` draws the cat in a 100x100 design space scaled to the window, animating legs, tail, ears, eyes and blinks.
+- `Views/AnimalWindow` is a small borderless transparent topmost window that hosts the animal.
+- `Services/AnimalChaseService` runs a ~60 FPS simulation loop on the UI thread: it reads the cursor position, advances the simulation and moves the window. Rendering stays at 60 FPS while the animal is awake and is throttled to 15 FPS when sleeping.
+- `Input/ICursorPositionProvider` reads the global cursor position: `XQueryPointer` on X11, `GetCursorPos` on Windows and `CGEventGetLocation` on macOS. When the platform API is not available, the position reported by the pointer events of the animal window itself is used.
+- `Simulation/AnimalSimulator` is the pure movement and animation state machine (idle, walk, run, sleep, dragged), it does not know anything about windows and is covered by unit tests.
+- `Controls/AnimalView` draws the animal in a 100x100 design space scaled to the window, animating its body, face and other features.
 
 ## Limitations
 

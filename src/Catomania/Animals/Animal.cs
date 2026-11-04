@@ -38,6 +38,8 @@ public abstract class Animal
     private const double ShakeJiggles = 7;
     private const double ShakeSkew = 0.2;
 
+    private static readonly Geometry[] ZzzGeometries = [CreateZ(3), CreateZ(4.1), CreateZ(5.2)];
+
     /// <summary>
     /// Gets the kind of the animal.
     /// </summary>
@@ -196,27 +198,29 @@ public abstract class Animal
     /// <param name="phase">Animation phase in radians.</param>
     protected static void DrawZzz(DrawingContext context, IPen pen, Point origin, double phase)
     {
-        for (var i = 0; i < 3; i++)
+        for (var i = 0; i < ZzzGeometries.Length; i++)
         {
             var progress = ((phase / TwoPi) + (i / 3.0)) % 1.0;
             var x = origin.X + (progress * 16) + i;
             var y = origin.Y - (progress * 20) - (i * 3);
-            var size = 3 + (i * 1.1);
-            var geometry = new StreamGeometry();
-            using (var geometryContext = geometry.Open())
-            {
-                geometryContext.BeginFigure(new Point(x, y), false);
-                geometryContext.LineTo(new Point(x + size, y));
-                geometryContext.LineTo(new Point(x, y + size));
-                geometryContext.LineTo(new Point(x + size, y + size));
-                geometryContext.EndFigure(false);
-            }
-
+            using (context.PushTransform(Matrix.CreateTranslation(x, y)))
             using (context.PushOpacity(Math.Sin(progress * Math.PI)))
             {
-                context.DrawGeometry(null, pen, geometry);
+                context.DrawGeometry(null, pen, ZzzGeometries[i]);
             }
         }
+    }
+
+    private static Geometry CreateZ(double size)
+    {
+        var geometry = new StreamGeometry();
+        using var context = geometry.Open();
+        context.BeginFigure(new Point(0, 0), false);
+        context.LineTo(new Point(size, 0));
+        context.LineTo(new Point(0, size));
+        context.LineTo(new Point(size, size));
+        context.EndFigure(false);
+        return geometry;
     }
 
     private static Matrix? GetTrickTransform(AnimalRenderState state)

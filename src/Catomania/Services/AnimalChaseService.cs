@@ -17,6 +17,7 @@ public sealed class AnimalChaseService : IDisposable
 
     private const double CursorPositionRefreshSeconds = 1.0 / 15;
     private const double WorkAreasRefreshSeconds = 1;
+    private const double SleepRenderRefreshSeconds = 1.0 / 15;
     private const double SpawnOffsetY = 90;
 
     private readonly IAnimalHost _host;
@@ -33,6 +34,9 @@ public sealed class AnimalChaseService : IDisposable
     private long _lastTickTimestamp;
     private double _cursorPositionRefreshTime = CursorPositionRefreshSeconds;
     private double _workAreasRefreshTime = WorkAreasRefreshSeconds;
+    private double _renderRefreshTime;
+    private AnimalRenderState _lastRenderState;
+    private bool _hasLastRenderState;
     private AnimalTrick _pendingTrick;
 
     /// <summary>
@@ -126,7 +130,7 @@ public sealed class AnimalChaseService : IDisposable
     {
         RefreshWorkAreas(deltaSeconds);
         _cursorPositionRefreshTime += deltaSeconds;
-        if (_cursorPositionRefreshTime >= CursorPositionRefreshSeconds)
+        if (_cursorPositionRefreshTime >= CursorPositionRefreshSeconds || _host.IsDragging)
         {
             _cursorPositionRefreshTime = 0;
             TryGetCursorPosition(out _);
@@ -162,7 +166,11 @@ public sealed class AnimalChaseService : IDisposable
             _host.SetCenter(_simulator.Position);
         }
 
-        _host.ApplyRenderState(_simulator.CreateRenderState());
+        var renderState = _simulator.CreateRenderState();
+        if (ShouldApplyRenderState(renderState, deltaSeconds))
+        {
+            _host.ApplyRenderState(renderState);
+        }
     }
 
     /// <inheritdoc />
@@ -199,6 +207,26 @@ public sealed class AnimalChaseService : IDisposable
         // Keep the last known position, or stay where the animal is when it has never been read.
         cursorPosition = _hasCursorPosition ? _lastCursorPosition : _host.GetCenter();
         return false;
+    }
+
+    private bool ShouldApplyRenderState(AnimalRenderState state, double deltaSeconds)
+    {
+        _renderRefreshTime += Math.Max(0, deltaSeconds);
+        var refreshSeconds = state.State == AnimalAnimationState.Sleep ? SleepRenderRefreshSeconds : 0;
+        var visualStateChanged = !_hasLastRenderState
+                                 || state.State != _lastRenderState.State
+                                 || state.FacingRight != _lastRenderState.FacingRight
+                                 || state.IsBlinking != _lastRenderState.IsBlinking
+                                 || state.Trick != _lastRenderState.Trick;
+        if (!visualStateChanged && _renderRefreshTime < refreshSeconds)
+        {
+            return false;
+        }
+
+        _renderRefreshTime = 0;
+        _lastRenderState = state;
+        _hasLastRenderState = true;
+        return true;
     }
 
     private void RefreshWorkAreas(double deltaSeconds)
