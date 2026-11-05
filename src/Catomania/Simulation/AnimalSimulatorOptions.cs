@@ -1,3 +1,5 @@
+using Catomania.Models;
+
 namespace Catomania.Simulation;
 
 /// <summary>
@@ -5,6 +7,20 @@ namespace Catomania.Simulation;
 /// </summary>
 public sealed class AnimalSimulatorOptions
 {
+    private static readonly AnimalTrick[] DefaultTricks =
+        [
+            AnimalTrick.Walk,
+            AnimalTrick.LookAround,
+            AnimalTrick.Hop,
+            AnimalTrick.Speak,
+            AnimalTrick.Emote,
+            AnimalTrick.Wiggle,
+            AnimalTrick.Shake,
+            AnimalTrick.BunnyHops,
+            AnimalTrick.Spin,
+            AnimalTrick.Zoomies
+        ];
+
     /// <summary>
     /// Gets or sets the walking speed.
     /// </summary>
@@ -63,6 +79,12 @@ public sealed class AnimalSimulatorOptions
     public double SleepAfterSeconds { get; set; } = 30;
 
     /// <summary>
+    /// Gets or sets the number of sleeping animations available to the animal. A random zero-based
+    /// animation index is selected each time the animal falls asleep.
+    /// </summary>
+    public int SleepAnimationCount { get; set; } = 1;
+
+    /// <summary>
     /// Gets or sets the minimum interval between blinks in seconds.
     /// </summary>
     public double BlinkMinIntervalSeconds { get; set; } = 2;
@@ -76,6 +98,12 @@ public sealed class AnimalSimulatorOptions
     /// Gets or sets the blink duration in seconds.
     /// </summary>
     public double BlinkDurationSeconds { get; set; } = 0.13;
+
+    /// <summary>
+    /// Gets or sets the tricks the animal can play while chasing is paused. Override this in an
+    /// animal's options to give it a different set of common or animal-specific tricks.
+    /// </summary>
+    public IReadOnlyList<AnimalTrick> Tricks { get; set; } = DefaultTricks;
 
     /// <summary>
     /// Gets or sets the minimum interval between tricks in seconds. Tricks are played only while chasing

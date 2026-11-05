@@ -49,20 +49,6 @@ public sealed class AnimalSimulator
     // Used for the trick walk distance when the sprite size is not known.
     private const double DefaultSpriteSize = 100;
 
-    private static readonly AnimalTrick[] _tricks =
-        [
-            AnimalTrick.Walk,
-            AnimalTrick.LookAround,
-            AnimalTrick.Hop,
-            AnimalTrick.Speak,
-            AnimalTrick.Emote,
-            AnimalTrick.Wiggle,
-            AnimalTrick.Shake,
-            AnimalTrick.BunnyHops,
-            AnimalTrick.Spin,
-            AnimalTrick.Zoomies
-        ];
-
     private readonly AnimalSimulatorOptions _options;
     private readonly Random _random;
 
@@ -117,6 +103,11 @@ public sealed class AnimalSimulator
     /// Gets the current animation state.
     /// </summary>
     public AnimalAnimationState State { get; private set; } = AnimalAnimationState.Idle;
+
+    /// <summary>
+    /// Gets the zero-based index of the sleeping animation selected for the current sleep session.
+    /// </summary>
+    public int SleepAnimation { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the animal looks to the right.
@@ -239,6 +230,11 @@ public sealed class AnimalSimulator
             FacingRight = Velocity.X > 0;
         }
 
+        if (state == AnimalAnimationState.Sleep && State != AnimalAnimationState.Sleep)
+        {
+            SleepAnimation = _random.Next(Math.Max(1, _options.SleepAnimationCount));
+        }
+
         State = state;
         Phase = WrapPhase(Phase + GetPhaseDelta(state, (Position - previousPosition).Length, deltaSeconds, input));
         UpdateBlink(deltaSeconds, state);
@@ -248,7 +244,8 @@ public sealed class AnimalSimulator
     /// Create a render state snapshot for the current frame.
     /// </summary>
     /// <returns>Render state.</returns>
-    public AnimalRenderState CreateRenderState() => new(State, FacingRight, Phase, IsBlinking, Trick, TrickProgress);
+    public AnimalRenderState CreateRenderState() =>
+        new(State, FacingRight, Phase, IsBlinking, Trick, TrickProgress, SleepAnimation);
 
     /// <summary>
     /// Start the trick at once.
@@ -294,7 +291,14 @@ public sealed class AnimalSimulator
             return false;
         }
 
-        StartTrick(_tricks[_random.Next(_tricks.Length)], input);
+        var tricks = _options.Tricks;
+        if (tricks.Count == 0)
+        {
+            _trickCooldown = GetNextTrickInterval();
+            return false;
+        }
+
+        StartTrick(tricks[_random.Next(tricks.Count)], input);
         return true;
     }
 

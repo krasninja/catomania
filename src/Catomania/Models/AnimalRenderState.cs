@@ -9,13 +9,15 @@ namespace Catomania.Models;
 /// <param name="IsBlinking">Whether the eyes are closed for a blink.</param>
 /// <param name="Trick">Trick that is playing.</param>
 /// <param name="TrickProgress">Progress of the trick from 0 to 1.</param>
+/// <param name="SleepAnimation">Zero-based index of the sleeping animation selected for the current sleep session.</param>
 public readonly record struct AnimalRenderState(
     AnimalAnimationState State,
     bool FacingRight,
     double Phase,
     bool IsBlinking,
     AnimalTrick Trick = AnimalTrick.None,
-    double TrickProgress = 0)
+    double TrickProgress = 0,
+    int SleepAnimation = 0)
 {
     /// <summary>
     /// Gets the state used before the first simulation tick.

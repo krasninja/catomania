@@ -495,13 +495,8 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private void AddTricksMenu()
     {
         var tricksMenuItem = new MenuItem { Header = Strings.Tricks };
-        foreach (var trick in Enum.GetValues<AnimalTrick>())
+        foreach (var trick in _simulator.Options.Tricks)
         {
-            if (trick == AnimalTrick.None)
-            {
-                continue;
-            }
-
             var trickMenuItem = new MenuItem { Header = GetTrickName(trick) };
             trickMenuItem.Click += (_, _) => _chaseService.StartTrick(trick);
             tricksMenuItem.Items.Add(trickMenuItem);

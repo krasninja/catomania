@@ -217,7 +217,8 @@ public sealed class AnimalChaseService : IDisposable
                                  || state.State != _lastRenderState.State
                                  || state.FacingRight != _lastRenderState.FacingRight
                                  || state.IsBlinking != _lastRenderState.IsBlinking
-                                 || state.Trick != _lastRenderState.Trick;
+                                 || state.Trick != _lastRenderState.Trick
+                                 || state.SleepAnimation != _lastRenderState.SleepAnimation;
         if (!visualStateChanged && _renderRefreshTime < refreshSeconds)
         {
             return false;
