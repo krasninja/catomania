@@ -27,6 +27,7 @@ public sealed class Frog : Animal
     // How far the body rises over the back legs in the stretched pose of a hop, in the art coordinates.
     private const double StretchHeight = 37;
     private const double SleepingHeadDrop = 108;
+    private const double EyeHighlightDistance = 22.75;
 
     private static readonly Color SkinColor = Color.FromUInt32(0xFFBDE28F);
     private static readonly Color PupilColor = Color.FromUInt32(0xFF141612);
@@ -309,7 +310,7 @@ public sealed class Frog : Animal
 
         using (context.PushTransform(ArtToDesign * Matrix.CreateTranslation(pose.OffsetX, -pose.Lift)))
         {
-            DrawSitting(context, pose, GetFace(state), state.TrickProgress);
+            DrawSitting(context, pose, GetFace(state), state);
         }
     }
 
@@ -389,7 +390,7 @@ public sealed class Frog : Animal
             : face;
     }
 
-    private static void DrawSitting(DrawingContext context, Pose pose, Face face, double trickProgress)
+    private static void DrawSitting(DrawingContext context, Pose pose, Face face, AnimalRenderState state)
     {
         var rise = (StretchHeight * pose.Stretch) - pose.Crouch;
 
@@ -424,11 +425,11 @@ public sealed class Frog : Animal
 
         using (context.PushTransform(Matrix.CreateTranslation(0, pose.Breathe - rise)))
         {
-            DrawHead(context, face, trickProgress);
+            DrawHead(context, face, state);
         }
     }
 
-    private static void DrawHead(DrawingContext context, Face face, double trickProgress)
+    private static void DrawHead(DrawingContext context, Face face, AnimalRenderState state)
     {
         DrawOutlined(context, Skin, Head);
         context.DrawEllipse(Cheek, null, new Point(247, 287), 39, 30);
@@ -445,42 +446,43 @@ public sealed class Frog : Animal
                 context.DrawGeometry(null, FacePen, HappySmile);
                 break;
             case Face.Cute:
-                DrawEyes(context, -1, true);
+                DrawEyes(context, state, true);
                 context.DrawGeometry(null, FacePen, CuteSmile);
                 break;
             case Face.Hunt:
-                DrawFocusedEyes(context);
+                DrawFocusedEyes(context, state);
                 context.DrawGeometry(null, FacePen, HuntingMouth);
                 break;
             case Face.Eat:
-                DrawFocusedEyes(context);
-                DrawEating(context, trickProgress);
+                DrawFocusedEyes(context, state);
+                DrawEating(context, state.TrickProgress);
                 break;
             case Face.Startled:
-                DrawEyes(context, -1, true);
+                DrawEyes(context, state, true);
                 context.DrawEllipse(Outline, null, new Point(400, 272), 17, 21);
                 break;
             case Face.LookAhead:
-                DrawEyes(context, 1, false);
+                DrawEyes(context, state, false, true);
                 context.DrawGeometry(null, FacePen, Smile);
                 break;
             default:
-                DrawEyes(context, -1, false);
+                DrawEyes(context, state, false);
                 context.DrawGeometry(null, FacePen, Smile);
                 break;
         }
     }
 
-    // The highlight is on the side the frog looks to: 1 is ahead, -1 is towards the nose.
-    private static void DrawEyes(DrawingContext context, int look, bool isSparkling)
+    private static void DrawEyes(
+        DrawingContext context,
+        AnimalRenderState state,
+        bool isSparkling,
+        bool isAhead = false)
     {
         for (var i = 0; i < EyeCenters.Length; i++)
         {
             var center = EyeCenters[i];
-            var side = look > 0 ? 1 : i == 0 ? 1 : -1;
             context.DrawEllipse(Outline, null, center, 46, 46);
-            context.DrawEllipse(
-                Brushes.White, null, new Point(center.X + (14.3 * side), center.Y - 17.7), 9.4, 9.4);
+            context.DrawEllipse(Brushes.White, null, GetEyeHighlightCenter(center, i, state, isAhead), 9.4, 9.4);
             if (isSparkling)
             {
                 context.DrawEllipse(Brushes.White, null, new Point(center.X + (i == 0 ? -17 : 17), center.Y - 2), 18, 18);
@@ -488,14 +490,31 @@ public sealed class Frog : Animal
         }
     }
 
-    private static void DrawFocusedEyes(DrawingContext context)
+    private static void DrawFocusedEyes(DrawingContext context, AnimalRenderState state)
     {
         for (var i = 0; i < EyeCenters.Length; i++)
         {
             var center = EyeCenters[i];
             context.DrawGeometry(Outline, null, FocusedEyes[i]);
-            context.DrawEllipse(Brushes.White, null, new Point(center.X + 14.3, center.Y - 17.7), 9.4, 9.4);
+            context.DrawEllipse(Brushes.White, null, GetEyeHighlightCenter(center, i, state, true), 9.4, 9.4);
         }
+    }
+
+    private static Point GetEyeHighlightCenter(Point center, int eyeIndex, AnimalRenderState state, bool isAhead)
+    {
+        var direction = state.CursorDirection;
+        if (direction.Length < double.Epsilon)
+        {
+            var side = isAhead || eyeIndex == 0 ? 1 : -1;
+            return new Point(center.X + (14.3 * side), center.Y - 17.7);
+        }
+
+        // AnimalView mirrors the frog when it faces left, so compensate to keep the highlights on the cursor side.
+        var x = direction.X * (state.FacingRight ? 1 : -1);
+        var length = Math.Sqrt((x * x) + (direction.Y * direction.Y));
+        return new Point(
+            center.X + (x / length * EyeHighlightDistance),
+            center.Y + (direction.Y / length * EyeHighlightDistance));
     }
 
     private static void DrawClosedEyes(DrawingContext context, Geometry[] eyes)

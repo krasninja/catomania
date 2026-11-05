@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Update Capybara.
+- Update Capybara. Add capibara song.
 - Add snake colors.
+- The frog follows the cursor with its eyes in pause mode.
 - Fix build for MacOS.
+- KDE context menu scrolling fix.
 
 ## [0.3.4]
 

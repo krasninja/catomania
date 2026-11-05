@@ -166,7 +166,10 @@ public sealed class AnimalChaseService : IDisposable
             _host.SetCenter(_simulator.Position);
         }
 
-        var renderState = _simulator.CreateRenderState();
+        var renderState = _simulator.CreateRenderState() with
+        {
+            CursorDirection = (cursorPosition - _simulator.Position).Normalized(),
+        };
         if (ShouldApplyRenderState(renderState, deltaSeconds))
         {
             _host.ApplyRenderState(renderState);

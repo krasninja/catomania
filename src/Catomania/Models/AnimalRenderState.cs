@@ -1,3 +1,5 @@
+using Catomania.Simulation;
+
 namespace Catomania.Models;
 
 /// <summary>
@@ -10,6 +12,7 @@ namespace Catomania.Models;
 /// <param name="Trick">Trick that is playing.</param>
 /// <param name="TrickProgress">Progress of the trick from 0 to 1.</param>
 /// <param name="SleepAnimation">Zero-based index of the sleeping animation selected for the current sleep session.</param>
+/// <param name="CursorDirection">Unit vector from the animal center to the cursor in screen coordinates.</param>
 public readonly record struct AnimalRenderState(
     AnimalAnimationState State,
     bool FacingRight,
@@ -17,7 +20,8 @@ public readonly record struct AnimalRenderState(
     bool IsBlinking,
     AnimalTrick Trick = AnimalTrick.None,
     double TrickProgress = 0,
-    int SleepAnimation = 0)
+    int SleepAnimation = 0,
+    ScreenPoint CursorDirection = default)
 {
     /// <summary>
     /// Gets the state used before the first simulation tick.
