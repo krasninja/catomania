@@ -61,6 +61,14 @@ public abstract class Animal
     public abstract string Sound { get; }
 
     /// <summary>
+    /// Get what the animal says in the speech bubble during its own animal-specific trick, like the
+    /// words of the capybara song. The bubble is updated when the text changes.
+    /// </summary>
+    /// <param name="state">Render state produced by the simulation.</param>
+    /// <returns>Text to show, or <c>null</c> when the animal says nothing.</returns>
+    public virtual string? GetTrickSpeech(AnimalRenderState state) => null;
+
+    /// <summary>
     /// Create an animal of the kind configured in the settings.
     /// </summary>
     /// <param name="settings">Application settings.</param>

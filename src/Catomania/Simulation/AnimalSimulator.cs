@@ -326,7 +326,7 @@ public sealed class AnimalSimulator
             AnimalTrick.Shake => ShakeDurationSeconds,
             AnimalTrick.Spin => SpinDurationSeconds,
             AnimalTrick.BunnyHops => BunnyHopDurationSeconds * BunnyHopCount,
-            _ => 0,
+            _ => _options.TrickDurations.GetValueOrDefault(Trick),
         };
 
         var state = AnimalAnimationState.Idle;

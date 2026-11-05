@@ -71,6 +71,7 @@
   <data name="BunnyHops" xml:space="preserve"><value>Bunny hops</value></data>
   <data name="Spin" xml:space="preserve"><value>Spin</value></data>
   <data name="Zoomies" xml:space="preserve"><value>Zoomies</value></data>
+  <data name="CapybaraSong" xml:space="preserve"><value>Capybara song</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>About Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Version: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Platform: {0} ({1})</value></data>

@@ -63,6 +63,7 @@
   <data name="BunnyHops" xml:space="preserve"><value>兔子跳</value></data>
   <data name="Spin" xml:space="preserve"><value>旋转</value></data>
   <data name="Zoomies" xml:space="preserve"><value>疯狂奔跑</value></data>
+  <data name="CapybaraSong" xml:space="preserve"><value>水豚之歌</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>关于 Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>版本：{0}</value></data>
   <data name="Platform" xml:space="preserve"><value>平台：{0} ({1})</value></data>

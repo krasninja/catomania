@@ -62,6 +62,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private bool _isCheckingUpdates;
     private bool _disposed;
     private AnimalTrick _trick;
+    private string? _trickSpeech;
     private PixelPoint _dragWindowPosition;
     private PixelPoint _dragPointerPosition;
     private string? _dragCursorProviderName;
@@ -314,6 +315,15 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
             {
                 ShowSpeechBubble(Emotes[Random.Shared.Next(Emotes.Length)]);
             }
+
+            _trickSpeech = null;
+        }
+
+        var speech = _animalView.Animal.GetTrickSpeech(state);
+        if (speech != null && speech != _trickSpeech)
+        {
+            _trickSpeech = speech;
+            ShowSpeechBubble(speech);
         }
 
         _trick = state.Trick;
@@ -522,6 +532,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         AnimalTrick.BunnyHops => Strings.BunnyHops,
         AnimalTrick.Spin => Strings.Spin,
         AnimalTrick.Zoomies => Strings.Zoomies,
+        AnimalTrick.CapybaraSong => Strings.CapybaraSong,
         _ => trick.ToString(),
     };
 #endif

@@ -124,6 +124,8 @@ public static partial class Strings
 
     public static string Zoomies => Get();
 
+    public static string CapybaraSong => Get();
+
     public static string AboutCatomania => Get();
 
     public static string Version => Get();

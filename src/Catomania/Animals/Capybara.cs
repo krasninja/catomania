@@ -7,7 +7,8 @@ namespace Catomania.Animals;
 
 /// <summary>
 /// A calm capybara with a sprout on its head. It sits facing the viewer, turns sideways to waddle
-/// on its short legs, lowers its head when running, munches a watermelon and sleeps lying on its belly.
+/// on its short legs, lowers its head when running, munches a watermelon, sings its song twirling the booty
+/// and sleeps lying on its belly.
 /// </summary>
 public sealed class Capybara : Animal
 {
@@ -36,9 +37,38 @@ public sealed class Capybara : Animal
     // How far the head drops in the poses with the splayed feet, in the art coordinates.
     private const double PosingHeadDrop = 20;
 
+    // Duration of a beat of the song in seconds, a relaxed capybara tempo.
+    private const double SongBeatSeconds = 0.5;
+
+    // The booty swings around a point high on the body, so the bottom moves the most, the head
+    // tilts back a little to stay upright and bobs on every beat. In the art coordinates and degrees.
+    private const double TwirlPivotX = 403;
+    private const double TwirlPivotY = 300;
+    private const double TwirlAngle = 14;
+    private const double TwirlHeadTilt = 10;
+    private const double TwirlHeadBob = 24;
+
     // Where the lowered head of the sleeping capybara goes on the running one, in the art coordinates.
     private static readonly Vector RunningHeadShift = new(14, -46);
     private static readonly Vector RunningSproutShift = new(-9.34, 3.152);
+
+    // The song is sung note by note, and every note is one swing of the booty, to one side and then
+    // to the other: first the long and slow "Ca-pi-baa-ra..." with the "baa" and the "ra" drawn out,
+    // then four short and snappy "capibara".
+    private static readonly SongNote[] Song =
+    [
+        new(1, "♪ Ca-", 0.6),
+        new(1, "♪ Ca-pi-", 0.6),
+        new(1, "♪ Ca-pi-baa-", 0.6),
+        new(1, "♪ Ca-pi-baa-ra...", 0.6),
+        new(.8, "capibara ♪", 1),
+        new(.8, "♪ capibara", 1),
+        new(.8, "capibara ♪", 1),
+        new(.8, "♪ capibara!", 1),
+        new(.8, "capibara! ♪", 1),
+    ];
+
+    private static readonly double SongBeats = Song.Sum(note => note.Beats);
 
     private static readonly Color FurColor = Color.FromUInt32(0xFFE4A168);
     private static readonly Color PupilColor = Color.FromUInt32(0xFF000000);
@@ -518,7 +548,40 @@ public sealed class Capybara : Animal
     {
         WalkStrideLength = WalkStride * ArtScale / DesignSize,
         RunStrideLength = RunStride * ArtScale / DesignSize,
+        Tricks = [.. new AnimalSimulatorOptions().Tricks, AnimalTrick.CapybaraSong],
+        TrickDurations = new Dictionary<AnimalTrick, double>
+        {
+            [AnimalTrick.CapybaraSong] = SongBeats * SongBeatSeconds,
+        },
     };
+
+    /// <inheritdoc />
+    public override string? GetTrickSpeech(AnimalRenderState state)
+    {
+        if (state.Trick != AnimalTrick.CapybaraSong)
+        {
+            return null;
+        }
+
+        return Song[FindSongNote(state.TrickProgress).Index].Text;
+    }
+
+    // Finds the note that is sung at the given progress of the song and how far it is sung, from 0 to 1.
+    private static (int Index, double Progress) FindSongNote(double trickProgress)
+    {
+        var beat = Math.Clamp(trickProgress, 0, 1) * SongBeats;
+        for (var i = 0; i < Song.Length - 1; i++)
+        {
+            if (beat < Song[i].Beats)
+            {
+                return (i, beat / Song[i].Beats);
+            }
+
+            beat -= Song[i].Beats;
+        }
+
+        return (Song.Length - 1, Math.Min(1, beat / Song[^1].Beats));
+    }
 
     /// <inheritdoc />
     protected override void Draw(DrawingContext context, AnimalRenderState state)
@@ -544,7 +607,7 @@ public sealed class Capybara : Animal
             : state.Trick switch
             {
                 AnimalTrick.Speak => state.TrickProgress < 0.5 ? Face.Eat : Face.Happy,
-                AnimalTrick.Wiggle => Face.Happy,
+                AnimalTrick.Wiggle or AnimalTrick.CapybaraSong => Face.Happy,
                 AnimalTrick.Emote => Face.Cute,
                 AnimalTrick.Shake => Face.Blink,
                 AnimalTrick.LookAround => Face.LookAhead,
@@ -578,6 +641,10 @@ public sealed class Capybara : Animal
                 DrawOutlined(context, FurDark, isPosing ? SplayedRightFoot : RightFoot);
             }
 
+            // The hind feet stay planted while the body twirls the booty.
+            var (twirl, bob) = GetTwirl(state);
+            using var bodyTransform = context.PushTransform(AroundTwirlPivot(Matrix.CreateRotation(
+                twirl * TwirlAngle * Math.PI / 180)));
             DrawOutlined(context, Fur, Body);
 
             // The head drops a little when the capybara poses, the happy one also tilts it aside.
@@ -587,7 +654,9 @@ public sealed class Capybara : Animal
                 Face.Cute or Face.Eat => new Vector(0, PosingHeadDrop),
                 _ => default,
             };
-            using (context.PushTransform(Matrix.CreateTranslation(headShift.X, headShift.Y + breathe)))
+            var headTransform = AroundTwirlPivot(Matrix.CreateRotation(-twirl * TwirlHeadTilt * Math.PI / 180))
+                * Matrix.CreateTranslation(headShift.X, headShift.Y + breathe - (bob * TwirlHeadBob));
+            using (context.PushTransform(headTransform))
             {
                 DrawHead(context, face);
             }
@@ -613,6 +682,25 @@ public sealed class Capybara : Animal
             }
         }
     }
+
+    // The booty swings out and back on every note of the song, to one side and then to the other,
+    // the head bobs with it. The long notes are slow swings, the short ones are quick. A swing starts
+    // and ends in the middle, so the dance flows from note to note without jerks.
+    private static (double Twirl, double Bob) GetTwirl(AnimalRenderState state)
+    {
+        if (state.Trick != AnimalTrick.CapybaraSong || state.State == AnimalAnimationState.Dragged)
+        {
+            return (0, 0);
+        }
+
+        var (index, progress) = FindSongNote(state.TrickProgress);
+        var swing = Math.Sin(Math.PI * progress) * Song[index].Swing;
+        return (index % 2 == 0 ? swing : -swing, swing);
+    }
+
+    private static Matrix AroundTwirlPivot(Matrix transform) => Matrix.CreateTranslation(-TwirlPivotX, -TwirlPivotY)
+        * transform
+        * Matrix.CreateTranslation(TwirlPivotX, TwirlPivotY);
 
     private static void DrawHead(DrawingContext context, Face face)
     {
@@ -892,4 +980,12 @@ public sealed class Capybara : Animal
     }
 
     private static Geometry Parse(string pathData) => StreamGeometry.Parse(pathData);
+
+    /// <summary>
+    /// A note of the capybara song.
+    /// </summary>
+    /// <param name="Beats">Length of the note in beats.</param>
+    /// <param name="Text">Words sung so far in the line, shown in the speech bubble.</param>
+    /// <param name="Swing">How far the booty swings on the note, from 0 to 1.</param>
+    private readonly record struct SongNote(double Beats, string Text, double Swing);
 }

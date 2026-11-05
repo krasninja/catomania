@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Catomania.Models;
 
 namespace Catomania.Simulation;
@@ -125,6 +126,13 @@ public sealed class AnimalSimulatorOptions
     /// Gets or sets the maximum distance of the trick walk, as a fraction of the sprite size.
     /// </summary>
     public double TrickWalkMaxDistance { get; set; } = 1.5;
+
+    /// <summary>
+    /// Gets or sets the durations in seconds of the animal-specific tricks, such as
+    /// <see cref="AnimalTrick.CapybaraSong" />. The common tricks have built-in durations.
+    /// </summary>
+    public IReadOnlyDictionary<AnimalTrick, double> TrickDurations { get; set; } =
+        ReadOnlyDictionary<AnimalTrick, double>.Empty;
 
     /// <summary>
     /// Gets or sets the maximum processed time step in seconds, protects from jumps after a suspend.

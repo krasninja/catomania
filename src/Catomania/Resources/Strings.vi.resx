@@ -63,6 +63,7 @@
   <data name="BunnyHops" xml:space="preserve"><value>Nhảy như thỏ</value></data>
   <data name="Spin" xml:space="preserve"><value>Xoay vòng</value></data>
   <data name="Zoomies" xml:space="preserve"><value>Chạy cuồng nhiệt</value></data>
+  <data name="CapybaraSong" xml:space="preserve"><value>Bài hát capybara</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Giới thiệu Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Phiên bản: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Nền tảng: {0} ({1})</value></data>

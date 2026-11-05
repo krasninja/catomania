@@ -326,6 +326,30 @@ public class AnimalSimulatorTests
     }
 
     [Fact]
+    public void Update_AnimalSpecificTrick_ShouldLastItsConfiguredDuration()
+    {
+        // Arrange.
+        var options = new AnimalSimulatorOptions
+        {
+            TrickDurations = new Dictionary<AnimalTrick, double> { [AnimalTrick.CapybaraSong] = 2.4 },
+        };
+        var simulator = CreateSimulator(new ScreenPoint(500, 500), options);
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        simulator.StartTrick(AnimalTrick.CapybaraSong, input);
+
+        // Act.
+        Run(simulator, input, 1.2);
+        var progressAtHalf = simulator.TrickProgress;
+        var positionAtHalf = simulator.Position;
+        Run(simulator, input, 1.3);
+
+        // Assert.
+        Assert.InRange(progressAtHalf, 0.45, 0.55);
+        Assert.Equal(new ScreenPoint(500, 500), positionAtHalf);
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+    }
+
+    [Fact]
     public void Update_TrickIsPlayingAndUnpaused_ShouldStopTheTrick()
     {
         // Arrange.

@@ -59,4 +59,10 @@ public enum AnimalTrick
     /// The animal dashes a few legs in random directions at full speed and runs back.
     /// </summary>
     Zoomies,
+
+    /// <summary>
+    /// Capybara only: sings "Ca-pi-baa-ra... capibara, capibara, capibara, capibara" in the speech bubble
+    /// and twirls the booty in rhythm, one swing per note.
+    /// </summary>
+    CapybaraSong,
 }

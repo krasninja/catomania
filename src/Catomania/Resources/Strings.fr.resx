@@ -63,6 +63,7 @@
   <data name="BunnyHops" xml:space="preserve"><value>Sauts de lapin</value></data>
   <data name="Spin" xml:space="preserve"><value>Pirouette</value></data>
   <data name="Zoomies" xml:space="preserve"><value>Course frénétique</value></data>
+  <data name="CapybaraSong" xml:space="preserve"><value>Chanson du capybara</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>À propos de Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Version : {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Plateforme : {0} ({1})</value></data>

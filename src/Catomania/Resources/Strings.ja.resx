@@ -63,6 +63,7 @@
   <data name="BunnyHops" xml:space="preserve"><value>ウサギ跳び</value></data>
   <data name="Spin" xml:space="preserve"><value>回転</value></data>
   <data name="Zoomies" xml:space="preserve"><value>全力疾走</value></data>
+  <data name="CapybaraSong" xml:space="preserve"><value>カピバラの歌</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Catomania について</value></data>
   <data name="Version" xml:space="preserve"><value>バージョン: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>プラットフォーム: {0} ({1})</value></data>
