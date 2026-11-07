@@ -14,6 +14,7 @@
   <data name="Pig" xml:space="preserve"><value>Maiale</value></data>
   <data name="Frog" xml:space="preserve"><value>Rana</value></data>
   <data name="Capybara" xml:space="preserve"><value>Capibara</value></data>
+  <data name="Nolu" xml:space="preserve"><value>Nolu</value></data>
   <data name="Speed" xml:space="preserve"><value>Velocità</value></data>
   <data name="Slow" xml:space="preserve"><value>Lenta</value></data>
   <data name="Normal" xml:space="preserve"><value>Normale</value></data>
@@ -64,6 +65,7 @@
   <data name="Spin" xml:space="preserve"><value>Piroetta</value></data>
   <data name="Zoomies" xml:space="preserve"><value>Corsa frenetica</value></data>
   <data name="CapybaraSong" xml:space="preserve"><value>Canzone del capibara</value></data>
+  <data name="Happy" xml:space="preserve"><value>Salti di gioia</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Informazioni su Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Versione: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Piattaforma: {0} ({1})</value></data>

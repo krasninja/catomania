@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Nolu: a shaggy forest creature with deer antlers, it follows the cursor with its eyes, walks sideways wagging its fluffy tail, hunches over looking for mushrooms when running, nibbles a fly agaric, jumps for joy in its own happy trick and sleeps sitting with the arms folded.
 - Update Capybara. Add capibara song.
 - Add snake colors.
 - The frog follows the cursor with its eyes in pause mode.

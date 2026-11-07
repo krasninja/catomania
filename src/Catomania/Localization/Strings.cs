@@ -26,6 +26,8 @@ public static partial class Strings
 
     public static string Capybara => Get();
 
+    public static string Nolu => Get();
+
     public static string Speed => Get();
 
     public static string Slow => Get();
@@ -125,6 +127,8 @@ public static partial class Strings
     public static string Zoomies => Get();
 
     public static string CapybaraSong => Get();
+
+    public static string Happy => Get();
 
     public static string AboutCatomania => Get();
 

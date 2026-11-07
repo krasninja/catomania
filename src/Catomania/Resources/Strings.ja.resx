@@ -14,6 +14,7 @@
   <data name="Pig" xml:space="preserve"><value>豚</value></data>
   <data name="Frog" xml:space="preserve"><value>カエル</value></data>
   <data name="Capybara" xml:space="preserve"><value>カピバラ</value></data>
+  <data name="Nolu" xml:space="preserve"><value>ノル</value></data>
   <data name="Speed" xml:space="preserve"><value>速度</value></data>
   <data name="Slow" xml:space="preserve"><value>遅い</value></data>
   <data name="Normal" xml:space="preserve"><value>標準</value></data>
@@ -64,6 +65,7 @@
   <data name="Spin" xml:space="preserve"><value>回転</value></data>
   <data name="Zoomies" xml:space="preserve"><value>全力疾走</value></data>
   <data name="CapybaraSong" xml:space="preserve"><value>カピバラの歌</value></data>
+  <data name="Happy" xml:space="preserve"><value>よろこびジャンプ</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Catomania について</value></data>
   <data name="Version" xml:space="preserve"><value>バージョン: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>プラットフォーム: {0} ({1})</value></data>

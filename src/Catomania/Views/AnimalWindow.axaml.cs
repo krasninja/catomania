@@ -533,6 +533,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         AnimalTrick.Spin => Strings.Spin,
         AnimalTrick.Zoomies => Strings.Zoomies,
         AnimalTrick.CapybaraSong => Strings.CapybaraSong,
+        AnimalTrick.Happy => Strings.Happy,
         _ => trick.ToString(),
     };
 #endif

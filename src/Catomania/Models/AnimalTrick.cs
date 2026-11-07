@@ -65,4 +65,9 @@ public enum AnimalTrick
     /// and twirls the booty in rhythm, one swing per note.
     /// </summary>
     CapybaraSong,
+
+    /// <summary>
+    /// Nolu only for now: the animal jumps for joy a few times, waving its arms with a happy face.
+    /// </summary>
+    Happy,
 }

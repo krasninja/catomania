@@ -14,6 +14,7 @@
   <data name="Pig" xml:space="preserve"><value>Свинья</value></data>
   <data name="Frog" xml:space="preserve"><value>Лягушка</value></data>
   <data name="Capybara" xml:space="preserve"><value>Капибара</value></data>
+  <data name="Nolu" xml:space="preserve"><value>Нолу</value></data>
   <data name="Speed" xml:space="preserve"><value>Скорость</value></data>
   <data name="Slow" xml:space="preserve"><value>Медленно</value></data>
   <data name="Normal" xml:space="preserve"><value>Нормально</value></data>
@@ -64,6 +65,7 @@
   <data name="Spin" xml:space="preserve"><value>Кручение</value></data>
   <data name="Zoomies" xml:space="preserve"><value>Бешеный бег</value></data>
   <data name="CapybaraSong" xml:space="preserve"><value>Песенка капибары</value></data>
+  <data name="Happy" xml:space="preserve"><value>Прыжки от радости</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>О программе Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Версия: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Платформа: {0} ({1})</value></data>

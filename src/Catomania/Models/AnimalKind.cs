@@ -47,4 +47,9 @@ public enum AnimalKind
     /// A capybara with a sprout on its head.
     /// </summary>
     Capybara,
+
+    /// <summary>
+    /// Nolu, a shaggy forest creature with deer antlers.
+    /// </summary>
+    Nolu,
 }

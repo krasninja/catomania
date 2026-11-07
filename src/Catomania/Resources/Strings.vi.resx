@@ -14,6 +14,7 @@
   <data name="Pig" xml:space="preserve"><value>Lợn</value></data>
   <data name="Frog" xml:space="preserve"><value>Ếch</value></data>
   <data name="Capybara" xml:space="preserve"><value>Chuột lang nước</value></data>
+  <data name="Nolu" xml:space="preserve"><value>Nolu</value></data>
   <data name="Speed" xml:space="preserve"><value>Tốc độ</value></data>
   <data name="Slow" xml:space="preserve"><value>Chậm</value></data>
   <data name="Normal" xml:space="preserve"><value>Bình thường</value></data>
@@ -64,6 +65,7 @@
   <data name="Spin" xml:space="preserve"><value>Xoay vòng</value></data>
   <data name="Zoomies" xml:space="preserve"><value>Chạy cuồng nhiệt</value></data>
   <data name="CapybaraSong" xml:space="preserve"><value>Bài hát capybara</value></data>
+  <data name="Happy" xml:space="preserve"><value>Nhảy vui sướng</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Giới thiệu Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Phiên bản: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Nền tảng: {0} ({1})</value></data>
