@@ -14,6 +14,11 @@ public enum AnimalKind
     Cat,
 
     /// <summary>
+    /// Muchi the Cat, a round-faced ginger kitten.
+    /// </summary>
+    Muchi,
+
+    /// <summary>
     /// A panda cub.
     /// </summary>
     Panda,

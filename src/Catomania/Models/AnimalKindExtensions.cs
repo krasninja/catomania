@@ -14,7 +14,7 @@ public static class AnimalKindExtensions
     /// <param name="kind">Animal kind.</param>
     /// <returns>True if the animal has colors to choose from.</returns>
     public static bool HasFurColors(this AnimalKind kind)
-        => kind is AnimalKind.Cat or AnimalKind.Dog or AnimalKind.Snake or AnimalKind.Parrot;
+        => kind is AnimalKind.Cat or AnimalKind.Dog or AnimalKind.Snake or AnimalKind.Parrot or AnimalKind.Muchi;
 
     /// <summary>
     /// Get the header of the menu with the animal's colors.
@@ -32,13 +32,14 @@ public static class AnimalKindExtensions
     /// Check whether a color option of the "Fur" menu belongs to the animal.
     /// </summary>
     /// <param name="kind">Animal kind.</param>
-    /// <param name="option">Color option of the cat, dog, snake or parrot.</param>
+    /// <param name="option">Color option of the cat, dog, snake, parrot or Muchi.</param>
     /// <returns>True if the option colors the animal.</returns>
     public static bool HasFurOption(this AnimalKind kind, object option) => option switch
     {
         CatColorScheme => kind == AnimalKind.Cat,
         DogCoat => kind == AnimalKind.Dog,
         SnakeSkin => kind == AnimalKind.Snake,
+        MuchiFur => kind == AnimalKind.Muchi,
         ParrotPlumage => kind == AnimalKind.Parrot,
         _ => false,
     };

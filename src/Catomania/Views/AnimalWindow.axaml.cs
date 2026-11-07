@@ -171,6 +171,13 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     }
 
     /// <inheritdoc />
+    public void SetMuchiFur(MuchiFur fur)
+    {
+        _settings.MuchiFur = fur;
+        CommitSettings();
+    }
+
+    /// <inheritdoc />
     public void SetParrotPlumage(ParrotPlumage plumage)
     {
         _settings.ParrotPlumage = plumage;
@@ -573,6 +580,9 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
             case SnakeSkin skin:
                 SetSnakeSkin(skin);
                 break;
+            case MuchiFur fur:
+                SetMuchiFur(fur);
+                break;
             case ParrotPlumage plumage:
                 SetParrotPlumage(plumage);
                 break;
@@ -720,7 +730,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         foreach (var item in GetMenuItems())
         {
-            if (item.Tag is CatColorScheme or DogCoat or SnakeSkin or ParrotPlumage)
+            if (item.Tag is CatColorScheme or DogCoat or SnakeSkin or MuchiFur or ParrotPlumage)
             {
                 item.IsVisible = _settings.Animal.HasFurOption(item.Tag);
             }
@@ -732,6 +742,7 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
                 CatColorScheme colorScheme => colorScheme == _settings.ColorScheme,
                 DogCoat coat => coat == _settings.DogCoat,
                 SnakeSkin skin => skin == _settings.SnakeSkin,
+                MuchiFur fur => fur == _settings.MuchiFur,
                 ParrotPlumage plumage => plumage == _settings.ParrotPlumage,
                 AnimalSize size => size == _settings.Size,
                 _ => item.IsChecked,

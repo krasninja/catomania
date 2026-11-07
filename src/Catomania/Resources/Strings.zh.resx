@@ -15,6 +15,7 @@
   <data name="Frog" xml:space="preserve"><value>青蛙</value></data>
   <data name="Capybara" xml:space="preserve"><value>水豚</value></data>
   <data name="Nolu" xml:space="preserve"><value>诺鲁</value></data>
+  <data name="Muchi" xml:space="preserve"><value>猫咪穆奇</value></data>
   <data name="Speed" xml:space="preserve"><value>速度</value></data>
   <data name="Slow" xml:space="preserve"><value>慢</value></data>
   <data name="Normal" xml:space="preserve"><value>正常</value></data>
@@ -35,6 +36,9 @@
   <data name="Blue" xml:space="preserve"><value>蓝色</value></data>
   <data name="Pink" xml:space="preserve"><value>粉色</value></data>
   <data name="Yellow" xml:space="preserve"><value>黄色</value></data>
+  <data name="Orange" xml:space="preserve"><value>橙色</value></data>
+  <data name="Beige" xml:space="preserve"><value>米色</value></data>
+  <data name="Brown" xml:space="preserve"><value>棕色</value></data>
   <data name="Scarlet" xml:space="preserve"><value>绯红色</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>蓝色和金色</value></data>
   <data name="Green" xml:space="preserve"><value>绿色</value></data>

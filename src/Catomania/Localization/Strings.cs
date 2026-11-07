@@ -28,6 +28,8 @@ public static partial class Strings
 
     public static string Nolu => Get();
 
+    public static string Muchi => Get();
+
     public static string Speed => Get();
 
     public static string Slow => Get();
@@ -67,6 +69,12 @@ public static partial class Strings
     public static string Pink => Get();
 
     public static string Yellow => Get();
+
+    public static string Orange => Get();
+
+    public static string Beige => Get();
+
+    public static string Brown => Get();
 
     public static string Scarlet => Get();
 

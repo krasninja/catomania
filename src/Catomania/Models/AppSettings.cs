@@ -31,6 +31,11 @@ public sealed class AppSettings
     public SnakeSkin SnakeSkin { get; set; } = SnakeSkin.Mint;
 
     /// <summary>
+    /// Gets or sets the fur color of Muchi the Cat.
+    /// </summary>
+    public MuchiFur MuchiFur { get; set; } = MuchiFur.Orange;
+
+    /// <summary>
     /// Gets or sets the parrot plumage.
     /// </summary>
     public ParrotPlumage ParrotPlumage { get; set; } = ParrotPlumage.Scarlet;

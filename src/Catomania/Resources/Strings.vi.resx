@@ -15,6 +15,7 @@
   <data name="Frog" xml:space="preserve"><value>Ếch</value></data>
   <data name="Capybara" xml:space="preserve"><value>Chuột lang nước</value></data>
   <data name="Nolu" xml:space="preserve"><value>Nolu</value></data>
+  <data name="Muchi" xml:space="preserve"><value>Mèo Muchi</value></data>
   <data name="Speed" xml:space="preserve"><value>Tốc độ</value></data>
   <data name="Slow" xml:space="preserve"><value>Chậm</value></data>
   <data name="Normal" xml:space="preserve"><value>Bình thường</value></data>
@@ -35,6 +36,9 @@
   <data name="Blue" xml:space="preserve"><value>Xanh lam</value></data>
   <data name="Pink" xml:space="preserve"><value>Hồng</value></data>
   <data name="Yellow" xml:space="preserve"><value>Vàng</value></data>
+  <data name="Orange" xml:space="preserve"><value>Cam</value></data>
+  <data name="Beige" xml:space="preserve"><value>Be</value></data>
+  <data name="Brown" xml:space="preserve"><value>Nâu</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Đỏ tươi</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Xanh lam và vàng</value></data>
   <data name="Green" xml:space="preserve"><value>Xanh lá</value></data>

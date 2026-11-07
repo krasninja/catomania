@@ -15,6 +15,7 @@
   <data name="Frog" xml:space="preserve"><value>Grenouille</value></data>
   <data name="Capybara" xml:space="preserve"><value>Capybara</value></data>
   <data name="Nolu" xml:space="preserve"><value>Nolu</value></data>
+  <data name="Muchi" xml:space="preserve"><value>Chat Muchi</value></data>
   <data name="Speed" xml:space="preserve"><value>Vitesse</value></data>
   <data name="Slow" xml:space="preserve"><value>Lente</value></data>
   <data name="Normal" xml:space="preserve"><value>Normale</value></data>
@@ -35,6 +36,9 @@
   <data name="Blue" xml:space="preserve"><value>Bleu</value></data>
   <data name="Pink" xml:space="preserve"><value>Rose</value></data>
   <data name="Yellow" xml:space="preserve"><value>Jaune</value></data>
+  <data name="Orange" xml:space="preserve"><value>Orange</value></data>
+  <data name="Beige" xml:space="preserve"><value>Beige</value></data>
+  <data name="Brown" xml:space="preserve"><value>Marron</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Écarlate</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Bleu et or</value></data>
   <data name="Green" xml:space="preserve"><value>Vert</value></data>

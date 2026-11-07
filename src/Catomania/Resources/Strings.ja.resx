@@ -15,6 +15,7 @@
   <data name="Frog" xml:space="preserve"><value>カエル</value></data>
   <data name="Capybara" xml:space="preserve"><value>カピバラ</value></data>
   <data name="Nolu" xml:space="preserve"><value>ノル</value></data>
+  <data name="Muchi" xml:space="preserve"><value>ネコのムーチ</value></data>
   <data name="Speed" xml:space="preserve"><value>速度</value></data>
   <data name="Slow" xml:space="preserve"><value>遅い</value></data>
   <data name="Normal" xml:space="preserve"><value>標準</value></data>
@@ -35,6 +36,9 @@
   <data name="Blue" xml:space="preserve"><value>青</value></data>
   <data name="Pink" xml:space="preserve"><value>ピンク</value></data>
   <data name="Yellow" xml:space="preserve"><value>黄色</value></data>
+  <data name="Orange" xml:space="preserve"><value>オレンジ</value></data>
+  <data name="Beige" xml:space="preserve"><value>ベージュ</value></data>
+  <data name="Brown" xml:space="preserve"><value>ブラウン</value></data>
   <data name="Scarlet" xml:space="preserve"><value>スカーレット</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>青と金色</value></data>
   <data name="Green" xml:space="preserve"><value>緑</value></data>

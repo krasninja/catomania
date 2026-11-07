@@ -38,6 +38,12 @@ public interface IAnimalCommands
     void SetSnakeSkin(SnakeSkin skin);
 
     /// <summary>
+    /// Set the fur color of Muchi the Cat.
+    /// </summary>
+    /// <param name="fur">Fur color.</param>
+    void SetMuchiFur(MuchiFur fur);
+
+    /// <summary>
     /// Set the parrot plumage.
     /// </summary>
     /// <param name="plumage">Plumage.</param>
