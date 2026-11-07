@@ -16,6 +16,11 @@ public sealed class AnimalSimulator
     public const int BunnyHopCount = 6;
 
     /// <summary>
+    /// Number of jumps in place in the <see cref="AnimalTrick.Happy" /> trick.
+    /// </summary>
+    public const int HappyJumpCount = 3;
+
+    /// <summary>
     /// Fraction of a hop spent crouching before the take-off and, the same, after the landing.
     /// </summary>
     public const double HopCrouchFraction = 0.2;
@@ -38,6 +43,7 @@ public sealed class AnimalSimulator
     private const double ShakeDurationSeconds = 0.9;
     private const double SpinDurationSeconds = 0.9;
     private const double BunnyHopDurationSeconds = 0.55;
+    private const double HappyJumpDurationSeconds = 0.7;
 
     // Zoomies are walk legs run at full speed, longer and with shorter rests.
     private const double ZoomiesDistanceFactor = 3;
@@ -326,6 +332,7 @@ public sealed class AnimalSimulator
             AnimalTrick.Shake => ShakeDurationSeconds,
             AnimalTrick.Spin => SpinDurationSeconds,
             AnimalTrick.BunnyHops => BunnyHopDurationSeconds * BunnyHopCount,
+            AnimalTrick.Happy => HappyJumpDurationSeconds * HappyJumpCount,
             _ => _options.TrickDurations.GetValueOrDefault(Trick),
         };
 

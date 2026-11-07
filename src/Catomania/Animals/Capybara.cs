@@ -607,7 +607,7 @@ public sealed class Capybara : Animal
             : state.Trick switch
             {
                 AnimalTrick.Speak => state.TrickProgress < 0.5 ? Face.Eat : Face.Happy,
-                AnimalTrick.Wiggle or AnimalTrick.CapybaraSong => Face.Happy,
+                AnimalTrick.Wiggle or AnimalTrick.CapybaraSong or AnimalTrick.Happy => Face.Happy,
                 AnimalTrick.Emote => Face.Cute,
                 AnimalTrick.Shake => Face.Blink,
                 AnimalTrick.LookAround => Face.LookAhead,

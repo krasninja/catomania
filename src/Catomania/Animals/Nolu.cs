@@ -34,11 +34,6 @@ public sealed class Nolu : Animal
     private const double RunLean = 7;
     private const double ArmWave = 12;
 
-    // The happy trick: a few joyful jumps, in the art coordinates and seconds.
-    private const int HappyJumps = 3;
-    private const double HappyJumpHeight = 45;
-    private const double HappySeconds = 2.4;
-
     // How high the mushroom goes to the mouth on every nibble, in the art coordinates.
     private const double NibbleHeight = 12;
     private const int Nibbles = 5;
@@ -601,11 +596,6 @@ public sealed class Nolu : Animal
     {
         WalkStrideLength = WalkStride * ArtScale / DesignSize,
         RunStrideLength = RunStride * ArtScale / DesignSize,
-        Tricks = [.. new AnimalSimulatorOptions().Tricks, AnimalTrick.Happy],
-        TrickDurations = new Dictionary<AnimalTrick, double>
-        {
-            [AnimalTrick.Happy] = HappySeconds,
-        },
     };
 
     /// <inheritdoc />
@@ -654,7 +644,7 @@ public sealed class Nolu : Animal
             DrawShadow(context, ShadowBrush, state, DesignSize / 2, 23, 5);
         }
 
-        using (context.PushTransform(Matrix.CreateTranslation(0, -GetHappyJump(state)) * ArtToDesign))
+        using (context.PushTransform(ArtToDesign))
         {
             // The legs dangle and swing when Nolu is picked up.
             var dangle = isDragged
@@ -703,18 +693,6 @@ public sealed class Nolu : Animal
                 }
             }
         }
-    }
-
-    // Nolu jumps up and lands a few times during the happy trick, the jumps are quick parabolas.
-    private static double GetHappyJump(AnimalRenderState state)
-    {
-        if (state.Trick != AnimalTrick.Happy || state.State == AnimalAnimationState.Dragged)
-        {
-            return 0;
-        }
-
-        var jumps = Math.Clamp(state.TrickProgress, 0, 1) * HappyJumps;
-        return Math.Sin(Math.PI * (jumps - Math.Floor(jumps))) * HappyJumpHeight;
     }
 
     // Nolu brings the mushroom up to the mouth and nibbles at it during the first half of the trick.

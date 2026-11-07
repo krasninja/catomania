@@ -67,7 +67,8 @@ public enum AnimalTrick
     CapybaraSong,
 
     /// <summary>
-    /// Nolu only for now: the animal jumps for joy a few times, waving its arms with a happy face.
+    /// The animal jumps for joy a few times in place, leaning from side to side, with a happy face
+    /// where the animal has one.
     /// </summary>
     Happy,
 }

@@ -327,7 +327,7 @@ public sealed class Frog : Animal
         }
 
         var breathe = Math.Sin(state.Phase * 0.5) * 4;
-        return new Pose(0, 0, GetTrickStretch(state), breathe, 0, state.Trick == AnimalTrick.Emote);
+        return new Pose(0, 0, GetHopFlight(state), breathe, 0, state.Trick == AnimalTrick.Emote);
     }
 
     // The feet stay on the ground during the crouch: the frog is drawn shifted back as the window moves
@@ -347,26 +347,6 @@ public sealed class Frog : Animal
         return new Pose(shift * (flight - 0.5), arc * height, arc, 0, 0, false);
     }
 
-    // Stretched in the air during the hopping tricks, the hop itself is applied by the base class.
-    private static double GetTrickStretch(AnimalRenderState state)
-    {
-        if (state.Trick is not (AnimalTrick.Hop or AnimalTrick.Spin or AnimalTrick.BunnyHops))
-        {
-            return 0;
-        }
-
-        var progress = Math.Clamp(state.TrickProgress, 0, 1);
-        if (state.Trick == AnimalTrick.BunnyHops)
-        {
-            var hops = progress * AnimalSimulator.BunnyHopCount;
-            progress = Math.Min(1, hops - Math.Min(Math.Floor(hops), AnimalSimulator.BunnyHopCount - 1));
-        }
-
-        const double crouch = AnimalSimulator.HopCrouchFraction;
-        var flight = Math.Clamp((progress - crouch) / (1 - (2 * crouch)), 0, 1);
-        return Math.Sin(Math.PI * flight);
-    }
-
     private static Face GetFace(AnimalRenderState state)
     {
         var face = state.State switch
@@ -378,7 +358,7 @@ public sealed class Frog : Animal
             {
                 AnimalTrick.Speak => state.TrickProgress < 0.5 ? Face.Eat : Face.Happy,
                 AnimalTrick.Emote => Face.Cute,
-                AnimalTrick.Wiggle => Face.Happy,
+                AnimalTrick.Wiggle or AnimalTrick.Happy => Face.Happy,
                 AnimalTrick.Shake => Face.Blink,
                 AnimalTrick.LookAround => Face.LookAhead,
                 _ => Face.Idle,

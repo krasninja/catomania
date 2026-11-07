@@ -19,7 +19,8 @@ public sealed class AnimalSimulatorOptions
             AnimalTrick.Shake,
             AnimalTrick.BunnyHops,
             AnimalTrick.Spin,
-            AnimalTrick.Zoomies
+            AnimalTrick.Zoomies,
+            AnimalTrick.Happy
         ];
 
     /// <summary>

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add snake colors.
 - The frog follows the cursor with its eyes in pause mode.
 - Fix build for MacOS.
+- Add "happy" trick.
 - KDE context menu scrolling fix.
 
 ## [0.3.4]

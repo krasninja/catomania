@@ -40,4 +40,29 @@ public sealed class AnimalTrickTests
                 }
             }
         }, CancellationToken.None);
+
+    [Theory]
+    [InlineData(AnimalKind.Cat, 0xFFE5737Eu)]
+    [InlineData(AnimalKind.Snake, 0xFFE5484Du)]
+    public Task Render_HappyTrick_OpensTheMouthWithTheTongue(AnimalKind kind, uint tongueColor)
+        => _session.Dispatch(() =>
+        {
+            var tongue = Avalonia.Media.Color.FromUInt32(tongueColor);
+            var (view, window) = AnimalPixels.CreateWindow(Animal.Create(new AppSettings { Animal = kind }));
+            try
+            {
+                view.Update(new AnimalRenderState(AnimalAnimationState.Idle, true, 1.1, false));
+                var idleTongue = AnimalPixels.CountColor(AnimalPixels.Capture(window), tongue, 10);
+
+                view.Update(new AnimalRenderState(AnimalAnimationState.Idle, true, 1.1, false, AnimalTrick.Happy, 0.01));
+                var happyTongue = AnimalPixels.CountColor(AnimalPixels.Capture(window), tongue, 10);
+
+                Assert.Equal(0, idleTongue);
+                Assert.True(happyTongue > 0, $"{kind} should show the tongue in the open mouth");
+            }
+            finally
+            {
+                window.Close();
+            }
+        }, CancellationToken.None);
 }

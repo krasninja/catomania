@@ -67,6 +67,7 @@ public sealed class Snake : Animal
 
     private static readonly Geometry Mouth = CreateMouth(HeadRadiusX, HeadRadiusY, 0.32, 0.26);
     private static readonly Geometry SleepingMouth = CreateMouth(SleepingHeadRadiusX, SleepingHeadRadiusY, 0.22, 0.18);
+    private static readonly Geometry HappyMouth = CreateHappyMouth(HeadRadiusX, HeadRadiusY);
     private static readonly Geometry ClosedEye = CreateClosedEye(HeadRadiusY * 0.3);
     private static readonly Geometry SleepingClosedEye = CreateClosedEye(SleepingHeadRadiusY * 0.3);
 
@@ -211,8 +212,9 @@ public sealed class Snake : Animal
         var leafSway = Math.Sin(isIdle ? phase : phase * 2) * (state.State == AnimalAnimationState.Run ? 0.35 : 0.18);
         DrawLeaf(context, new Point(68, 39 + bob), -0.15 + leafSway);
 
-        // Flicks the tongue once per phase period while idle.
-        var tongue = isIdle && phase < 1 ? Math.Sin(Math.PI * phase) : 0;
+        // Flicks the tongue once per phase period while idle, the happy snake smiles with the mouth open instead.
+        var isHappy = state.Trick == AnimalTrick.Happy;
+        var tongue = isIdle && !isHappy && phase < 1 ? Math.Sin(Math.PI * phase) : 0;
         DrawHead(
             context,
             new Point(72, 53 + bob),
@@ -220,7 +222,8 @@ public sealed class Snake : Animal
             HeadRadiusY,
             0,
             state.IsBlinking ? HeadPose.Blinking : HeadPose.Awake,
-            tongue);
+            tongue,
+            isHappy);
     }
 
     private void DrawSleeping(DrawingContext context, double phase)
@@ -333,7 +336,8 @@ public sealed class Snake : Animal
         double radiusY,
         double angle,
         HeadPose pose,
-        double tongue)
+        double tongue,
+        bool isHappy = false)
     {
         using (context.PushTransform(Matrix.CreateRotation(angle) * Matrix.CreateTranslation(center.X, center.Y)))
         {
@@ -359,6 +363,14 @@ public sealed class Snake : Animal
             if (pose == HeadPose.Surprised)
             {
                 context.DrawEllipse(OpenMouth, null, new Point(radiusX * 0.5, radiusY * 0.46), 1.9, 1.5);
+            }
+            else if (isHappy)
+            {
+                context.DrawGeometry(OpenMouth, null, HappyMouth);
+                using (context.PushGeometryClip(HappyMouth))
+                {
+                    context.DrawEllipse(TongueBrush, null, new Point(radiusX * 0.48, radiusY * 0.68), radiusX * 0.17, radiusY * 0.12);
+                }
             }
             else
             {
@@ -481,6 +493,30 @@ public sealed class Snake : Animal
             new Point(radiusX * 0.48, radiusY * (0.36 + depth)),
             new Point(radiusX * (0.48 + halfWidth), radiusY * 0.32));
         context.EndFigure(false);
+        return geometry;
+    }
+
+    // An open smile with the corners turned up, where the closed mouth is.
+    private static Geometry CreateHappyMouth(double radiusX, double radiusY)
+    {
+        var geometry = new StreamGeometry();
+        using (var context = geometry.Open())
+        {
+            context.BeginFigure(new Point(radiusX * 0.14, radiusY * 0.33), true);
+            context.QuadraticBezierTo(
+                new Point(radiusX * 0.48, radiusY * 0.44),
+                new Point(radiusX * 0.81, radiusY * 0.29));
+            context.CubicBezierTo(
+                new Point(radiusX * 0.78, radiusY * 0.62),
+                new Point(radiusX * 0.63, radiusY * 0.75),
+                new Point(radiusX * 0.47, radiusY * 0.75));
+            context.CubicBezierTo(
+                new Point(radiusX * 0.3, radiusY * 0.75),
+                new Point(radiusX * 0.17, radiusY * 0.64),
+                new Point(radiusX * 0.14, radiusY * 0.33));
+            context.EndFigure(true);
+        }
+
         return geometry;
     }
 

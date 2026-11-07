@@ -38,6 +38,7 @@ public sealed class Panda : Animal
     private static readonly IBrush Iris = new SolidColorBrush(IrisColor);
     private static readonly IBrush Pupil = new SolidColorBrush(Color.FromUInt32(0xFF111114));
     private static readonly IBrush Blush = new SolidColorBrush(Color.FromUInt32(0xBFE9A0A6));
+    private static readonly IBrush Tongue = new SolidColorBrush(Color.FromUInt32(0xFFE5737E));
     private static readonly IBrush Drool = new SolidColorBrush(Color.FromUInt32(0xFF9FD3F0));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
     private static readonly IPen OutlinePen = new Pen(new SolidColorBrush(Color.FromUInt32(0xFF17161B)), 1.4);
@@ -63,6 +64,9 @@ public sealed class Panda : Animal
 
     private static readonly Geometry MouthRight = CreateCurve(
         new Point(70.8, 54.7), new Point(71.2, 56.6), new Point(72.6, 57.1), new Point(73.6, 56.4));
+
+    // An open smile with the corners turned up, hanging under the nose.
+    private static readonly Geometry HappyMouth = CreateHappyMouth();
 
     // The sleeping cub sits facing the viewer, its head is drawn centered and then tilted.
     private static readonly Point[] SleepingEyeCenters = [new(42.8, 53), new(57.2, 53)];
@@ -185,6 +189,7 @@ public sealed class Panda : Animal
     private static void DrawHead(DrawingContext context, double bob, AnimalRenderState state)
     {
         var isDragged = state.State == AnimalAnimationState.Dragged;
+        var isHappy = !isDragged && state.Trick == AnimalTrick.Happy;
 
         using (context.PushTransform(Matrix.CreateTranslation(HeadOffsetX, HeadOffsetY + (bob * 0.6))))
         {
@@ -219,6 +224,10 @@ public sealed class Panda : Animal
                 // Surprised open mouth.
                 context.DrawEllipse(Pupil, null, new Point(70.8, 57), 1.9, 1.4);
             }
+            else if (isHappy)
+            {
+                DrawHappyMouth(context);
+            }
             else
             {
                 context.DrawGeometry(null, FacePen, MouthLeft);
@@ -241,6 +250,31 @@ public sealed class Panda : Animal
         context.DrawEllipse(Iris, null, new Point(center.X + 0.5, center.Y + 0.3), 2.1, 2.1);
         context.DrawEllipse(Pupil, null, new Point(center.X + 0.6, center.Y + 0.4), isDragged ? 0.8 : 1.2, isDragged ? 0.8 : 1.2);
         context.DrawEllipse(Brushes.White, null, new Point(center.X - 0.7, center.Y - 1), 0.9, 0.9);
+    }
+
+    private static void DrawHappyMouth(DrawingContext context)
+    {
+        context.DrawLine(FacePen, new Point(70.8, 54.7), new Point(70.8, 55.6));
+        context.DrawGeometry(Pupil, null, HappyMouth);
+        using (context.PushGeometryClip(HappyMouth))
+        {
+            context.DrawEllipse(Tongue, null, new Point(70.8, 58.9), 2, 1.3);
+        }
+    }
+
+    private static Geometry CreateHappyMouth()
+    {
+        var geometry = new StreamGeometry();
+        using (var context = geometry.Open())
+        {
+            context.BeginFigure(new Point(67.2, 55.2), true);
+            context.QuadraticBezierTo(new Point(70.8, 56.3), new Point(74.4, 55.2));
+            context.CubicBezierTo(new Point(74, 58.4), new Point(72.6, 59.6), new Point(70.8, 59.6));
+            context.CubicBezierTo(new Point(69, 59.6), new Point(67.6, 58.4), new Point(67.2, 55.2));
+            context.EndFigure(true);
+        }
+
+        return geometry;
     }
 
     private static void DrawSleeping(DrawingContext context, double phase)

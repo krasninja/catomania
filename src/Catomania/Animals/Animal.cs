@@ -32,6 +32,8 @@ public abstract class Animal
     private const double HopHeight = 14;
     private const double SpinHeight = 16;
     private const double BunnyHopHeight = 8;
+    private const double HappyJumpHeight = 12;
+    private const double HappyLeanAngle = 7 * Math.PI / 180;
 
     private const double WiggleRocks = 4;
     private const double WiggleAngle = 8 * Math.PI / 180;
@@ -159,6 +161,25 @@ public abstract class Animal
     }
 
     /// <summary>
+    /// Get how far the animal is into the flight of a hop during the hopping tricks, for the animals that
+    /// stretch or move their limbs in the air. The hop itself is applied by <see cref="Render" />.
+    /// </summary>
+    /// <param name="state">Render state produced by the simulation.</param>
+    /// <returns>Zero on the ground, rises to one at the top of the hop and falls back to zero on landing.</returns>
+    protected static double GetHopFlight(AnimalRenderState state)
+    {
+        if (!IsHopping(state))
+        {
+            return 0;
+        }
+
+        var progress = GetHopProgress(state).Progress;
+        const double crouch = AnimalSimulator.HopCrouchFraction;
+        var flight = Math.Clamp((progress - crouch) / (1 - (2 * crouch)), 0, 1);
+        return Math.Sin(Math.PI * flight);
+    }
+
+    /// <summary>
     /// Create a filled triangle.
     /// </summary>
     /// <param name="a">First vertex.</param>
@@ -241,6 +262,7 @@ public abstract class Animal
         return state.Trick switch
         {
             AnimalTrick.Hop or AnimalTrick.Spin or AnimalTrick.BunnyHops => GetHopTransform(state),
+            AnimalTrick.Happy => GetHappyTransform(state),
             AnimalTrick.Wiggle => AroundFeet(Matrix.CreateRotation(
                 Math.Sin(progress * TwoPi * WiggleRocks) * WiggleAngle * envelope)),
             AnimalTrick.Shake => AroundFeet(Matrix.CreateSkew(
@@ -255,33 +277,55 @@ public abstract class Animal
         return AroundFeet(Matrix.CreateScale(scaleX, scaleY)) * Matrix.CreateTranslation(0, -height);
     }
 
+    // Jumps for joy, leaning to one side and to the other on every next jump.
+    private static Matrix GetHappyTransform(AnimalRenderState state)
+    {
+        var (height, scaleX, scaleY) = GetHopPose(state);
+        var (jump, progress) = GetHopProgress(state);
+        var lean = (jump % 2 == 0 ? 1 : -1) * HappyLeanAngle * Math.Sin(Math.PI * progress);
+        return AroundFeet(Matrix.CreateScale(scaleX, scaleY) * Matrix.CreateRotation(lean))
+            * Matrix.CreateTranslation(0, -height);
+    }
+
     // Applies the transform with the point on the ground between the feet as the origin.
     private static Matrix AroundFeet(Matrix transform) => Matrix.CreateTranslation(-DesignSize / 2, -GroundY)
         * transform
         * Matrix.CreateTranslation(DesignSize / 2, GroundY);
 
-    private static double GetHopHeight(AnimalRenderState state) => state.Trick is AnimalTrick.Hop
+    private static bool IsHopping(AnimalRenderState state) => state.Trick is AnimalTrick.Hop
         or AnimalTrick.Spin
         or AnimalTrick.BunnyHops
-            ? GetHopPose(state).Height
-            : 0;
+        or AnimalTrick.Happy;
+
+    private static double GetHopHeight(AnimalRenderState state) => IsHopping(state) ? GetHopPose(state).Height : 0;
+
+    // The tricks made of a series of hops go through the full crouch, flight and landing on each hop.
+    private static (int Hop, double Progress) GetHopProgress(AnimalRenderState state)
+    {
+        var progress = Math.Clamp(state.TrickProgress, 0, 1);
+        var count = state.Trick switch
+        {
+            AnimalTrick.BunnyHops => AnimalSimulator.BunnyHopCount,
+            AnimalTrick.Happy => AnimalSimulator.HappyJumpCount,
+            _ => 1,
+        };
+
+        var hops = progress * count;
+        var hop = Math.Min((int)Math.Floor(hops), count - 1);
+        return (hop, Math.Min(1, hops - hop));
+    }
 
     private static (double Height, double ScaleX, double ScaleY) GetHopPose(AnimalRenderState state)
     {
         const double crouchFraction = AnimalSimulator.HopCrouchFraction;
-        var progress = Math.Clamp(state.TrickProgress, 0, 1);
-        var maxHeight = HopHeight;
-        if (state.Trick == AnimalTrick.BunnyHops)
+        var progress = GetHopProgress(state).Progress;
+        var maxHeight = state.Trick switch
         {
-            // A series of small hops, each one goes through the full crouch, flight and landing.
-            var hops = progress * AnimalSimulator.BunnyHopCount;
-            progress = Math.Min(1, hops - Math.Min(Math.Floor(hops), AnimalSimulator.BunnyHopCount - 1));
-            maxHeight = BunnyHopHeight;
-        }
-        else if (state.Trick == AnimalTrick.Spin)
-        {
-            maxHeight = SpinHeight;
-        }
+            AnimalTrick.BunnyHops => BunnyHopHeight,
+            AnimalTrick.Happy => HappyJumpHeight,
+            AnimalTrick.Spin => SpinHeight,
+            _ => HopHeight,
+        };
 
         var crouch = progress < crouchFraction
             ? progress / crouchFraction

@@ -350,6 +350,36 @@ public class AnimalSimulatorTests
     }
 
     [Fact]
+    public void Update_HappyTrick_ShouldJumpInPlaceForTheBuiltInDuration()
+    {
+        // Arrange.
+        var simulator = CreateSimulator(new ScreenPoint(500, 500));
+        var input = CreateInput(new ScreenPoint(510, 500), isPaused: true);
+        simulator.StartTrick(AnimalTrick.Happy, input);
+
+        // Act.
+        Run(simulator, input, 1.05);
+        var progressAtHalf = simulator.TrickProgress;
+        var positionAtHalf = simulator.Position;
+        Run(simulator, input, 1.15);
+
+        // Assert.
+        Assert.InRange(progressAtHalf, 0.45, 0.55);
+        Assert.Equal(new ScreenPoint(500, 500), positionAtHalf);
+        Assert.Equal(AnimalTrick.None, simulator.Trick);
+    }
+
+    [Fact]
+    public void Options_DefaultTricks_ShouldIncludeHappy()
+    {
+        // Arrange & act.
+        var options = new AnimalSimulatorOptions();
+
+        // Assert.
+        Assert.Contains(AnimalTrick.Happy, options.Tricks);
+    }
+
+    [Fact]
     public void Update_TrickIsPlayingAndUnpaused_ShouldStopTheTrick()
     {
         // Arrange.

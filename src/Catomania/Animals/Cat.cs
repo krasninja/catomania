@@ -46,6 +46,11 @@ public sealed class Cat : Animal
     private static readonly Geometry MouthRight = CreateCurve(
         new Point(76.4, 51.7), new Point(77, 54), new Point(78.4, 54.6), new Point(79.6, 53.8));
 
+    // An open smile with the corners turned up, hanging under the nose.
+    private static readonly Geometry HappyMouth = CreateHappyMouth();
+
+    private static readonly IBrush Tongue = new SolidColorBrush(Color.FromUInt32(0xFFE5737E));
+
     private static readonly double[] EyeXs = [69, 79];
 
     private static readonly Geometry[] ClosedEyes = Array.ConvertAll(EyeXs, x => CreateCurve(
@@ -257,6 +262,7 @@ public sealed class Cat : Animal
     private static void DrawHead(DrawingContext context, CatPalette palette, double bob, AnimalRenderState state)
     {
         var isDragged = state.State == AnimalAnimationState.Dragged;
+        var isHappy = !isDragged && state.Trick == AnimalTrick.Happy;
 
         using (context.PushTransform(Matrix.CreateTranslation(0, bob * 0.6)))
         {
@@ -284,6 +290,10 @@ public sealed class Cat : Animal
             {
                 // Surprised open mouth.
                 context.DrawEllipse(palette.Pupil, null, new Point(76.4, 54.6), 2.1, 1.5);
+            }
+            else if (isHappy)
+            {
+                DrawHappyMouth(context, palette);
             }
             else
             {
@@ -328,6 +338,31 @@ public sealed class Cat : Animal
 
             context.DrawEllipse(Brushes.White, null, new Point(x - 1.1, 41.4), 0.9, 0.9);
         }
+    }
+
+    private static void DrawHappyMouth(DrawingContext context, CatPalette palette)
+    {
+        context.DrawLine(palette.FacePen, new Point(76.4, 51.7), new Point(76.4, 52.6));
+        context.DrawGeometry(palette.Pupil, null, HappyMouth);
+        using (context.PushGeometryClip(HappyMouth))
+        {
+            context.DrawEllipse(Tongue, null, new Point(76.4, 55.9), 2, 1.3);
+        }
+    }
+
+    private static Geometry CreateHappyMouth()
+    {
+        var geometry = new StreamGeometry();
+        using (var context = geometry.Open())
+        {
+            context.BeginFigure(new Point(72.8, 52.2), true);
+            context.QuadraticBezierTo(new Point(76.4, 53.3), new Point(80, 52.2));
+            context.CubicBezierTo(new Point(79.6, 55.4), new Point(78.2, 56.6), new Point(76.4, 56.6));
+            context.CubicBezierTo(new Point(74.6, 56.6), new Point(73.2, 55.4), new Point(72.8, 52.2));
+            context.EndFigure(true);
+        }
+
+        return geometry;
     }
 
     private static void DrawSleeping(DrawingContext context, CatPalette palette, double phase)

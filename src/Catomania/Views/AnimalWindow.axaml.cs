@@ -505,15 +505,21 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     private void AddTricksMenu()
     {
         var tricksMenuItem = new MenuItem { Header = Strings.Tricks };
-        foreach (var trick in _simulator.Options.Tricks)
-        {
-            var trickMenuItem = new MenuItem { Header = GetTrickName(trick) };
-            trickMenuItem.Click += (_, _) => _chaseService.StartTrick(trick);
-            tricksMenuItem.Items.Add(trickMenuItem);
-        }
 
+        // Rebuilt on every opening, the animal and so its tricks can be switched at runtime.
         // Tricks are played only while chasing is paused.
-        _contextMenu.Opening += (_, _) => tricksMenuItem.IsEnabled = _settings.Paused;
+        _contextMenu.Opening += (_, _) =>
+        {
+            tricksMenuItem.Items.Clear();
+            foreach (var trick in _simulator.Options.Tricks)
+            {
+                var trickMenuItem = new MenuItem { Header = GetTrickName(trick) };
+                trickMenuItem.Click += (_, _) => _chaseService.StartTrick(trick);
+                tricksMenuItem.Items.Add(trickMenuItem);
+            }
+
+            tricksMenuItem.IsEnabled = _settings.Paused;
+        };
 
         // Placed after the settings submenus, before the separator of the Recenter command.
         var commandsSeparator = _contextMenu.Items.OfType<Separator>().ElementAt(1);
@@ -685,9 +691,12 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
         _animalView.Animal = Animal.Create(_settings);
 
         // Animals take strides of different length, the gait would slide after a switch otherwise.
+        // They also have their own tricks, like the capybara song.
         var options = _animalView.Animal.CreateSimulatorOptions();
         _simulator.Options.WalkStrideLength = options.WalkStrideLength;
         _simulator.Options.RunStrideLength = options.RunStrideLength;
+        _simulator.Options.Tricks = options.Tricks;
+        _simulator.Options.TrickDurations = options.TrickDurations;
         _chaseService.ApplySettings();
     }
 
