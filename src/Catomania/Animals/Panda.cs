@@ -23,6 +23,10 @@ public sealed class Panda : Animal
     private const double LegWidth = 9.5;
     private const double DanglingLegLength = 13;
 
+    // The upright head is drawn around (70, 46) and lowered onto the shoulders so it overlaps the body.
+    private const double HeadOffsetX = -2;
+    private const double HeadOffsetY = 4;
+
     private static readonly Color FurColor = Color.FromUInt32(0xFFF6F3EC);
     private static readonly Color IrisColor = Color.FromUInt32(0xFF8C5519);
 
@@ -182,7 +186,7 @@ public sealed class Panda : Animal
     {
         var isDragged = state.State == AnimalAnimationState.Dragged;
 
-        using (context.PushTransform(Matrix.CreateTranslation(0, bob * 0.6)))
+        using (context.PushTransform(Matrix.CreateTranslation(HeadOffsetX, HeadOffsetY + (bob * 0.6))))
         {
             // Ears are drawn behind the head so their base is hidden.
             DrawEar(context, new Point(57, 31));
