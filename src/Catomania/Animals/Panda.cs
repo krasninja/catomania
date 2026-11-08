@@ -41,7 +41,7 @@ public sealed class Panda : Animal
     private static readonly IBrush Tongue = new SolidColorBrush(Color.FromUInt32(0xFFE5737E));
     private static readonly IBrush Drool = new SolidColorBrush(Color.FromUInt32(0xFF9FD3F0));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
-    private static readonly IPen OutlinePen = new Pen(new SolidColorBrush(Color.FromUInt32(0xFF17161B)), 1.4);
+    private static readonly IPen OutlinePen = AnimalStyle.InkPen;
     private static readonly IPen FacePen = new Pen(Pupil, 1.1, null, PenLineCap.Round);
     private static readonly IPen ClosedEyePen = new Pen(Brushes.White, 1.2, null, PenLineCap.Round);
     private static readonly IPen ZzzPen = new Pen(

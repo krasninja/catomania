@@ -11,45 +11,40 @@ public sealed class SnakePalette
     private static readonly SnakePalette MintPalette = new(
         skin: 0xFF6DD3A0,
         spot: 0xFF4DB487,
-        belly: 0xFFFFF0C2,
-        outline: 0xFF1E4D3A);
+        belly: 0xFFFFF0C2);
 
     private static readonly SnakePalette DarkGreenPalette = new(
         skin: 0xFF657A43,
         spot: 0xFF3E522E,
-        belly: 0xFFB9AE78,
-        outline: 0xFF293827);
+        belly: 0xFFB9AE78);
 
     private static readonly SnakePalette BluePalette = new(
         skin: 0xFF79BDE8,
         spot: 0xFF4C96C4,
-        belly: 0xFFE3F2FA,
-        outline: 0xFF28536E);
+        belly: 0xFFE3F2FA);
 
     private static readonly SnakePalette PinkPalette = new(
         skin: 0xFFF3A6C8,
         spot: 0xFFD477A4,
-        belly: 0xFFFCE4EF,
-        outline: 0xFF713D55);
+        belly: 0xFFFCE4EF);
 
     private static readonly SnakePalette YellowPalette = new(
         skin: 0xFFF2CE65,
         spot: 0xFFD5A33E,
-        belly: 0xFFFFF0C2,
-        outline: 0xFF6B5422);
+        belly: 0xFFFFF0C2);
 
-    private SnakePalette(uint skin, uint spot, uint belly, uint outline)
+    private SnakePalette(uint skin, uint spot, uint belly)
     {
         SkinColor = Color.FromUInt32(skin);
         Skin = new SolidColorBrush(SkinColor);
         Spot = new SolidColorBrush(Color.FromUInt32(spot));
         Belly = new SolidColorBrush(Color.FromUInt32(belly));
-        OutlineBrush = new SolidColorBrush(Color.FromUInt32(outline));
-        OutlinePen = new Pen(OutlineBrush, 1.4, null, PenLineCap.Round, PenLineJoin.Round);
+        OutlineBrush = AnimalStyle.Ink;
+        OutlinePen = AnimalStyle.InkPen;
         EyeOutlinePen = new Pen(OutlineBrush, 0.8);
         ClosedEyePen = new Pen(OutlineBrush, 1.3, null, PenLineCap.Round);
-        MouthPen = new Pen(OutlineBrush, 1.1, null, PenLineCap.Round);
-        RingOutlinePen = new Pen(OutlineBrush, 18.8);
+        MouthPen = AnimalStyle.FaceInkPen;
+        RingOutlinePen = new Pen(OutlineBrush, 16 + (AnimalStyle.InkWidth * 2));
         RingPen = new Pen(Skin, 16);
     }
 

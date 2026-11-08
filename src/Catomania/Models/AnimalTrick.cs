@@ -71,4 +71,9 @@ public enum AnimalTrick
     /// where the animal has one.
     /// </summary>
     Happy,
+
+    /// <summary>
+    /// Muchi only: crouches low and stalks with the eyes narrowed, wiggles the rear and pounces.
+    /// </summary>
+    MuchiHunt,
 }

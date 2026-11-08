@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Muchi the Cat: a round-faced kitten in five fur colors (orange, gray, black, beige and brown), it glances left or right towards the cursor, walks sideways wagging the tail, crouches low and stalks when running, looks up with sparkling eyes, squints happily when jumping for joy and sleeps either curled up or on its back with the paws in the air, chosen at random each time it falls asleep.
+- Common drawing style for all animals: the cat, dog, pig, parrot, snake and panda now use the same near-black outlines as the artwork-based animals, and the cat, dog and pig get big glossy eyes, pink cheeks and (cat and dog) bigger heads.
+- Muchi the Cat: a round-faced kitten in five fur colors (orange, gray, black, beige and brown), it glances left or right towards the cursor, walks and runs sideways wagging the tail, looks up with sparkling eyes, squints happily when jumping for joy and sleeps either curled up or on its back with the paws in the air, chosen at random each time it falls asleep. Its own "hunt" trick in pause mode: it crouches low, stalks, wiggles the rear and pounces.
 - Nolu: a shaggy forest creature with deer antlers, it follows the cursor with its eyes, walks sideways wagging its fluffy tail, hunches over looking for mushrooms when running, nibbles a fly agaric, jumps for joy in its own happy trick and sleeps sitting with the arms folded.
 - Update Capybara. Add capibara song.
 - Add snake colors.
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix build for MacOS.
 - Add "happy" trick.
 - KDE context menu scrolling fix.
+- Update cat, dog, parrot, pig design.
 
 ## [0.3.4]
 

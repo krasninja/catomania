@@ -70,6 +70,7 @@
   <data name="Zoomies" xml:space="preserve"><value>Corsa frenetica</value></data>
   <data name="CapybaraSong" xml:space="preserve"><value>Canzone del capibara</value></data>
   <data name="Happy" xml:space="preserve"><value>Salti di gioia</value></data>
+  <data name="MuchiHunt" xml:space="preserve"><value>Caccia</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Informazioni su Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Versione: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Piattaforma: {0} ({1})</value></data>

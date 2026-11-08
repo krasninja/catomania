@@ -24,6 +24,10 @@ public sealed class Dog : Animal
     private const double LegWidth = 6.5;
     private const double DanglingLegLength = 20;
 
+    // The head is drawn bigger than in life, like the heads of the other animals, it grows around the muzzle
+    // so that the nose stays in the design space.
+    private const double HeadScale = 1.2;
+
     private static readonly Color CoatColor = Color.FromUInt32(0xFFF7F4EE);
 
     private static readonly IBrush WhiteCoat = new SolidColorBrush(CoatColor);
@@ -190,7 +194,10 @@ public sealed class Dog : Animal
         DrawLeg(context, palette, 33, NearHipY, bob, phase + Math.PI, gait, isDragged, palette.Patch, false);
         DrawLeg(context, palette, 64, NearHipY, bob, phase, gait, isDragged, WhiteCoat, true);
 
-        using (context.PushTransform(RotateAround(pitch * 1.5, 62, 60) * Matrix.CreateTranslation(0, bob * 0.8)))
+        var headTransform = ScaleAround(HeadScale, 82, 44)
+            * RotateAround(pitch * 1.5, 62, 60)
+            * Matrix.CreateTranslation(0, bob * 0.8);
+        using (context.PushTransform(headTransform))
         {
             DrawHead(context, palette, state);
         }
@@ -236,6 +243,7 @@ public sealed class Dog : Animal
         context.DrawEllipse(palette.Patch, palette.OutlinePen, new Point(75, 37), 10.5, 9.5);
         context.DrawGeometry(WhiteCoat, palette.OutlinePen, Muzzle);
         context.DrawGeometry(null, BlazePen, Blaze);
+        context.DrawEllipse(AnimalStyle.Cheek, null, new Point(83, 44.5), 2.2, 1.4);
         foreach (var freckle in MuzzleFreckles)
         {
             context.DrawEllipse(palette.Patch, null, freckle, 0.6, 0.6);
@@ -289,18 +297,13 @@ public sealed class Dog : Animal
         if (isDragged)
         {
             // Wide open and with a small pupil when the dog is lifted.
-            context.DrawEllipse(Brushes.White, null, new Point(78.5, 35.5), 2.8, 2.8);
-            context.DrawEllipse(palette.Iris, null, new Point(79, 35.7), 1.8, 1.8);
-            context.DrawEllipse(palette.Pupil, null, new Point(79.1, 35.8), 0.7, 0.7);
+            DrawGlossyEye(context, palette.Iris, new Point(78.5, 35.5), 3.1, 3.3, true);
         }
         else
         {
-            context.DrawEllipse(palette.Iris, null, new Point(78.5, 35.5), 2.3, 2.4);
-            context.DrawEllipse(palette.Pupil, null, new Point(78.8, 35.7), 1.3, 1.3);
+            DrawGlossyEye(context, palette.Iris, new Point(78.5, 35.5), 2.7, 2.9);
             context.DrawGeometry(null, palette.StrandPen, Brow);
         }
-
-        context.DrawEllipse(Brushes.White, null, new Point(77.9, 34.8), 0.7, 0.7);
     }
 
     private static void DrawSleeping(DrawingContext context, DogPalette palette, double phase)
@@ -333,7 +336,7 @@ public sealed class Dog : Animal
         context.DrawEllipse(WhiteCoat, palette.ThinOutlinePen, new Point(81.5 + paw, 89.5), 4, 2.5);
 
         // The head rests on the paws and rises a little with the breath.
-        using (context.PushTransform(RotateAround(breathe, 75, 88)))
+        using (context.PushTransform(ScaleAround(HeadScale, 80, 84) * RotateAround(breathe, 75, 88)))
         {
             context.DrawEllipse(palette.Patch, palette.OutlinePen, new Point(70, 74), 9.5, 8.5);
             context.DrawGeometry(WhiteCoat, palette.OutlinePen, SleepingMuzzle);

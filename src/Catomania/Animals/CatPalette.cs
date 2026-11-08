@@ -33,11 +33,12 @@ public sealed class CatPalette
         Eye = new SolidColorBrush(EyeColor);
         Pupil = new SolidColorBrush(Color.FromUInt32(pupil));
         Whisker = new SolidColorBrush(Color.FromUInt32(whisker));
-        OutlinePen = new Pen(FurDark, 1.4);
+        OutlinePen = AnimalStyle.InkPen;
         TailPen = new Pen(Fur, 8, null, PenLineCap.Round);
+        TailOutlinePen = new Pen(AnimalStyle.Ink, 8 + (AnimalStyle.InkWidth * 2), null, PenLineCap.Round);
         StripePen = new Pen(FurDark, 3, null, PenLineCap.Round);
-        WhiskerPen = new Pen(Whisker, 0.9, null, PenLineCap.Round);
-        FacePen = new Pen(Pupil, 1.1, null, PenLineCap.Round);
+        WhiskerPen = new Pen(AnimalStyle.Ink, 0.9, null, PenLineCap.Round);
+        FacePen = AnimalStyle.FaceInkPen;
         ZzzPen = new Pen(Whisker, 1.8, null, PenLineCap.Round, PenLineJoin.Round);
         ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
     }
@@ -48,7 +49,7 @@ public sealed class CatPalette
     public Color FurColor { get; }
 
     /// <summary>
-    /// Gets the dark fur color, used for stripes and outlines.
+    /// Gets the dark fur color, used for the stripes, the far legs and the tail tip.
     /// </summary>
     public Color FurDarkColor { get; }
 
@@ -111,6 +112,11 @@ public sealed class CatPalette
     /// Gets the tail pen.
     /// </summary>
     public IPen TailPen { get; }
+
+    /// <summary>
+    /// Gets the pen of the outline of the tail, drawn under the tail.
+    /// </summary>
+    public IPen TailOutlinePen { get; }
 
     /// <summary>
     /// Gets the stripes pen.

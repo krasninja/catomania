@@ -18,8 +18,7 @@ public sealed class ParrotPalette
         faceLines: 0xFFE8A0A0,
         upperBeak: 0xFFF0E2C8,
         lowerBeak: 0xFF2E2A2A,
-        iris: 0xFFFAE278,
-        outline: 0xFF5A1414);
+        iris: 0xFFFAE278);
 
     private static readonly ParrotPalette BlueAndGoldPalette = new(
         plumage: 0xFF2F86D8,
@@ -31,8 +30,7 @@ public sealed class ParrotPalette
         faceLines: 0xFF3A3A3A,
         upperBeak: 0xFF34343A,
         lowerBeak: 0xFF1E1E22,
-        iris: 0xFFFAE278,
-        outline: 0xFF1A3A66);
+        iris: 0xFFFAE278);
 
     private static readonly ParrotPalette GreenPalette = new(
         plumage: 0xFF5BAF3E,
@@ -44,8 +42,7 @@ public sealed class ParrotPalette
         faceLines: 0xFF6A6A6A,
         upperBeak: 0xFF3A3A3E,
         lowerBeak: 0xFF242428,
-        iris: 0xFFFAE278,
-        outline: 0xFF24461A);
+        iris: 0xFFFAE278);
 
     // The hyacinth has no bare face, the yellow around the pupil stands for its bright eye ring.
     private static readonly ParrotPalette HyacinthPalette = new(
@@ -58,8 +55,7 @@ public sealed class ParrotPalette
         faceLines: 0x00000000,
         upperBeak: 0xFF2E2E32,
         lowerBeak: 0xFF1E1E22,
-        iris: 0xFFF5C83A,
-        outline: 0xFF15255A);
+        iris: 0xFFF5C83A);
 
     private ParrotPalette(
         uint plumage,
@@ -71,8 +67,7 @@ public sealed class ParrotPalette
         uint faceLines,
         uint upperBeak,
         uint lowerBeak,
-        uint iris,
-        uint outline)
+        uint iris)
     {
         PlumageColor = Color.FromUInt32(plumage);
         IrisColor = Color.FromUInt32(iris);
@@ -89,7 +84,7 @@ public sealed class ParrotPalette
         LowerBeak = new SolidColorBrush(Color.FromUInt32(lowerBeak));
         Iris = new SolidColorBrush(IrisColor);
         FaceLinePen = new Pen(new SolidColorBrush(Color.FromUInt32(faceLines)), 0.8, null, PenLineCap.Round);
-        OutlinePen = new Pen(new SolidColorBrush(Color.FromUInt32(outline)), 1.3, null, PenLineCap.Round, PenLineJoin.Round);
+        OutlinePen = AnimalStyle.InkPen;
     }
 
     /// <summary>

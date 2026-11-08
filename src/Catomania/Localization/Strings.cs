@@ -138,6 +138,8 @@ public static partial class Strings
 
     public static string Happy => Get();
 
+    public static string MuchiHunt => Get();
+
     public static string AboutCatomania => Get();
 
     public static string Version => Get();

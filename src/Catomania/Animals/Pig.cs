@@ -31,18 +31,17 @@ public sealed class Pig : Animal
     private static readonly IBrush Belly = new SolidColorBrush(Color.FromUInt32(0xFFF7BDC7));
     private static readonly IBrush Snout = new SolidColorBrush(Color.FromUInt32(0xFFF8C2CB));
     private static readonly IBrush EarInner = new SolidColorBrush(Color.FromUInt32(0xFFD97C90));
-    private static readonly IBrush Outline = new SolidColorBrush(Color.FromUInt32(0xFF603B46));
+    private static readonly IBrush Outline = AnimalStyle.Ink;
     private static readonly IBrush Iris = new SolidColorBrush(IrisColor);
-    private static readonly IBrush Pupil = new SolidColorBrush(Color.FromUInt32(0xFF211A1B));
     private static readonly IBrush Hoof = new SolidColorBrush(Color.FromUInt32(0xFF86515F));
     private static readonly IBrush Blush = new SolidColorBrush(Color.FromUInt32(0xFFE78CA1));
     private static readonly IBrush ShadowBrush = new SolidColorBrush(Color.FromUInt32(0x28000000));
-    private static readonly IPen OutlinePen = new Pen(Outline, 1.3, null, PenLineCap.Round, PenLineJoin.Round);
-    private static readonly IPen ThinOutlinePen = new Pen(Outline, 1.05, null, PenLineCap.Round, PenLineJoin.Round);
-    private static readonly IPen FacePen = new Pen(Outline, 1, null, PenLineCap.Round);
+    private static readonly IPen OutlinePen = AnimalStyle.InkPen;
+    private static readonly IPen ThinOutlinePen = AnimalStyle.ThinInkPen;
+    private static readonly IPen FacePen = AnimalStyle.FaceInkPen;
     private static readonly IPen ClosedEyePen = new Pen(Outline, 1.2, null, PenLineCap.Round);
     private static readonly IPen HoofPen = new Pen(Outline, 0.75, null, PenLineCap.Round);
-    private static readonly IPen TailOutlinePen = new Pen(Outline, 4.2, null, PenLineCap.Round, PenLineJoin.Round);
+    private static readonly IPen TailOutlinePen = new Pen(Outline, 2.2 + (AnimalStyle.InkWidth * 2), null, PenLineCap.Round, PenLineJoin.Round);
     private static readonly IPen TailPen = new Pen(Skin, 2.2, null, PenLineCap.Round, PenLineJoin.Round);
     private static readonly IPen ZzzPen = new Pen(
         new SolidColorBrush(Color.FromUInt32(0xFFC9D6E3)), 1.8, null, PenLineCap.Round, PenLineJoin.Round);
@@ -295,16 +294,7 @@ public sealed class Pig : Animal
                 continue;
             }
 
-            var radiusX = isDragged ? 3.5 : 3;
-            var radiusY = isDragged ? 4 : 3.4;
-            context.DrawEllipse(Iris, null, center, radiusX, radiusY);
-            context.DrawEllipse(
-                Pupil,
-                null,
-                new Point(center.X + 0.2, center.Y + 0.3),
-                isDragged ? 1.6 : 1.35,
-                isDragged ? 1.8 : 2.3);
-            context.DrawEllipse(Brushes.White, null, new Point(center.X - 1, center.Y - 1.25), 0.85, 0.85);
+            DrawGlossyEye(context, Iris, center, isDragged ? 3.6 : 3.2, isDragged ? 4.1 : 3.6, isDragged);
         }
     }
 

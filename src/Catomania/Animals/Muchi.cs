@@ -7,9 +7,10 @@ namespace Catomania.Animals;
 
 /// <summary>
 /// Muchi the Cat, a round-faced ginger kitten with a white muzzle and belly, pink cheeks and long whiskers. It sits
-/// facing the viewer and glances left or right towards the cursor, walks sideways wagging the tail, crouches low and stalks
-/// when running, looks up with sparkling eyes, squints happily and sleeps either curled up or on its back with the
-/// paws in the air, one of the two is chosen at random every time Muchi falls asleep.
+/// facing the viewer and glances left or right towards the cursor, walks and runs sideways wagging the tail, looks up
+/// with sparkling eyes, squints happily and sleeps either curled up or on its back with the paws in the air, one of the
+/// two is chosen at random every time Muchi falls asleep. In pause mode it has its own hunting trick: it crouches low,
+/// stalks with the eyes narrowed, wiggles the rear and pounces.
 /// </summary>
 public sealed class Muchi : Animal
 {
@@ -32,6 +33,17 @@ public sealed class Muchi : Animal
     private const double HappyTailWag = 14;
     private const double WalkTailWag = 8;
     private const double PawSway = 5;
+    private const double HuntTailLash = 12;
+
+    // The hunting trick: Muchi stalks and wiggles the rear, then crouches lower and pounces. Fractions of the trick.
+    private const double HuntDurationSeconds = 3.6;
+    private const double HuntGatherStart = 0.62;
+    private const double HuntPounceStart = 0.74;
+    private const double HuntWiggles = 6;
+    private const double HuntWiggleShift = 6;
+    private const double HuntGatherDip = 14;
+    private const double HuntPounceHeight = 90;
+    private const double HuntPounceLean = 10;
 
     // How much higher the face is when Muchi looks up, the whiskers go up a bit less. In the art coordinates.
     private const double RaisedFaceLift = 46;
@@ -731,6 +743,11 @@ public sealed class Muchi : Animal
         WalkStrideLength = WalkStride * ArtScale / DesignSize,
         RunStrideLength = RunStride * ArtScale / DesignSize,
         SleepAnimationCount = 2,
+        Tricks = [.. new AnimalSimulatorOptions().Tricks, AnimalTrick.MuchiHunt],
+        TrickDurations = new Dictionary<AnimalTrick, double>
+        {
+            [AnimalTrick.MuchiHunt] = HuntDurationSeconds,
+        },
     };
 
     /// <inheritdoc />
@@ -745,10 +762,13 @@ public sealed class Muchi : Animal
                 DrawSleepingCurled(context, state.Phase);
                 break;
             case AnimalAnimationState.Walk:
-                DrawWalking(context, state);
+                DrawWalking(context, state, new Gait(WalkReach, WalkLift, WalkStanceFraction), 6);
                 break;
             case AnimalAnimationState.Run:
-                DrawRunning(context, state);
+                DrawWalking(context, state, new Gait(RunReach, RunLift, RunStanceFraction), 8);
+                break;
+            case AnimalAnimationState.Idle when state.Trick == AnimalTrick.MuchiHunt:
+                DrawHunting(context, state);
                 break;
             default:
                 DrawSitting(context, state);
@@ -930,14 +950,14 @@ public sealed class Muchi : Animal
         }
     }
 
-    private void DrawWalking(DrawingContext context, AnimalRenderState state)
+    // Muchi walks and runs in the same pose, running only takes longer and higher steps.
+    private void DrawWalking(DrawingContext context, AnimalRenderState state, Gait gait, double bobHeight)
     {
         var phase = state.Phase;
-        var gait = new Gait(WalkReach, WalkLift, WalkStanceFraction);
 
         // The legs move in diagonal pairs and the body dips as each pair reaches the middle of its stance.
         var midStance = 2 * (phase - (Math.PI * gait.StanceFraction));
-        var bob = Math.Cos(midStance) * 6;
+        var bob = Math.Cos(midStance) * bobHeight;
 
         DrawShadow(context, ShadowBrush, state, DesignSize / 2, 27, 5);
         using (context.PushTransform(WalkingToDesign))
@@ -982,30 +1002,38 @@ public sealed class Muchi : Animal
         }
     }
 
-    // The running Muchi stalks low to the ground, it is too focused to blink.
-    private void DrawRunning(DrawingContext context, AnimalRenderState state)
+    // The hunting trick: Muchi stalks low to the ground with the eyes narrowed, too focused to blink, lashes the tail
+    // and wiggles the rear faster and faster, gathers itself even lower and pounces.
+    private void DrawHunting(DrawingContext context, AnimalRenderState state)
     {
-        var phase = state.Phase;
-        var gait = new Gait(RunReach, RunLift, RunStanceFraction);
-        var midStance = 2 * (phase - (Math.PI * gait.StanceFraction));
-        var bob = -(1 - Math.Cos(midStance)) * 8;
+        var progress = Math.Clamp(state.TrickProgress, 0, 1);
+        var stalk = Math.Min(1, progress / HuntGatherStart);
+        var wiggle = progress < HuntGatherStart
+            ? Math.Sin(stalk * stalk * HuntWiggles * 2 * Math.PI) * HuntWiggleShift * stalk
+            : 0;
+        var gather = Math.Clamp((progress - HuntGatherStart) / (HuntPounceStart - HuntGatherStart), 0, 1);
+        var flight = Math.Clamp((progress - HuntPounceStart) / (1 - HuntPounceStart), 0, 1);
+        var arc = Math.Sin(Math.PI * flight);
+        var dip = HuntGatherDip * Math.Sin(Math.PI * gather / 2) * (1 - flight);
+        var tail = Math.Sin(state.Phase * 3) * HuntTailLash * (1 - arc);
 
-        DrawShadow(context, ShadowBrush, state, DesignSize / 2, 29, 5);
+        DrawShadow(context, ShadowBrush, state, DesignSize / 2, 29 * (1 - (0.3 * arc)), 5);
         using (context.PushTransform(HuntingToDesign))
         {
-            var lift = Matrix.CreateTranslation(0, bob);
-            using (context.PushTransform(lift))
+            // The rear wiggles around the front paws, the pounce leans forward in the air.
+            var pose = Matrix.CreateRotation(-HuntPounceLean * arc * Math.PI / 180)
+                * Matrix.CreateTranslation(0, dip - (HuntPounceHeight * arc));
+            using (context.PushTransform(pose))
             {
-                var wag = Math.Sin(phase * 2) * WalkTailWag;
-                DrawRotated(context, HuntingTailBase, wag, () => context.DrawGeometry(_furBrush, TailPen, HuntingTail));
-                DrawOutlined(context, _furBrush, HuntingBody);
-            }
+                using (context.PushTransform(Matrix.CreateTranslation(wiggle, 0)))
+                {
+                    DrawRotated(context, HuntingTailBase, tail, () => context.DrawGeometry(_furBrush, TailPen, HuntingTail));
+                    DrawOutlined(context, _furBrush, HuntingHindLeg);
+                }
 
-            DrawLeg(context, HuntingForeLeg, phase, gait);
-            DrawLeg(context, HuntingMiddleLeg, phase + Math.PI, gait);
-            DrawLeg(context, HuntingHindLeg, phase + (Math.PI / 2), gait);
-            using (context.PushTransform(lift))
-            {
+                DrawOutlined(context, _furBrush, HuntingBody);
+                DrawOutlined(context, _furBrush, HuntingForeLeg);
+                DrawOutlined(context, _furBrush, HuntingMiddleLeg);
                 context.DrawGeometry(null, WhiskerPen, HuntingFarWhiskers);
                 DrawOutlined(context, _furBrush, HuntingFarEar);
                 DrawOutlined(context, _furBrush, HuntingHead);

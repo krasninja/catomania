@@ -26,16 +26,20 @@ public sealed class Cat : Animal
     private const double HipY = 70;
     private const double DanglingLegLength = 20;
 
-    // The shapes that never change are created once.
-    private static readonly Geometry LeftEar = CreateTriangle(new Point(62, 40), new Point(63, 21), new Point(74, 30));
+    // The head is drawn bigger than in life, like the heads of the other animals, it grows around this point.
+    private const double HeadScale = 1.3;
+    private static readonly Point HeadScaleCenter = new(73, 46);
 
-    private static readonly Geometry RightEar = CreateTriangle(new Point(78, 30), new Point(88, 20), new Point(87, 37));
+    // The shapes that never change are created once.
+    private static readonly Geometry LeftEar = CreateTriangle(new Point(61, 40), new Point(62.5, 24.5), new Point(74, 32));
+
+    private static readonly Geometry RightEar = CreateTriangle(new Point(76.5, 32), new Point(87.5, 24), new Point(88, 39));
 
     private static readonly Geometry LeftEarInner = CreateTriangle(
-        new Point(64.5, 37), new Point(65, 26), new Point(71.5, 32));
+        new Point(63.5, 37), new Point(64.3, 28.5), new Point(71, 33));
 
     private static readonly Geometry RightEarInner = CreateTriangle(
-        new Point(79.5, 32), new Point(85.5, 25.5), new Point(85, 36));
+        new Point(79.5, 33), new Point(85.5, 27.8), new Point(85.8, 36.5));
 
     private static readonly Geometry Nose = CreateTriangle(
         new Point(74.2, 49.2), new Point(78.6, 49.2), new Point(76.4, 51.7));
@@ -243,8 +247,9 @@ public sealed class Cat : Animal
                 tip);
         }
 
+        context.DrawGeometry(null, palette.TailOutlinePen, tail);
         context.DrawGeometry(null, palette.TailPen, tail);
-        context.DrawEllipse(palette.FurDark, null, tip, 4.2, 4.2);
+        context.DrawEllipse(palette.FurDark, palette.OutlinePen, tip, 4.2, 4.2);
     }
 
     private static void DrawStripes(DrawingContext context, CatPalette palette, double bob)
@@ -264,7 +269,8 @@ public sealed class Cat : Animal
         var isDragged = state.State == AnimalAnimationState.Dragged;
         var isHappy = !isDragged && state.Trick == AnimalTrick.Happy;
 
-        using (context.PushTransform(Matrix.CreateTranslation(0, bob * 0.6)))
+        var transform = ScaleAround(HeadScale, HeadScaleCenter.X, HeadScaleCenter.Y) * Matrix.CreateTranslation(0, bob * 0.6);
+        using (context.PushTransform(transform))
         {
             // Ears are drawn behind the head so their base is hidden.
             context.DrawGeometry(palette.Fur, palette.OutlinePen, LeftEar);
@@ -272,11 +278,14 @@ public sealed class Cat : Animal
             context.DrawGeometry(palette.EarInner, null, LeftEarInner);
             context.DrawGeometry(palette.EarInner, null, RightEarInner);
 
-            context.DrawEllipse(palette.Fur, palette.OutlinePen, new Point(74, 44), 13.5, 13.5);
+            context.DrawEllipse(palette.Fur, palette.OutlinePen, new Point(74, 44.5), 14.5, 13);
 
             // Forehead stripes.
             context.DrawLine(palette.StripePen, new Point(70, 33.5), new Point(69.5, 37.5));
             context.DrawLine(palette.StripePen, new Point(75.5, 32.8), new Point(75.5, 37));
+
+            context.DrawEllipse(AnimalStyle.Cheek, null, new Point(64.8, 48), 2.4, 1.5);
+            context.DrawEllipse(AnimalStyle.Cheek, null, new Point(85.6, 47.6), 1.9, 1.5);
 
             // Muzzle.
             context.DrawEllipse(palette.Belly, null, new Point(76.5, 50), 8, 5.5);
@@ -301,13 +310,11 @@ public sealed class Cat : Animal
                 context.DrawGeometry(null, palette.FacePen, MouthRight);
             }
 
-            // Whiskers.
-            context.DrawLine(palette.WhiskerPen, new Point(69, 49), new Point(56, 45.5));
-            context.DrawLine(palette.WhiskerPen, new Point(68.5, 50.5), new Point(55, 50));
-            context.DrawLine(palette.WhiskerPen, new Point(69, 52), new Point(56.5, 55.5));
-            context.DrawLine(palette.WhiskerPen, new Point(84, 49), new Point(96, 46));
-            context.DrawLine(palette.WhiskerPen, new Point(84.5, 50.5), new Point(97, 50.5));
-            context.DrawLine(palette.WhiskerPen, new Point(84, 52), new Point(95.5, 55.5));
+            // Short whiskers, so the bigger head still fits into the design space.
+            context.DrawLine(palette.WhiskerPen, new Point(62, 49), new Point(55.5, 47.5));
+            context.DrawLine(palette.WhiskerPen, new Point(62, 51), new Point(55.5, 52));
+            context.DrawLine(palette.WhiskerPen, new Point(87.5, 48.5), new Point(92.5, 47.3));
+            context.DrawLine(palette.WhiskerPen, new Point(87.5, 50.5), new Point(92.5, 51.3));
         }
     }
 
@@ -324,19 +331,7 @@ public sealed class Cat : Animal
                 continue;
             }
 
-            var radiusX = isDragged ? 3.6 : 3.2;
-            var radiusY = isDragged ? 4.4 : 3.6;
-            context.DrawEllipse(palette.Eye, null, center, radiusX, radiusY);
-            if (isDragged)
-            {
-                context.DrawEllipse(palette.Pupil, null, center, 1.8, 1.8);
-            }
-            else
-            {
-                context.DrawEllipse(palette.Pupil, null, center, 1.2, 3);
-            }
-
-            context.DrawEllipse(Brushes.White, null, new Point(x - 1.1, 41.4), 0.9, 0.9);
+            DrawGlossyEye(context, palette.Eye, center, isDragged ? 3.6 : 3.3, isDragged ? 4.4 : 3.8, isDragged);
         }
     }
 
@@ -373,8 +368,9 @@ public sealed class Cat : Animal
         context.DrawEllipse(palette.ShadowBrush, null, new Point(50, GroundY + 2), 34, 4.5);
 
         // Tail wrapped around the body.
+        context.DrawGeometry(null, palette.TailOutlinePen, SleepingTail);
         context.DrawGeometry(null, palette.TailPen, SleepingTail);
-        context.DrawEllipse(palette.FurDark, null, new Point(38, 92), 4.2, 4.2);
+        context.DrawEllipse(palette.FurDark, palette.OutlinePen, new Point(38, 92), 4.2, 4.2);
 
         // Body, it rises and falls with the breath while lying on the ground.
         var breath = Matrix.CreateTranslation(0, -GroundY)
@@ -391,19 +387,24 @@ public sealed class Cat : Animal
             }
         }
 
-        // Head resting on the paws.
-        context.DrawGeometry(palette.Fur, palette.OutlinePen, SleepingLeftEar);
-        context.DrawGeometry(palette.Fur, palette.OutlinePen, SleepingRightEar);
-        context.DrawGeometry(palette.EarInner, null, SleepingLeftEarInner);
-        context.DrawGeometry(palette.EarInner, null, SleepingRightEarInner);
-        context.DrawEllipse(palette.Fur, palette.OutlinePen, new Point(28, 74), 12.5, 12.5);
-        context.DrawEllipse(palette.Belly, null, new Point(29, 80), 7, 4.5);
+        // Head resting on the paws, as big as the upright head.
+        using (context.PushTransform(ScaleAround(HeadScale, 28, 84)))
+        {
+            context.DrawGeometry(palette.Fur, palette.OutlinePen, SleepingLeftEar);
+            context.DrawGeometry(palette.Fur, palette.OutlinePen, SleepingRightEar);
+            context.DrawGeometry(palette.EarInner, null, SleepingLeftEarInner);
+            context.DrawGeometry(palette.EarInner, null, SleepingRightEarInner);
+            context.DrawEllipse(palette.Fur, palette.OutlinePen, new Point(28, 74), 12.5, 12.5);
+            context.DrawEllipse(AnimalStyle.Cheek, null, new Point(19.5, 78), 2.2, 1.4);
+            context.DrawEllipse(AnimalStyle.Cheek, null, new Point(37.5, 78), 2.2, 1.4);
+            context.DrawEllipse(palette.Belly, null, new Point(29, 80), 7, 4.5);
 
-        // Closed eyes.
-        context.DrawGeometry(null, palette.FacePen, SleepingLeftEye);
-        context.DrawGeometry(null, palette.FacePen, SleepingRightEye);
+            // Closed eyes.
+            context.DrawGeometry(null, palette.FacePen, SleepingLeftEye);
+            context.DrawGeometry(null, palette.FacePen, SleepingRightEye);
 
-        context.DrawGeometry(palette.Nose, null, SleepingNose);
+            context.DrawGeometry(palette.Nose, null, SleepingNose);
+        }
 
         context.DrawEllipse(palette.Belly, palette.OutlinePen, new Point(41, 88), 5.5, 3.5);
 

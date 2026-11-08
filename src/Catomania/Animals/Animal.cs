@@ -200,6 +200,40 @@ public abstract class Animal
     }
 
     /// <summary>
+    /// Draw a big glossy eye in the style shared by all animals: a colored iris, a large dark pupil and
+    /// two highlights in the upper left.
+    /// </summary>
+    /// <param name="context">Drawing context.</param>
+    /// <param name="iris">Brush of the iris.</param>
+    /// <param name="center">Center of the eye.</param>
+    /// <param name="radiusX">Horizontal radius of the eye.</param>
+    /// <param name="radiusY">Vertical radius of the eye.</param>
+    /// <param name="isStartled">Whether the eye is wide open with a small pupil.</param>
+    protected static void DrawGlossyEye(
+        DrawingContext context, IBrush iris, Point center, double radiusX, double radiusY, bool isStartled = false)
+    {
+        var pupil = isStartled ? 0.45 : 0.68;
+        context.DrawEllipse(iris, null, center, radiusX, radiusY);
+        context.DrawEllipse(
+            AnimalStyle.Ink, null, new Point(center.X + (radiusX * 0.08), center.Y + (radiusY * 0.1)), radiusX * pupil, radiusY * pupil);
+        var highlight = Math.Min(radiusX, radiusY);
+        context.DrawEllipse(
+            Brushes.White, null, new Point(center.X - (radiusX * 0.32), center.Y - (radiusY * 0.36)), highlight * 0.32, highlight * 0.32);
+        context.DrawEllipse(
+            Brushes.White, null, new Point(center.X + (radiusX * 0.34), center.Y + (radiusY * 0.34)), highlight * 0.14, highlight * 0.14);
+    }
+
+    /// <summary>
+    /// Create a transform that scales around the point.
+    /// </summary>
+    /// <param name="scale">Scale factor.</param>
+    /// <param name="x">Horizontal coordinate of the point that stays in place.</param>
+    /// <param name="y">Vertical coordinate of the point that stays in place.</param>
+    /// <returns>Transform.</returns>
+    protected static Matrix ScaleAround(double scale, double x, double y)
+        => Matrix.CreateTranslation(-x, -y) * Matrix.CreateScale(scale, scale) * Matrix.CreateTranslation(x, y);
+
+    /// <summary>
     /// Create an open cubic Bezier curve.
     /// </summary>
     /// <param name="start">Start point.</param>

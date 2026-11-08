@@ -23,7 +23,7 @@ public sealed class Snake : Animal
     private const double HeadRadiusY = 15;
     private const double SleepingHeadRadiusX = 16;
     private const double SleepingHeadRadiusY = 14;
-    private const double OutlineWidth = 1.4;
+    private const double OutlineWidth = AnimalStyle.InkWidth;
     private const double RingWidth = 16;
     private const int BodySegments = 24;
     private const int NeckSegments = 7;
