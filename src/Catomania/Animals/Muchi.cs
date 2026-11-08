@@ -691,6 +691,14 @@ public sealed class Muchi : Animal
     // The tail and the paws in the air turn around where they grow from the body.
     private static readonly Point TailBase = new(325, 450);
     private static readonly Point WalkingTailBase = new(165, 338);
+
+    // The walking legs swing around the tops of the legs, hidden in the body. LegReach goes from there to the bottom
+    // of the paw standing under it.
+    private static readonly Point FarShoulder = new(466, 412);
+    private static readonly Point FarHip = new(286, 412);
+    private static readonly Point NearShoulder = new(362, 412);
+    private static readonly Point NearHip = new(182, 412);
+    private static readonly Vector LegReach = new(-12, 135);
     private static readonly Point HuntingTailBase = new(222, 222);
     private static readonly Point ForePawBase = new(330, 200);
     private static readonly Point RaisedPawBase = new(425, 145);
@@ -969,15 +977,15 @@ public sealed class Muchi : Animal
                 DrawRotated(context, WalkingTailBase, wag, () => context.DrawGeometry(_furBrush, TailPen, WalkingTail));
             }
 
-            DrawLeg(context, FarForeLeg, phase, gait);
-            DrawLeg(context, FarHindLeg, phase + Math.PI, gait);
+            DrawLeg(context, FarForeLeg, FarShoulder, bob, phase, gait);
+            DrawLeg(context, FarHindLeg, FarHip, bob, phase + Math.PI, gait);
             using (context.PushTransform(lift))
             {
                 DrawOutlined(context, WalkingBody, WalkingBelly);
             }
 
-            DrawLeg(context, NearForeLeg, phase + Math.PI, gait);
-            DrawLeg(context, NearHindLeg, phase, gait);
+            DrawLeg(context, NearForeLeg, NearShoulder, bob, phase + Math.PI, gait);
+            DrawLeg(context, NearHindLeg, NearHip, bob, phase, gait);
             using (context.PushTransform(lift))
             {
                 context.DrawGeometry(null, WhiskerPen, WalkingFarWhiskers);
@@ -1049,10 +1057,20 @@ public sealed class Muchi : Animal
         }
     }
 
-    private void DrawLeg(DrawingContext context, Geometry leg, double phase, Gait gait)
+    // The leg hangs from the hip or the shoulder, which moves with the body, and swings around it to reach the foot
+    // position on the ground or in the air. The leg slides along itself into the body or out of it to keep its length,
+    // so the planted paw stays on the ground while the leg turns over it.
+    private void DrawLeg(DrawingContext context, Geometry leg, Point hip, double bob, double phase, Gait gait)
     {
         var (offsetX, lift) = GetFootOffset(phase, gait);
-        using (context.PushTransform(Matrix.CreateTranslation(offsetX, -lift)))
+        var rest = LegReach;
+        var reach = new Vector(rest.X + offsetX, rest.Y - lift - bob);
+        var angle = Math.Atan2(reach.X, reach.Y) - Math.Atan2(rest.X, rest.Y);
+        var slide = rest / rest.Length * (reach.Length - rest.Length);
+        var transform = Matrix.CreateTranslation(slide.X, slide.Y)
+            * AroundPoint(hip, Matrix.CreateRotation(-angle))
+            * Matrix.CreateTranslation(0, bob);
+        using (context.PushTransform(transform))
         {
             DrawOutlined(context, _furBrush, leg);
         }
@@ -1125,14 +1143,15 @@ public sealed class Muchi : Animal
 
     private static void DrawRotated(DrawingContext context, Point pivot, double angle, Action draw)
     {
-        var rotation = Matrix.CreateTranslation(-pivot.X, -pivot.Y)
-            * Matrix.CreateRotation(angle * Math.PI / 180)
-            * Matrix.CreateTranslation(pivot.X, pivot.Y);
-        using (context.PushTransform(rotation))
+        using (context.PushTransform(AroundPoint(pivot, Matrix.CreateRotation(angle * Math.PI / 180))))
         {
             draw();
         }
     }
+
+    private static Matrix AroundPoint(Point point, Matrix transform) => Matrix.CreateTranslation(-point.X, -point.Y)
+        * transform
+        * Matrix.CreateTranslation(point.X, point.Y);
 
     private static void DrawOutlined(DrawingContext context, IBrush fill, Geometry geometry) =>
         DrawOutlined(context, fill, geometry, OutlinePen);
