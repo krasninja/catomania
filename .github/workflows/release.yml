@@ -184,7 +184,7 @@ jobs:
         run: |
           set -euo pipefail
           cd output/publish
-          timeout --signal=TERM 15 xvfb-run --auto-servernum ./Catomania > ./gui.log 2>&1 || true
+          timeout --signal=TERM 15 xvfb-run --auto-servernum ./catomania > ./gui.log 2>&1 || true
           cat ./gui.log
           test ! -s ./gui.log
 

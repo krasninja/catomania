@@ -12,7 +12,7 @@ public static class ApplicationConstants
     public const string PackId = "catomania";
 
     /// <summary>Main executable name without extension.</summary>
-    public const string MainExeName = "Catomania";
+    public const string MainExeName = "catomania";
 
     /// <summary>Linux platform identifier.</summary>
     public const string PlatformLinux = "linux";

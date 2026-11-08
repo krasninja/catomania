@@ -91,19 +91,19 @@ jobs:
         include:
           - os: ubuntu-22.04
             rid: linux-x64
-            exe: Catomania
+            exe: catomania
             target: Publish-Linux
             arch: x64
             channel: linux
           - os: windows-latest
             rid: win-x64
-            exe: Catomania.exe
+            exe: catomania.exe
             target: Publish-Windows
             arch: x64
             channel: win
           - os: macos-latest
             rid: osx-arm64
-            exe: Catomania
+            exe: catomania
             target: Publish-Mac
             arch: arm64
             channel: osx-arm64
@@ -213,7 +213,7 @@ jobs:
       #     # The animal window has to open and the chase loop has to run without an exception.
       #     # The app reports unhandled exceptions on stderr and keeps running, so a non-empty
       #     # log means something broke at runtime under AOT.
-      #     timeout --signal=TERM 15 xvfb-run --auto-servernum ./Catomania > ./gui.log 2>&1 || true
+      #     timeout --signal=TERM 15 xvfb-run --auto-servernum ./catomania > ./gui.log 2>&1 || true
       #     cat ./gui.log
       #     test ! -s ./gui.log
 
