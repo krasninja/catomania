@@ -32,6 +32,7 @@ public sealed class SettingsStorageTests : IDisposable
         Assert.Equal(SnakeSkin.Mint, settings.SnakeSkin);
         Assert.Equal(MuchiFur.Orange, settings.MuchiFur);
         Assert.Equal(ParrotPlumage.Scarlet, settings.ParrotPlumage);
+        Assert.Equal(NoluFur.Brown, settings.NoluFur);
         Assert.Equal(AnimalSize.Medium, settings.Size);
         Assert.True(settings.AlwaysOnTop);
         Assert.False(settings.Paused);
@@ -66,6 +67,7 @@ public sealed class SettingsStorageTests : IDisposable
             SnakeSkin = SnakeSkin.Yellow,
             MuchiFur = MuchiFur.Brown,
             ParrotPlumage = ParrotPlumage.Hyacinth,
+            NoluFur = NoluFur.Violet,
             Size = AnimalSize.Large,
             AlwaysOnTop = false,
             Paused = true,
@@ -84,6 +86,7 @@ public sealed class SettingsStorageTests : IDisposable
         Assert.Equal(SnakeSkin.Yellow, loaded.SnakeSkin);
         Assert.Equal(MuchiFur.Brown, loaded.MuchiFur);
         Assert.Equal(ParrotPlumage.Hyacinth, loaded.ParrotPlumage);
+        Assert.Equal(NoluFur.Violet, loaded.NoluFur);
         Assert.Equal(AnimalSize.Large, loaded.Size);
         Assert.False(loaded.AlwaysOnTop);
         Assert.True(loaded.Paused);

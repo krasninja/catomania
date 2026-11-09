@@ -22,7 +22,7 @@ public sealed partial class App : Application
     public const string PauseSetting = nameof(AppSettings.Paused);
 
     /// <summary>
-    /// Tray menu item parameter of the fur submenu, which is enabled only for the cat.
+    /// Tray menu item parameter of the fur submenu, which is enabled for animals with color choices.
     /// </summary>
     public const string FurSetting = nameof(AppSettings.ColorScheme);
 
@@ -88,7 +88,7 @@ public sealed partial class App : Application
                 continue;
             }
 
-            if (item.CommandParameter is CatColorScheme or DogCoat or SnakeSkin or MuchiFur or ParrotPlumage)
+            if (item.CommandParameter is CatColorScheme or DogCoat or SnakeSkin or MuchiFur or ParrotPlumage or NoluFur)
             {
                 item.IsVisible = _settings.Animal.HasFurOption(item.CommandParameter);
             }
@@ -102,6 +102,7 @@ public sealed partial class App : Application
                 SnakeSkin skin => skin == _settings.SnakeSkin,
                 MuchiFur fur => fur == _settings.MuchiFur,
                 ParrotPlumage plumage => plumage == _settings.ParrotPlumage,
+                NoluFur fur => fur == _settings.NoluFur,
                 AnimalSize size => size == _settings.Size,
                 PauseSetting => _settings.Paused,
                 AlwaysOnTopSetting => _settings.AlwaysOnTop,
@@ -203,6 +204,9 @@ public sealed partial class App : Application
                 break;
             case ParrotPlumage plumage:
                 _commands?.SetParrotPlumage(plumage);
+                break;
+            case NoluFur fur:
+                _commands?.SetNoluFur(fur);
                 break;
         }
     }

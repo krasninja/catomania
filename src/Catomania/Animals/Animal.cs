@@ -88,7 +88,7 @@ public abstract class Animal
             AnimalKind.Pig => new Pig(),
             AnimalKind.Frog => new Frog(),
             AnimalKind.Capybara => new Capybara(),
-            AnimalKind.Nolu => new Nolu(),
+            AnimalKind.Nolu => new Nolu(settings.NoluFur),
             AnimalKind.Muchi => new Muchi(settings.MuchiFur),
             _ => new Cat(settings.ColorScheme),
         };

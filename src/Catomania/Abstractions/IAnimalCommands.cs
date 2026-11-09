@@ -50,6 +50,12 @@ public interface IAnimalCommands
     void SetParrotPlumage(ParrotPlumage plumage);
 
     /// <summary>
+    /// Set the fur color of Nolu.
+    /// </summary>
+    /// <param name="fur">Fur color.</param>
+    void SetNoluFur(NoluFur fur);
+
+    /// <summary>
     /// Set the animal size.
     /// </summary>
     /// <param name="size">Animal size.</param>

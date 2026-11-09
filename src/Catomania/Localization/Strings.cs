@@ -76,6 +76,8 @@ public static partial class Strings
 
     public static string Brown => Get();
 
+    public static string Violet => Get();
+
     public static string Scarlet => Get();
 
     public static string BlueAndGold => Get();

@@ -41,6 +41,11 @@ public sealed class AppSettings
     public ParrotPlumage ParrotPlumage { get; set; } = ParrotPlumage.Scarlet;
 
     /// <summary>
+    /// Gets or sets the fur color of Nolu.
+    /// </summary>
+    public NoluFur NoluFur { get; set; } = NoluFur.Brown;
+
+    /// <summary>
     /// Gets or sets the animal size.
     /// </summary>
     public AnimalSize Size { get; set; } = AnimalSize.Medium;

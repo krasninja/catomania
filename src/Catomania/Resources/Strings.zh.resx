@@ -39,6 +39,7 @@
   <data name="Orange" xml:space="preserve"><value>橙色</value></data>
   <data name="Beige" xml:space="preserve"><value>米色</value></data>
   <data name="Brown" xml:space="preserve"><value>棕色</value></data>
+  <data name="Violet" xml:space="preserve"><value>紫色</value></data>
   <data name="Scarlet" xml:space="preserve"><value>绯红色</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>蓝色和金色</value></data>
   <data name="Green" xml:space="preserve"><value>绿色</value></data>

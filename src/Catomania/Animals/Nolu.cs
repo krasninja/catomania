@@ -48,14 +48,11 @@ public sealed class Nolu : Animal
     // How much lower the sitting Nolu is than the standing one, the antlers go down with it.
     private const double SleepingDrop = 78.4;
 
-    private static readonly Color FurColor = Color.FromUInt32(0xFF6D5353);
     private static readonly Color PupilColor = Color.FromUInt32(0xFF000000);
 
     private static readonly Matrix ArtToDesign = Matrix.CreateScale(ArtScale, ArtScale)
         * Matrix.CreateTranslation((DesignSize / 2) - (ArtCenterX * ArtScale), GroundY - (ArtGroundY * ArtScale));
 
-    private static readonly IBrush Fur = new SolidColorBrush(FurColor);
-    private static readonly IBrush Skin = new SolidColorBrush(Color.FromUInt32(0xFFB89E96));
     private static readonly IBrush Antler = new SolidColorBrush(Color.FromUInt32(0xFF473636));
     private static readonly IBrush EyeWhite = new SolidColorBrush(Color.FromUInt32(0xFFD9D9D9));
     private static readonly IBrush MushroomRed = new SolidColorBrush(Color.FromUInt32(0xFFA32222));
@@ -568,6 +565,21 @@ public sealed class Nolu : Animal
     private static readonly Point SideDot = new(460.066, 247.643);
     private static readonly Point Feet = new(ArtCenterX, ArtGroundY);
 
+    private readonly IBrush _furBrush;
+    private readonly IBrush _skinBrush;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Nolu" /> class.
+    /// </summary>
+    /// <param name="fur">Fur color.</param>
+    public Nolu(NoluFur fur = NoluFur.Brown)
+    {
+        Fur = fur;
+        BodyColor = GetFurColor(fur);
+        _furBrush = new SolidColorBrush(BodyColor);
+        _skinBrush = new SolidColorBrush(GetHeadColor(fur));
+    }
+
     private enum Face
     {
         Idle,
@@ -582,8 +594,13 @@ public sealed class Nolu : Animal
     /// <inheritdoc />
     public override AnimalKind Kind => AnimalKind.Nolu;
 
+    /// <summary>
+    /// Gets the fur color.
+    /// </summary>
+    public NoluFur Fur { get; }
+
     /// <inheritdoc />
-    public override Color BodyColor => FurColor;
+    public override Color BodyColor { get; }
 
     /// <inheritdoc />
     public override Color EyeColor => PupilColor;
@@ -597,6 +614,20 @@ public sealed class Nolu : Animal
         WalkStrideLength = WalkStride * ArtScale / DesignSize,
         RunStrideLength = RunStride * ArtScale / DesignSize,
     };
+
+    private static Color GetFurColor(NoluFur fur) => Color.FromUInt32(fur switch
+    {
+        NoluFur.Violet => 0xFF5A4E98,
+        NoluFur.Green => 0xFF61833F,
+        _ => 0xFF6D5353,
+    });
+
+    private static Color GetHeadColor(NoluFur fur) => Color.FromUInt32(fur switch
+    {
+        NoluFur.Violet => 0xFFAE99D7,
+        NoluFur.Green => 0xFFB1BC83,
+        _ => 0xFFB89E96,
+    });
 
     /// <inheritdoc />
     protected override void Draw(DrawingContext context, AnimalRenderState state)
@@ -632,7 +663,7 @@ public sealed class Nolu : Animal
         return state.IsBlinking && face is Face.Idle or Face.LookAhead or Face.Cute ? Face.Blink : face;
     }
 
-    private static void DrawStanding(DrawingContext context, AnimalRenderState state)
+    private void DrawStanding(DrawingContext context, AnimalRenderState state)
     {
         var face = GetFace(state);
         var isDragged = state.State == AnimalAnimationState.Dragged;
@@ -652,32 +683,32 @@ public sealed class Nolu : Animal
                 : Matrix.Identity;
             using (context.PushTransform(dangle))
             {
-                DrawOutlined(context, Skin, LeftLeg);
-                DrawOutlined(context, Skin, RightLeg);
+                DrawOutlined(context, _skinBrush, LeftLeg);
+                DrawOutlined(context, _skinBrush, RightLeg);
             }
 
             using (context.PushTransform(Matrix.CreateTranslation(0, breathe)))
             {
                 DrawOutlined(context, Antler, LeftHorn);
                 DrawOutlined(context, Antler, RightHorn);
-                DrawOutlined(context, Skin, isHappy ? HappyLeftEar : LeftEar);
-                DrawOutlined(context, Skin, isHappy ? HappyRightEar : RightEar);
+                DrawOutlined(context, _skinBrush, isHappy ? HappyLeftEar : LeftEar);
+                DrawOutlined(context, _skinBrush, isHappy ? HappyRightEar : RightEar);
 
                 // The arms go up in joy and in fright, the happy Nolu waves them. The eating Nolu holds
                 // the mushroom in front of the body, those arms are drawn over it later.
                 if (isHappy || isDragged)
                 {
                     var wave = isHappy ? GetArmWave(state) : 0;
-                    DrawRotated(context, Shoulders[0], wave, () => DrawOutlined(context, Skin, HappyLeftArm));
-                    DrawRotated(context, Shoulders[1], -wave, () => DrawOutlined(context, Skin, HappyRightArm));
+                    DrawRotated(context, Shoulders[0], wave, () => DrawOutlined(context, _skinBrush, HappyLeftArm));
+                    DrawRotated(context, Shoulders[1], -wave, () => DrawOutlined(context, _skinBrush, HappyRightArm));
                 }
                 else if (face != Face.Eat)
                 {
-                    DrawOutlined(context, Skin, LeftArm);
-                    DrawOutlined(context, Skin, RightArm);
+                    DrawOutlined(context, _skinBrush, LeftArm);
+                    DrawOutlined(context, _skinBrush, RightArm);
                 }
 
-                DrawOutlined(context, Fur, Body);
+                DrawOutlined(context, _furBrush, Body);
                 if (isHappy)
                 {
                     DrawHappyFace(context);
@@ -696,7 +727,7 @@ public sealed class Nolu : Animal
     }
 
     // Nolu brings the mushroom up to the mouth and nibbles at it during the first half of the trick.
-    private static void DrawMushroom(DrawingContext context, double trickProgress)
+    private void DrawMushroom(DrawingContext context, double trickProgress)
     {
         var nibble = Math.Abs(Math.Sin(Math.Clamp(trickProgress / 0.5, 0, 1) * Math.PI * Nibbles)) * NibbleHeight;
         using (context.PushTransform(Matrix.CreateTranslation(0, -nibble)))
@@ -714,8 +745,8 @@ public sealed class Nolu : Animal
                 context.DrawEllipse(EyeWhite, null, spot, 13, 13);
             }
 
-            DrawOutlined(context, Skin, EatingRightArm);
-            DrawOutlined(context, Skin, EatingLeftArm);
+            DrawOutlined(context, _skinBrush, EatingRightArm);
+            DrawOutlined(context, _skinBrush, EatingLeftArm);
         }
     }
 
@@ -726,9 +757,9 @@ public sealed class Nolu : Animal
         return Math.Sin(progress * TwoPi * 4) * Math.Sin(Math.PI * progress) * ArmWave;
     }
 
-    private static void DrawFace(DrawingContext context, Face face, AnimalRenderState state)
+    private void DrawFace(DrawingContext context, Face face, AnimalRenderState state)
     {
-        DrawOutlined(context, Skin, FacePatch, FacePatchPen);
+        DrawOutlined(context, _skinBrush, FacePatch, FacePatchPen);
         if (face == Face.Blink)
         {
             context.DrawGeometry(null, EyePen, ClosedEyes);
@@ -786,9 +817,9 @@ public sealed class Nolu : Animal
     }
 
     // The happy Nolu lifts its face, squints and shows the tongue.
-    private static void DrawHappyFace(DrawingContext context)
+    private void DrawHappyFace(DrawingContext context)
     {
-        DrawOutlined(context, Skin, HappyFacePatch, FacePatchPen);
+        DrawOutlined(context, _skinBrush, HappyFacePatch, FacePatchPen);
         DrawOutlined(context, TongueBrush, HappyTongue, TonguePen);
         context.DrawGeometry(null, MouthPen, HappyMouth);
         context.DrawGeometry(Outline, null, HappyNose);
@@ -796,7 +827,7 @@ public sealed class Nolu : Animal
         DrawDots(context, HappyDots);
     }
 
-    private static void DrawDots(DrawingContext context, Point[] dots)
+    private void DrawDots(DrawingContext context, Point[] dots)
     {
         foreach (var dot in dots)
         {
@@ -804,7 +835,7 @@ public sealed class Nolu : Animal
         }
     }
 
-    private static void DrawWalking(DrawingContext context, AnimalRenderState state)
+    private void DrawWalking(DrawingContext context, AnimalRenderState state)
     {
         var phase = state.Phase;
         var isRunning = state.State == AnimalAnimationState.Run;
@@ -827,12 +858,12 @@ public sealed class Nolu : Animal
             using (context.PushTransform(Matrix.CreateTranslation(0, bob)))
             {
                 DrawOutlined(context, Antler, FarHorn);
-                DrawOutlined(context, Skin, FarEar);
-                DrawRotated(context, TailBase, Math.Sin(phase * 2) * TailWag, () => DrawOutlined(context, Fur, Tail));
-                DrawOutlined(context, Fur, isRunning ? HuntingBody : SideBody);
+                DrawOutlined(context, _skinBrush, FarEar);
+                DrawRotated(context, TailBase, Math.Sin(phase * 2) * TailWag, () => DrawOutlined(context, _furBrush, Tail));
+                DrawOutlined(context, _furBrush, isRunning ? HuntingBody : SideBody);
                 DrawOutlined(context, Antler, NearHorn);
-                DrawRotated(context, SideShoulder, -armSwing, () => DrawOutlined(context, Skin, SideArm));
-                DrawOutlined(context, Skin, SideFacePatch, FacePatchPen);
+                DrawRotated(context, SideShoulder, -armSwing, () => DrawOutlined(context, _skinBrush, SideArm));
+                DrawOutlined(context, _skinBrush, SideFacePatch, FacePatchPen);
                 if (state.IsBlinking)
                 {
                     context.DrawGeometry(null, EyePen, ClosedSideEye);
@@ -856,16 +887,16 @@ public sealed class Nolu : Animal
         }
     }
 
-    private static void DrawLeg(DrawingContext context, Geometry leg, double phase, Gait gait)
+    private void DrawLeg(DrawingContext context, Geometry leg, double phase, Gait gait)
     {
         var (offsetX, lift) = GetFootOffset(phase, gait);
         using (context.PushTransform(Matrix.CreateTranslation(offsetX, -lift)))
         {
-            DrawOutlined(context, Skin, leg);
+            DrawOutlined(context, _skinBrush, leg);
         }
     }
 
-    private static void DrawSleeping(DrawingContext context, double phase)
+    private void DrawSleeping(DrawingContext context, double phase)
     {
         var breathe = Math.Sin(phase) * 4;
 
@@ -880,19 +911,19 @@ public sealed class Nolu : Animal
                     DrawOutlined(context, Antler, RightHorn);
                 }
 
-                DrawOutlined(context, Skin, SleepingLeftEar);
-                DrawOutlined(context, Skin, SleepingRightEar);
-                DrawOutlined(context, Fur, SleepingBody);
-                DrawOutlined(context, Skin, SleepingRightArm);
-                DrawOutlined(context, Skin, SleepingLeftArm);
+                DrawOutlined(context, _skinBrush, SleepingLeftEar);
+                DrawOutlined(context, _skinBrush, SleepingRightEar);
+                DrawOutlined(context, _furBrush, SleepingBody);
+                DrawOutlined(context, _skinBrush, SleepingRightArm);
+                DrawOutlined(context, _skinBrush, SleepingLeftArm);
             }
 
-            DrawOutlined(context, Skin, SleepingRightFoot);
-            DrawOutlined(context, Skin, SleepingLeftFoot);
+            DrawOutlined(context, _skinBrush, SleepingRightFoot);
+            DrawOutlined(context, _skinBrush, SleepingLeftFoot);
 
             using (context.PushTransform(Matrix.CreateTranslation(0, breathe)))
             {
-                DrawOutlined(context, Skin, SleepingFacePatch, FacePatchPen);
+                DrawOutlined(context, _skinBrush, SleepingFacePatch, FacePatchPen);
                 context.DrawGeometry(null, EyePen, SleepingEyes);
                 context.DrawGeometry(Outline, null, SleepingNose);
                 DrawDots(context, SleepingDots);
@@ -903,7 +934,7 @@ public sealed class Nolu : Animal
         DrawZzz(context, ZzzPen, new Point(64, 40), phase);
     }
 
-    private static void DrawRotated(DrawingContext context, Point pivot, double angle, Action draw)
+    private void DrawRotated(DrawingContext context, Point pivot, double angle, Action draw)
     {
         using (context.PushTransform(AroundPoint(pivot, Matrix.CreateRotation(angle * Math.PI / 180))))
         {
@@ -915,10 +946,10 @@ public sealed class Nolu : Animal
         * transform
         * Matrix.CreateTranslation(point.X, point.Y);
 
-    private static void DrawOutlined(DrawingContext context, IBrush fill, Geometry geometry) =>
+    private void DrawOutlined(DrawingContext context, IBrush fill, Geometry geometry) =>
         DrawOutlined(context, fill, geometry, OutlinePen);
 
-    private static void DrawOutlined(DrawingContext context, IBrush fill, Geometry geometry, IPen pen) =>
+    private void DrawOutlined(DrawingContext context, IBrush fill, Geometry geometry, IPen pen) =>
         context.DrawGeometry(fill, pen, geometry);
 
     private static Geometry Parse(string pathData) => StreamGeometry.Parse(pathData);

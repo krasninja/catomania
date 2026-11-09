@@ -39,6 +39,7 @@
   <data name="Orange" xml:space="preserve"><value>Оранжевый</value></data>
   <data name="Beige" xml:space="preserve"><value>Бежевый</value></data>
   <data name="Brown" xml:space="preserve"><value>Коричневый</value></data>
+  <data name="Violet" xml:space="preserve"><value>Фиолетовый</value></data>
   <data name="Scarlet" xml:space="preserve"><value>Алый</value></data>
   <data name="BlueAndGold" xml:space="preserve"><value>Синий и золотой</value></data>
   <data name="Green" xml:space="preserve"><value>Зелёный</value></data>
