@@ -65,7 +65,7 @@ public sealed class AppUpdateServiceTests
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = CreateFeedJson("99.1.2"),
         });
 
-        var latest = await CreateService(feed.Url).GetLatestVersionAsync();
+        var latest = await CreateService(feed.Url).GetLatestVersionAsync(TestContext.Current.CancellationToken);
 
         Assert.NotNull(latest);
         Assert.Equal("99.1.2", latest!.ToString());
@@ -76,7 +76,7 @@ public sealed class AppUpdateServiceTests
     {
         await using var feed = new FeedServer(new Dictionary<string, string>());
 
-        var report = await CreateService(feed.Url).CheckAndUpdateAsync();
+        var report = await CreateService(feed.Url).CheckAndUpdateAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(UpdateReportKind.NoReleases, report.Kind);
     }
@@ -89,7 +89,7 @@ public sealed class AppUpdateServiceTests
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = CreateFeedJson(AppUpdateService.GetAssemblyVersion()),
         });
 
-        var report = await CreateService(feed.Url).CheckAndUpdateAsync();
+        var report = await CreateService(feed.Url).CheckAndUpdateAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(UpdateReportKind.UpToDate, report.Kind);
     }
@@ -104,7 +104,7 @@ public sealed class AppUpdateServiceTests
         var service = CreateService(feed.Url);
 
         Assert.False(service.IsInstalled);
-        var report = await service.CheckAndUpdateAsync();
+        var report = await service.CheckAndUpdateAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(UpdateReportKind.NotInstalled, report.Kind);
         Assert.Contains("99.0.0", report.Message);
@@ -132,7 +132,7 @@ public sealed class AppUpdateServiceTests
             feed.Url,
             new TestVelopackLocator("catomania", "1.2.3", Path.GetTempPath()));
 
-        var report = await service.CheckAndUpdateAsync();
+        var report = await service.CheckAndUpdateAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(UpdateReportKind.UpToDate, report.Kind);
     }
@@ -146,7 +146,7 @@ public sealed class AppUpdateServiceTests
             [$"releases.{AppUpdateService.GetPlatform()}.json"] = "<html>Sign in to the network</html>",
         });
 
-        var report = await CreateService(feed.Url).CheckAndUpdateAsync();
+        var report = await CreateService(feed.Url).CheckAndUpdateAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(UpdateReportKind.Error, report.Kind);
     }
