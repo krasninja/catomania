@@ -19,7 +19,7 @@ Run commands from the repository root:
 
 ```bash
 dotnet build ./src/Catomania.sln
-dotnet test ./src/Catomania.Tests
+dotnet test --project ./src/Catomania.Tests
 dotnet run --project ./src/Catomania
 ```
 

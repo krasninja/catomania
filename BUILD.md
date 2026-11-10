@@ -7,7 +7,7 @@ Requires .NET 10.
 ```bash
 dotnet build ./src/Catomania.sln
 dotnet run --project ./src/Catomania
-dotnet test ./src/Catomania.Tests
+dotnet test --project ./src/Catomania.Tests
 ```
 
 ## Build & Publish Installers
