@@ -80,6 +80,7 @@
   <data name="CapybaraSong" xml:space="preserve"><value>Capybara song</value></data>
   <data name="Happy" xml:space="preserve"><value>Jump for joy</value></data>
   <data name="MuchiHunt" xml:space="preserve"><value>Hunt</value></data>
+  <data name="CatLick" xml:space="preserve"><value>Lick the balls</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>About Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Version: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Platform: {0} ({1})</value></data>

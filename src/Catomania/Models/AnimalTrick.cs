@@ -76,4 +76,10 @@ public enum AnimalTrick
     /// Muchi only: crouches low and stalks with the eyes narrowed, wiggles the rear and pounces.
     /// </summary>
     MuchiHunt,
+
+    /// <summary>
+    /// Cat only: sits down, sticks a hind leg up in the air and bends down to lick the groin,
+    /// eyes closed.
+    /// </summary>
+    CatLick,
 }

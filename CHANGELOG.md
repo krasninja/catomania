@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add cat's new trick animation.
+- Add Nolu colors.
+
 ## [0.4.1]
 
 - Common drawing style for all animals: the cat, dog, pig, parrot, snake and panda now use the same near-black outlines as the artwork-based animals, and the cat, dog and pig get big glossy eyes, pink cheeks and (cat and dog) bigger heads.

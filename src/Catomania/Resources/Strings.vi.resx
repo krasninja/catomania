@@ -72,6 +72,7 @@
   <data name="CapybaraSong" xml:space="preserve"><value>Bài hát capybara</value></data>
   <data name="Happy" xml:space="preserve"><value>Nhảy vui sướng</value></data>
   <data name="MuchiHunt" xml:space="preserve"><value>Săn mồi</value></data>
+  <data name="CatLick" xml:space="preserve"><value>Liếm bi</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Giới thiệu Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>Phiên bản: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>Nền tảng: {0} ({1})</value></data>

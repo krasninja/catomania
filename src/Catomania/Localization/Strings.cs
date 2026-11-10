@@ -142,6 +142,8 @@ public static partial class Strings
 
     public static string MuchiHunt => Get();
 
+    public static string CatLick => Get();
+
     public static string AboutCatomania => Get();
 
     public static string Version => Get();

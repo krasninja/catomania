@@ -72,6 +72,7 @@
   <data name="CapybaraSong" xml:space="preserve"><value>カピバラの歌</value></data>
   <data name="Happy" xml:space="preserve"><value>よろこびジャンプ</value></data>
   <data name="MuchiHunt" xml:space="preserve"><value>狩り</value></data>
+  <data name="CatLick" xml:space="preserve"><value>タマを舐める</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>Catomania について</value></data>
   <data name="Version" xml:space="preserve"><value>バージョン: {0}</value></data>
   <data name="Platform" xml:space="preserve"><value>プラットフォーム: {0} ({1})</value></data>

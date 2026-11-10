@@ -72,6 +72,7 @@
   <data name="CapybaraSong" xml:space="preserve"><value>水豚之歌</value></data>
   <data name="Happy" xml:space="preserve"><value>开心跳跃</value></data>
   <data name="MuchiHunt" xml:space="preserve"><value>狩猎</value></data>
+  <data name="CatLick" xml:space="preserve"><value>舔蛋蛋</value></data>
   <data name="AboutCatomania" xml:space="preserve"><value>关于 Catomania</value></data>
   <data name="Version" xml:space="preserve"><value>版本：{0}</value></data>
   <data name="Platform" xml:space="preserve"><value>平台：{0} ({1})</value></data>

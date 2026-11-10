@@ -24,6 +24,14 @@ public sealed class Cat : Animal
     private const double RunStride = 2 * RunReach / RunStanceFraction;
 
     private const double HipY = 70;
+
+    // The lick trick: the cat sits down, lifts the leg and bends the head down during the first part
+    // of the trick, licks, and gets back up during the last part of the same length.
+    private const double LickDurationSeconds = 4;
+    private const double LickPoseFraction = 0.15;
+    private const double LicksPerSecond = 2.5;
+    private const double SittingBodyTilt = -0.9;
+    private const double LickHeadTilt = 0.7;
     private const double DanglingLegLength = 20;
 
     // The head is drawn bigger than in life, like the heads of the other animals, it grows around this point.
@@ -121,7 +129,20 @@ public sealed class Cat : Animal
     {
         WalkStrideLength = WalkStride / DesignSize,
         RunStrideLength = RunStride / DesignSize,
+        Tricks = [.. new AnimalSimulatorOptions().Tricks, AnimalTrick.CatLick],
+        TrickDurations = new Dictionary<AnimalTrick, double>
+        {
+            [AnimalTrick.CatLick] = LickDurationSeconds,
+        },
     };
+
+    /// <inheritdoc />
+    public override string? GetTrickSpeech(AnimalRenderState state)
+        => state.Trick == AnimalTrick.CatLick
+            && state.State != AnimalAnimationState.Dragged
+            && IsLicking(state.TrickProgress)
+            ? "Slurp, slurp..."
+            : null;
 
     /// <inheritdoc />
     protected override void Draw(DrawingContext context, AnimalRenderState state)
@@ -129,6 +150,10 @@ public sealed class Cat : Animal
         if (state.State == AnimalAnimationState.Sleep)
         {
             DrawSleeping(context, Palette, state.Phase);
+        }
+        else if (state.State == AnimalAnimationState.Idle && state.Trick == AnimalTrick.CatLick)
+        {
+            DrawLicking(context, Palette, state);
         }
         else
         {
@@ -206,20 +231,82 @@ public sealed class Cat : Animal
             foot = new Point(hipX + offsetX, GroundY - lift);
         }
 
+        DrawLimb(context, palette, isFar ? palette.FurDark : palette.Fur, hip, foot);
+    }
+
+    private static void DrawLimb(DrawingContext context, CatPalette palette, IBrush fur, Point hip, Point foot)
+    {
         // The leg is drawn pointing down from the hip, then rotated towards the foot.
         var length = Point.Distance(hip, foot);
         var angle = Math.Atan2(foot.X - hip.X, foot.Y - hip.Y);
         using (context.PushTransform(Matrix.CreateRotation(-angle) * Matrix.CreateTranslation(hip.X, hip.Y)))
         {
-            context.DrawRectangle(
-                isFar ? palette.FurDark : palette.Fur,
-                palette.OutlinePen,
-                new Rect(-3.75, 0, 7.5, length),
-                3.5,
-                3.5);
+            context.DrawRectangle(fur, palette.OutlinePen, new Rect(-3.75, 0, 7.5, length), 3.5, 3.5);
             context.DrawEllipse(palette.Belly, null, new Point(0, length - 1.5), 3.4, 2);
         }
     }
+
+    private static bool IsLicking(double progress)
+        => progress > LickPoseFraction && progress < 1 - LickPoseFraction;
+
+    // The cat sits on its rump, sticks the near hind leg up in the air and bends the head down to lick
+    // the groin with the eyes closed, the head bobbing with every lick.
+    private static void DrawLicking(DrawingContext context, CatPalette palette, AnimalRenderState state)
+    {
+        var progress = Math.Clamp(state.TrickProgress, 0, 1);
+
+        // Goes from 0 (standing) to 1 (sitting with the leg up) at the start and back at the end.
+        var t = Math.Clamp(Math.Min(progress, 1 - progress) / LickPoseFraction, 0, 1);
+        var pose = t * t * (3 - (2 * t));
+        var isLicking = IsLicking(progress);
+
+        // Every lick pushes the tongue out and draws the head up along the fur.
+        var lick = isLicking
+            ? Math.Max(0, Math.Sin(progress * LickDurationSeconds * LicksPerSecond * TwoPi))
+            : 0;
+
+        DrawShadow(context, palette.ShadowBrush, state, 46, 30, 4);
+
+        // The tail lies on the ground, the tip twitches.
+        var tailTip = new Point(7, 86 + (Math.Sin(state.Phase * 1.5) * 2));
+        var tail = CreateCurve(new Point(30, 84), new Point(20, 92), new Point(9, 93), tailTip);
+        context.DrawGeometry(null, palette.TailOutlinePen, tail);
+        context.DrawGeometry(null, palette.TailPen, tail);
+        context.DrawEllipse(palette.FurDark, palette.OutlinePen, tailTip, 4.2, 4.2);
+
+        // The far hind leg is folded under the rump, the front legs stand straight.
+        context.DrawEllipse(palette.FurDark, palette.OutlinePen, new Point(47, 90), 5.5, 2.5);
+        DrawLimb(context, palette, palette.FurDark, new Point(58, 70), new Point(60, GroundY));
+
+        // Body, sitting on the rump with the chest up.
+        using (context.PushTransform(Matrix.CreateRotation(SittingBodyTilt) * Matrix.CreateTranslation(45, 72)))
+        {
+            context.DrawEllipse(palette.Fur, palette.OutlinePen, default, 21, 15);
+            context.DrawEllipse(palette.Belly, null, new Point(3, 6.5), 14, 5.5);
+            for (var i = 0; i < 3; i++)
+            {
+                var x = -9 + (i * 7);
+                context.DrawLine(palette.StripePen, new Point(x, -13), new Point(x + 1.5, -6));
+            }
+        }
+
+        DrawLimb(context, palette, palette.Fur, new Point(62, 70), new Point(65, GroundY));
+
+        // The near hind leg goes up in the air, the haunch covers its base.
+        var hip = new Point(36, 82);
+        DrawLimb(context, palette, palette.Fur, hip, Lerp(new Point(48, GroundY), new Point(28, 46), pose));
+        context.DrawEllipse(palette.Fur, palette.OutlinePen, hip, 9.5, 8.5);
+
+        // The head turns down around its center and moves to the groin, then bobs up a little on every lick.
+        var center = new Point(74, 46);
+        var headPose = Matrix.CreateTranslation(-center.X, -center.Y)
+            * Matrix.CreateRotation(LickHeadTilt * pose)
+            * Matrix.CreateTranslation(center.X - (20 * pose) + lick, center.Y + (22 * pose) - (2 * lick));
+        var headState = state with { IsBlinking = state.IsBlinking || isLicking };
+        DrawHead(context, palette, 0, headState, headPose, isLicking ? lick : null);
+    }
+
+    private static Point Lerp(Point from, Point to, double amount) => from + ((to - from) * amount);
 
     private static void DrawTail(DrawingContext context, CatPalette palette, double bob, double phase, bool isDragged)
     {
@@ -264,12 +351,20 @@ public sealed class Cat : Animal
         }
     }
 
-    private static void DrawHead(DrawingContext context, CatPalette palette, double bob, AnimalRenderState state)
+    private static void DrawHead(
+        DrawingContext context,
+        CatPalette palette,
+        double bob,
+        AnimalRenderState state,
+        Matrix? pose = null,
+        double? tongueOut = null)
     {
         var isDragged = state.State == AnimalAnimationState.Dragged;
         var isHappy = !isDragged && state.Trick == AnimalTrick.Happy;
 
-        var transform = ScaleAround(HeadScale, HeadScaleCenter.X, HeadScaleCenter.Y) * Matrix.CreateTranslation(0, bob * 0.6);
+        var transform = ScaleAround(HeadScale, HeadScaleCenter.X, HeadScaleCenter.Y)
+            * Matrix.CreateTranslation(0, bob * 0.6)
+            * (pose ?? Matrix.Identity);
         using (context.PushTransform(transform))
         {
             // Ears are drawn behind the head so their base is hidden.
@@ -299,6 +394,12 @@ public sealed class Cat : Animal
             {
                 // Surprised open mouth.
                 context.DrawEllipse(palette.Pupil, null, new Point(76.4, 54.6), 2.1, 1.5);
+            }
+            else if (tongueOut is { } tongue)
+            {
+                // Licking, the tongue sticks out of the open mouth.
+                context.DrawEllipse(palette.Pupil, null, new Point(76.4, 54), 1.8, 1.2);
+                context.DrawEllipse(Tongue, palette.OutlinePen, new Point(76.4, 55.6 + (1.5 * tongue)), 2.3, 1.8 + (1.5 * tongue));
             }
             else if (isHappy)
             {
