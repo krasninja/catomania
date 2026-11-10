@@ -1,6 +1,10 @@
 using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Themes.Fluent;
+using Xunit.Sdk;
+using Xunit.v3;
+
+[assembly: Parallelization(Mode = ParallelMode.None)]
 
 namespace Catomania.Tests;
 
