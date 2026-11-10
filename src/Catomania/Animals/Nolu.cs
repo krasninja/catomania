@@ -900,7 +900,7 @@ public sealed class Nolu : Animal
     {
         var breathe = Math.Sin(phase) * 4;
 
-        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, GroundY + 2), 24, 5);
+        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, ShadowY), 24, 5);
         using (context.PushTransform(ArtToDesign))
         {
             using (context.PushTransform(Matrix.CreateTranslation(0, breathe)))

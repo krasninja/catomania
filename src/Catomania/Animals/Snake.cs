@@ -230,7 +230,7 @@ public sealed class Snake : Animal
     {
         var breathe = Math.Sin(phase);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 30, 4);
+        context.DrawEllipse(ShadowBrush, null, new Point(50, ShadowY), 30, 4);
 
         // The body, curled into a ring, swells with the breath while lying on the ground.
         var breath = Matrix.CreateTranslation(-50, -GroundY)

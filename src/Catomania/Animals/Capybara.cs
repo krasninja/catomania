@@ -921,7 +921,7 @@ public sealed class Capybara : Animal
     {
         var breathe = Math.Sin(phase);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, GroundY + 2), 36, 5);
+        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, ShadowY), 36, 5);
         using (context.PushTransform(Matrix.CreateTranslation(SleepingShiftX, 0) * ArtToDesign))
         {
             DrawOutlined(context, FurDark, SleepingFarPaw);

@@ -230,7 +230,7 @@ public sealed class Parrot : Animal
     {
         var breathe = Math.Sin(phase);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(46, GroundY + 2), 22, 4);
+        context.DrawEllipse(ShadowBrush, null, new Point(46, ShadowY), 22, 4);
 
         // Squatting with the feathers fluffed up, the body swells with the breath while sitting on the ground.
         var breath = Matrix.CreateTranslation(-47, -GroundY)

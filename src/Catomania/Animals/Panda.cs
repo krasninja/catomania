@@ -281,7 +281,7 @@ public sealed class Panda : Animal
     {
         var breathe = Math.Sin(phase);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 27, 4);
+        context.DrawEllipse(ShadowBrush, null, new Point(50, ShadowY), 27, 4);
 
         // Sitting with the legs stretched forward.
         DrawLimb(context, Patch, new Point(41, 85), new Point(35, GroundY - 1.5));

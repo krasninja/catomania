@@ -24,6 +24,11 @@ public abstract class Animal
     protected const double GroundY = 92;
 
     /// <summary>
+    /// Vertical center of the shadow drawn under the animal, in the design space.
+    /// </summary>
+    protected const double ShadowY = GroundY - 1;
+
+    /// <summary>
     /// Full circle in radians.
     /// </summary>
     protected const double TwoPi = Math.PI * 2;
@@ -146,7 +151,7 @@ public abstract class Animal
         double radiusY)
     {
         ArgumentNullException.ThrowIfNull(context);
-        var center = new Point(centerX, GroundY + 2);
+        var center = new Point(centerX, ShadowY);
         if (GetTrickTransform(state) is not { } transform || !transform.TryInvert(out var inverse))
         {
             context.DrawEllipse(brush, null, center, radiusX, radiusY);

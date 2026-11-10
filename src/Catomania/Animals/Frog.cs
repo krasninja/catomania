@@ -545,7 +545,7 @@ public sealed class Frog : Animal
     {
         var breathe = Math.Sin(phase) * 5;
 
-        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, GroundY + 2), 31, 5);
+        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, ShadowY), 31, 5);
         using (context.PushTransform(ArtToDesign))
         {
             DrawOutlined(context, Skin, LeftBackLeg);

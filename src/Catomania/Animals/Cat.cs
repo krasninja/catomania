@@ -466,7 +466,7 @@ public sealed class Cat : Animal
         const double bodyRadiusY = 12;
         var breathe = Math.Sin(phase) * 0.9;
 
-        context.DrawEllipse(palette.ShadowBrush, null, new Point(50, GroundY + 2), 34, 4.5);
+        context.DrawEllipse(palette.ShadowBrush, null, new Point(50, ShadowY), 34, 4.5);
 
         // Tail wrapped around the body.
         context.DrawGeometry(null, palette.TailOutlinePen, SleepingTail);

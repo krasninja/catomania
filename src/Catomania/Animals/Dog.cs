@@ -313,7 +313,7 @@ public sealed class Dog : Animal
         // Every few breaths a dream: the front paw paddles and the tail thumps.
         var dream = Math.Pow(Math.Max(0, Math.Sin(phase * 0.35)), 6);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 36, 4);
+        context.DrawEllipse(ShadowBrush, null, new Point(50, ShadowY), 36, 4);
 
         using (context.PushTransform(RotateAround(dream * Math.Sin(phase * 9) * 8, 26, 86)))
         {

@@ -1080,7 +1080,7 @@ public sealed class Muchi : Animal
     {
         var breathe = Matrix.CreateTranslation(0, Math.Sin(phase) * 4);
 
-        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, GroundY + 2), 34, 5);
+        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, ShadowY), 34, 5);
         using (context.PushTransform(CurledToDesign))
         {
             context.DrawGeometry(_furBrush, TailPen, CurledTail);
@@ -1115,7 +1115,7 @@ public sealed class Muchi : Animal
     {
         var sway = Math.Sin(phase * 0.5) * PawSway;
 
-        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, GroundY + 2), 36, 5);
+        context.DrawEllipse(ShadowBrush, null, new Point(DesignSize / 2, ShadowY), 36, 5);
         using (context.PushTransform(BellyUpToDesign))
         {
             context.DrawGeometry(_furBrush, TailPen, BellyUpTail);

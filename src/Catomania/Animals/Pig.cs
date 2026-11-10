@@ -240,7 +240,7 @@ public sealed class Pig : Animal
     {
         var breathe = Math.Sin(phase) * 0.9;
 
-        context.DrawEllipse(ShadowBrush, null, new Point(50, GroundY + 2), 34, 4.5);
+        context.DrawEllipse(ShadowBrush, null, new Point(50, ShadowY), 34, 4.5);
         using (context.PushTransform(Matrix.CreateScale(0.8, 0.8) * Matrix.CreateTranslation(26, 78)))
         {
             context.DrawGeometry(null, TailOutlinePen, Tail);
