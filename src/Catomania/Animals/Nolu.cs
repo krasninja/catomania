@@ -418,7 +418,7 @@ public sealed class Nolu : Animal
         99.763 348.249 104.93Z
         """);
 
-    private static readonly Geometry FarEar = Parse(
+    private static readonly Geometry SideEar = Parse(
         """
         M313.327 213.36C328.887 217.687 331.254 230.6 332.254 240.1C334.591 262.297 333.254 300.6
         320.754 308.6C308.254 316.6 266.629 311.885 253.854 302.096C242.145 293.124 234.43 277.544
@@ -858,9 +858,9 @@ public sealed class Nolu : Animal
             using (context.PushTransform(Matrix.CreateTranslation(0, bob)))
             {
                 DrawOutlined(context, Antler, FarHorn);
-                DrawOutlined(context, _skinBrush, FarEar);
                 DrawRotated(context, TailBase, Math.Sin(phase * 2) * TailWag, () => DrawOutlined(context, _furBrush, Tail));
                 DrawOutlined(context, _furBrush, isRunning ? HuntingBody : SideBody);
+                DrawOutlined(context, _skinBrush, SideEar);
                 DrawOutlined(context, Antler, NearHorn);
                 DrawRotated(context, SideShoulder, -armSwing, () => DrawOutlined(context, _skinBrush, SideArm));
                 DrawOutlined(context, _skinBrush, SideFacePatch, FacePatchPen);
