@@ -20,7 +20,7 @@ on:
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '11.0.x'
   # Keep in sync with the Velopack PackageReference in src/Catomania/Catomania.csproj.
   VPK_VERSION: '1.2.161'
   GITVERSION_VERSION: '6.3.0'

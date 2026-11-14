@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Catomania is a cross-platform Avalonia desktop application written in C#. It displays an animated animal that follows the mouse cursor. The solution requires .NET 10 and uses Native AOT and Velopack for release builds.
+Catomania is a cross-platform Avalonia desktop application written in C#. It displays an animated animal that follows the mouse cursor. The solution requires .NET 11 and uses Native AOT and Velopack for release builds.
 
 ## Repository layout
 

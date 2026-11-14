@@ -2,7 +2,7 @@
 
 ## Build & Run
 
-Requires .NET 10.
+Requires .NET 11.
 
 ```bash
 dotnet build ./src/Catomania.sln
