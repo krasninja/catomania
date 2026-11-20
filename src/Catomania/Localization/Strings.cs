@@ -30,6 +30,8 @@ public static partial class Strings
 
     public static string Muchi => Get();
 
+    public static string SobakaBelobaka => Get();
+
     public static string Speed => Get();
 
     public static string Slow => Get();

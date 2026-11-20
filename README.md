@@ -17,7 +17,7 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
 1. Runs locally on Windows, macOS and Linux (X11, KDE Plasma and GNOME on Wayland, see [Linux and Wayland](#linux-and-wayland)).
 2. The kitty walks and runs towards the cursor, stops nearby without covering it, looks around and falls asleep when the cursor does not move for a while.
 3. The cat is drawn with vector shapes, so there are no image assets and it stays sharp at any size.
-4. Ten animals:
+4. Eleven animals:
    - a cat with four fur colors (ginger, gray, black and cream)
    - a panda cub
    - a springer spaniel with four coats (liver, black, red and lemon on white)
@@ -27,7 +27,8 @@ Catomania is a small Avalonia desktop for those who wants to add a cat into your
    - a green frog that hops
    - a capybara with a sprout on its head
    - Nolu, a shaggy forest creature with deer antlers
-   - Muchi the Cat, a round-faced kitten with five fur colors (orange, gray, black, beige and brown) that sleeps curled up or on its back.
+   - Muchi the Cat, a round-faced kitten with five fur colors (orange, gray, black, beige and brown) that sleeps curled up or on its back
+   - Sobaka-belobaka (Собака-белобака), a fluffy white puppy that begs, waves hello and bows to play.
 5. Settings are saved between runs in the user configuration directory.
 6. Self-updates from the Velopack release feed when installed.
 

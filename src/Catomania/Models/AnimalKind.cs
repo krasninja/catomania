@@ -57,4 +57,9 @@ public enum AnimalKind
     /// Nolu, a shaggy forest creature with deer antlers.
     /// </summary>
     Nolu,
+
+    /// <summary>
+    /// Sobaka-belobaka, a fluffy white puppy with floppy ears.
+    /// </summary>
+    SobakaBelobaka,
 }

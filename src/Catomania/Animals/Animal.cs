@@ -95,6 +95,7 @@ public abstract class Animal
             AnimalKind.Capybara => new Capybara(),
             AnimalKind.Nolu => new Nolu(settings.NoluFur),
             AnimalKind.Muchi => new Muchi(settings.MuchiFur),
+            AnimalKind.SobakaBelobaka => new SobakaBelobaka(),
             _ => new Cat(settings.ColorScheme),
         };
     }
