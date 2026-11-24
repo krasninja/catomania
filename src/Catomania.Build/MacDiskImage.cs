@@ -26,9 +26,11 @@ public static class MacDiskImage
     private const string ApplicationsShortcutName = "Applications";
 
     /// <summary>
-    /// Ad-hoc sign the published application bundle and wrap it into a compressed disk image.
-    /// The bundle is removed afterwards, the image is the only macOS deliverable.
-    /// Does nothing with a message when not running on macOS.
+    /// Sign the published application bundle and wrap it into a compressed disk image.
+    /// With a Developer ID certificate configured (see <see cref="MacCodeSign" />) the bundle
+    /// and the image are properly signed and optionally notarized, otherwise the bundle only
+    /// gets an ad-hoc signature. The bundle is removed afterwards, the image is the only macOS
+    /// deliverable. Does nothing with a message when not running on macOS.
     /// </summary>
     /// <param name="context">Build context.</param>
     /// <returns>The path of the created image, or <c>null</c> when it was not created.</returns>
@@ -52,17 +54,30 @@ public static class MacDiskImage
         }
 
         // vpk bundle neither signs nor seals the bundle, only the AOT binary carries the linker's
-        // ad-hoc signature. Gatekeeper reports such a downloaded app as "damaged" on Apple Silicon,
-        // so seal the whole bundle with an ad-hoc signature. This is not a substitute for a
+        // ad-hoc signature. Gatekeeper reports such a downloaded app as "damaged" on Apple Silicon.
+        // With a Developer ID certificate configured the bundle is signed and notarized properly,
+        // otherwise fall back to sealing it with an ad-hoc signature: not a substitute for a
         // Developer ID signature and notarization, users still have to allow the app once.
-        RunOrFail(
-            context,
-            "codesign",
-            new ProcessArgumentBuilder()
-                .Append("--force")
-                .Append("--deep")
-                .Append("--sign").Append("-")
-                .AppendQuoted(appPath.FullPath));
+        using var codeSign = MacCodeSign.TryStart(context);
+        if (codeSign is not null)
+        {
+            codeSign.SignBundle(appPath);
+            codeSign.NotarizeAndStaple(appPath.FullPath);
+        }
+        else
+        {
+            context.Warning(
+                "No macOS signing certificate configured (CATOMANIA_MAC_CERT_FILE or " +
+                "CATOMANIA_MAC_CERT_BASE64), sealing the bundle with an ad-hoc signature only.");
+            RunOrFail(
+                context,
+                "codesign",
+                new ProcessArgumentBuilder()
+                    .Append("--force")
+                    .Append("--deep")
+                    .Append("--sign").Append("-")
+                    .AppendQuoted(appPath.FullPath));
+        }
 
         // The volume holds the application and a link to /Applications so it installs by dragging.
         // ditto is the canonical way to copy a bundle on macOS: unlike a plain file copy it keeps
@@ -107,6 +122,14 @@ public static class MacDiskImage
                 .Append("-ov")
                 .Append("-format").Append("UDZO")
                 .AppendQuoted(dmgPath.FullPath));
+
+        // Sign and notarize the image itself so the downloaded file passes Gatekeeper as a
+        // whole, and staple the ticket for offline verification.
+        if (codeSign is not null)
+        {
+            codeSign.SignFile(dmgPath);
+            codeSign.NotarizeAndStaple(dmgPath.FullPath);
+        }
 
         CleanStagingDirectory(context, stagingDirectory);
 

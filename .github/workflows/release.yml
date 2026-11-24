@@ -160,22 +160,41 @@ jobs:
           VPK_AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           VPK_AZURE_CODE_SIGNING_NAME: ${{ secrets.AZURE_CODE_SIGNING_NAME }}
           VPK_AZURE_TRUSTED_SIGN_FILE: ${{ secrets.AZURE_TRUSTED_SIGN_FILE }}
+          # macOS Developer ID signing and notarization, read by MacCodeSign.cs in the build
+          # project. The bundle falls back to an ad-hoc signature while MAC_CERT_BASE64 is
+          # absent; notarization additionally needs all three MAC_NOTARY_* secrets.
+          CATOMANIA_MAC_CERT_BASE64: ${{ secrets.MAC_CERT_BASE64 }}
+          CATOMANIA_MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          CATOMANIA_MAC_SIGN_IDENTITY: ${{ secrets.MAC_SIGN_IDENTITY }}
+          CATOMANIA_MAC_NOTARY_APPLE_ID: ${{ secrets.MAC_NOTARY_APPLE_ID }}
+          CATOMANIA_MAC_NOTARY_PASSWORD: ${{ secrets.MAC_NOTARY_PASSWORD }}
+          CATOMANIA_MAC_NOTARY_TEAM_ID: ${{ secrets.MAC_NOTARY_TEAM_ID }}
         run: >
           dotnet run --project ./src/Catomania.Build/Catomania.Build.csproj --
           --target=${{ matrix.target }}
 
       # Without a signature Windows shows the SmartScreen "Windows protected your PC" dialog and
       # macOS Gatekeeper refuses to launch the app, so make the state of the build obvious.
-      # The Azure secrets only sign Windows. The macOS bundle is always ad-hoc signed only, see
-      # MacDiskImage.cs, until a Developer ID certificate and notarization are wired up.
+      # The Azure secrets only sign Windows; macOS uses the MAC_* secrets, see MacCodeSign.cs.
       - name: Report the signing status
         shell: bash
         env:
           SIGNING_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          MAC_CERT_BASE64: ${{ secrets.MAC_CERT_BASE64 }}
+          MAC_NOTARY_APPLE_ID: ${{ secrets.MAC_NOTARY_APPLE_ID }}
         run: |
-          if [ -z "${SIGNING_TENANT_ID}" ]; then
-            echo "::warning::No signing secrets are configured, publishing UNSIGNED packages."
-            echo "::warning::Windows users will see SmartScreen and macOS users will see Gatekeeper."
+          if [ "${{ runner.os }}" = "Windows" ] && [ -z "${SIGNING_TENANT_ID}" ]; then
+            echo "::warning::No Azure signing secrets are configured, publishing an UNSIGNED Windows package."
+            echo "::warning::Windows users will see the SmartScreen warning."
+          fi
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            if [ -z "${MAC_CERT_BASE64}" ]; then
+              echo "::warning::No MAC_CERT_BASE64 secret, the macOS build is ad-hoc signed only."
+              echo "::warning::macOS users will be blocked by Gatekeeper."
+            elif [ -z "${MAC_NOTARY_APPLE_ID}" ]; then
+              echo "::warning::The macOS build is Developer ID signed but NOT notarized."
+              echo "::warning::Gatekeeper still blocks non-notarized downloads on first launch."
+            fi
           fi
 
       - name: Smoke test the packaged application (Linux)
