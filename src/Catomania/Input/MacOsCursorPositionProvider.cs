@@ -6,21 +6,12 @@ namespace Catomania.Input;
 
 /// <summary>
 /// Reads the global cursor position on macOS with Core Graphics.
-/// Core Graphics reports points, so the position is multiplied by the screen scaling.
+/// Core Graphics reports points with the origin at the top-left corner of the main display. Avalonia positions
+/// windows and reports screens on macOS in the same points (its desktop scaling is 1), so the position is used
+/// as is. Multiplying it by the Retina backing scale would make the animal chase twice the cursor position.
 /// </summary>
 public sealed class MacOsCursorPositionProvider : ICursorPositionProvider
 {
-    private readonly Func<double> _scalingProvider;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MacOsCursorPositionProvider" /> class.
-    /// </summary>
-    /// <param name="scalingProvider">Provides the screen scaling used to convert points to pixels.</param>
-    public MacOsCursorPositionProvider(Func<double>? scalingProvider = null)
-    {
-        _scalingProvider = scalingProvider ?? (() => 1.0);
-    }
-
     /// <inheritdoc />
     public string Name => "macOS";
 
@@ -46,13 +37,7 @@ public sealed class MacOsCursorPositionProvider : ICursorPositionProvider
             }
 
             var location = NativeMethods.CGEventGetLocation(pointer);
-            var scaling = _scalingProvider();
-            if (scaling <= 0)
-            {
-                scaling = 1.0;
-            }
-
-            position = new ScreenPoint(location.X * scaling, location.Y * scaling);
+            position = new ScreenPoint(location.X, location.Y);
             return true;
         }
         catch (Exception e) when (e is DllNotFoundException or EntryPointNotFoundException)

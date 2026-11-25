@@ -10,7 +10,7 @@ namespace Catomania.Abstractions;
 public interface IAnimalHost
 {
     /// <summary>
-    /// Gets the screen scaling of the window.
+    /// Gets the scaling between the window logical size and screen coordinates (1 on macOS, where screen coordinates are points).
     /// </summary>
     double Scaling { get; }
 

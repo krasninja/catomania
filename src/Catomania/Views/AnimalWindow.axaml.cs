@@ -99,7 +99,6 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
 
         _cursorPositionProvider = CursorPositionProviderFactory.CreateDefault(
             _fallbackCursorPositionProvider,
-            () => Scaling,
             GetScreenBounds);
         _animalView.Animal = Animal.Create(_settings);
         _simulator = new AnimalSimulator(_animalView.Animal.CreateSimulatorOptions());
@@ -271,9 +270,11 @@ public sealed partial class AnimalWindow : Window, IAnimalHost, IAnimalCommands,
     }
 
     /// <summary>
-    /// Gets the screen scaling of the window.
+    /// Gets the scaling between the window logical size and the screen coordinates the window is positioned in.
+    /// It is the desktop scaling rather than the render scaling: on macOS windows are positioned in points,
+    /// so it is 1 even on Retina displays, while on Windows and X11 it equals the render scaling.
     /// </summary>
-    public double Scaling => RenderScaling > 0 ? RenderScaling : 1;
+    public double Scaling => DesktopScaling > 0 ? DesktopScaling : 1;
 
     /// <inheritdoc />
     double IAnimalHost.Scaling => Scaling;
